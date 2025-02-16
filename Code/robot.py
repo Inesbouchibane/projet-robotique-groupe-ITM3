@@ -20,10 +20,12 @@ class Robot:
         dy = -vitesse_moyenne * math.sin(math.radians(self.angle))
         nouvelle_x = self.x + dx
         nouvelle_y = self.y + dy
-
+        # S'assurer que le robot reste dans la fenêtre (0,800)x(0,600)
         if 0 < nouvelle_x < 800 and 0 < nouvelle_y < 600:
-self.x = nouvelle_x
+            self.x = nouvelle_x
             self.y = nouvelle_y
+            
+        
     
     def scan_infrarouge(self, obstacles, max_distance):
         angle_rad = math.radians(self.angle)
