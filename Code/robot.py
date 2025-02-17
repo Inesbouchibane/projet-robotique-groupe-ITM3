@@ -10,7 +10,6 @@ class Robot:
         self.largeur, self.longueur = 20, 40
         
 
-        
     def deplacer(self):
         vitesse_moyenne = (self.vitesse_gauche + self.vitesse_droite) / 2
         delta_angle = (self.vitesse_droite - self.vitesse_gauche) / self.largeur * 10
