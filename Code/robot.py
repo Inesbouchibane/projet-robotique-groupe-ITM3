@@ -8,8 +8,7 @@ class Robot:
         self.vitesse_droite = vitesse_droite
         self.angle = 0
         self.largeur, self.longueur = 20, 40
-        self.estSousControle = False
-        self.estCrash = False
+        
 
         
     def deplacer(self):
