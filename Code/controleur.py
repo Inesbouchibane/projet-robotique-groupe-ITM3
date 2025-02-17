@@ -17,22 +17,18 @@ class Controleur:
         self.logger.info("Contrôleur initialisé en mode: %s", mode)
 
     def demarrer_simulation(self):
-	"""
-        Le contrôleur lance la simulation en appelant la méthode
-        demarrer_simulation de l'environnement.
         """
-        self.logger.info("Démarrage de la simulation...")
-        self.env.demarrer_simulation()
-        self.logger.info("Simulation terminée.")
+        Démarre la simulation en fonction du mode choisi.
+        """
+        self.env.boucle_principale()
     
     def ajuster_vitesse(self, vitesse_gauche, vitesse_droite):
         """
-        Ajuste les vitesses des roues du robot.
-        :param vitesse_gauche: Nouvelle vitesse de la roue gauche.
-        :param vitesse_droite: Nouvelle vitesse de la roue droite.
+        Permet d'ajuster les vitesses du robot en cours de simulation.
         """
-        self.vitesse_gauche = vitesse_gauche
-        self.vitesse_droite = vitesse_droite
         self.env.robot.vitesse_gauche = vitesse_gauche
         self.env.robot.vitesse_droite = vitesse_droite
+        self.logger.info("Vitesses ajustées: vg=%.2f, vd=%.2f", vitesse_gauche, vitesse_droite)
+
+
 
