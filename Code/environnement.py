@@ -112,65 +112,51 @@ class Environnement:
             pygame.display.flip()
             pygame.time.delay(30)
 
-    def dessiner_carre(self):
+        def tracer_carre(self, cote):
         """
-        Fait dessiner un carré par le robot.
+        Fait tracer un carré de côté donné par le robot.
+        Le robot avance de manière incrémentale (vitesse fixe) et effectue une rotation de 90° après chaque côté. """
+       	 if not self.verifier_limite_carre(cote):
+            print("Impossible de tracer le carré : obstacle détecté.")
+            return
+
+       	 vitesse = 1.0  # Vitesse fixe pour le tracé
+         self.trajectoire = []  # Réinitialise la trajectoire
+
+         for _ in range(4):
+            distance_parcourue = 0
+            while distance_parcourue < cote:
+                distance_a_parcourir = min(vitesse, cote - distance_parcourue)
+                dx = distance_a_parcourir * math.cos(math.radians(self.robot.angle))
+                dy = -distance_a_parcourir * math.sin(math.radians(self.robot.angle))
+                nouvelle_x = self.robot.x + dx
+                nouvelle_y = self.robot.y + dy
+
+                if not self.detecter_collision(nouvelle_x, nouvelle_y):
+                    self.robot.x = nouvelle_x
+                    self.robot.y = nouvelle_y
+                    self.trajectoire.append((self.robot.x, self.robot.y))
+                    distance_parcourue += distance_a_parcourir
+                else:
+                    print("Obstacle détecté pendant le tracé du carré. Arrêt du tracé.")
+                    return
+
+                ir_point = self.robot.scan_infrarouge(self.obstacles, IR_MAX_DISTANCE)
+                distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - self.robot.y)
+                if self.affichage_active:
+                    self.affichage.mettre_a_jour(self.robot, ir_point, distance_ir)
+                else:
+                    print(f"[Carré] Position: ({self.robot.x:.2f}, {self.robot.y:.2f}) - IR: {distance_ir:.2f}")
+            # Rotation de 90°
+            self.robot.angle = (self.robot.angle + 90) % 360
+
+        print("Carré terminé")
+
+    def verifier_limite_carre(self, cote):
         """
-        SEGMENT_LENGTH = 200
-        TURN_CYCLES = 30
+        Vérifie si le robot peut tracer le carré (stub).
+        Retourne True par défaut.
+        """
+        return True
 
-        if not hasattr(self, 'square_initialized'):
-            self.square_state = 'move'
-            self.segment_travelled = 0
-            self.current_segment = 0
-            self.turn_cycles = 0
-            self.square_initialized = True
-            self.robot.vitesse_gauche = self.default_vg
-            self.robot.vitesse_droite = self.default_vd
-            self.segment_start_x = self.robot.x
-            self.segment_start_y = self.robot.y
-
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-
-            old_x, old_y = self.robot.x, self.robot.y
-
-            if self.square_state == 'move':
-                self.robot.deplacer()
-                dx = self.robot.x - self.segment_start_x
-                dy = self.robot.y - self.segment_start_y
-                self.segment_travelled = (dx**2 + dy**2) ** 0.5
-                if self.segment_travelled >= SEGMENT_LENGTH:
-                    self.square_state = 'turn'
-                    self.turn_cycles = TURN_CYCLES
-            elif self.square_state == 'turn':
-                self.robot.vitesse_gauche = -abs(self.default_vg)
-                self.robot.vitesse_droite = abs(self.default_vd)
-                self.robot.deplacer()
-                self.turn_cycles -= 1
-                if self.turn_cycles <= 0:
-                    self.robot.vitesse_gauche = self.default_vg
-                    self.robot.vitesse_droite = self.default_vd
-                    self.square_state = 'move'
-                    self.current_segment += 1
-                    self.segment_start_x = self.robot.x
-                    self.segment_start_y = self.robot.y
-                    self.segment_travelled = 0
-                    if self.current_segment >= 4:
-                        print("Carré terminé")
-                        running = False
-
-            if self.detecter_collision(self.robot.x, self.robot.y):
-                print("Obstacle détecté, arrêt du carré")
-                running = False
-
-            ir_point = self.robot.scan_infrarouge(self.obstacles, IR_MAX_DISTANCE)
-            distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - self.robot.y)
-            self.affichage.mettre_a_jour(self.robot, ir_point, distance_ir)
-            pygame.display.flip()
-            pygame.time.delay(30)
-        print("Fin du mode carré")
-
+          
