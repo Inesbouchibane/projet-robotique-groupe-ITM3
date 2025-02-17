@@ -39,6 +39,12 @@ class TestAffichage(unittest.TestCase):
         action = self.affichage.handle_events()
         self.assertEqual(action, "quit")
 
+    def test_handle_events_stop(self):
+        """Test de la gestion de l'événement 'stop'."""
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_s))
+        action = self.affichage.handle_events()
+        self.assertEqual(action, "stop")
+    
 
     def test_handle_events_change(self):
         """Test de la gestion de l'événement 'change'."""
