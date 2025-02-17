@@ -2,7 +2,7 @@ import logging
 from environnement import Environnement
 
 class Controleur:
-    def __init__(self, vitesse_gauche, vitesse_droite, mode):
+    def __init__(self, vitesse_gauche, vitesse_droite, mode ,affichage=True, longueur_carre=200):
 	"""
         Initialise le contrôleur avec les paramètres de simulation.
         :param vitesse_gauche: Vitesse de la roue gauche.
@@ -17,10 +17,13 @@ class Controleur:
         self.logger.info("Contrôleur initialisé en mode: %s", mode)
 
     def demarrer_simulation(self):
+	"""
+        Le contrôleur lance la simulation en appelant la méthode
+        demarrer_simulation de l'environnement.
         """
-        Démarre la simulation en fonction du mode choisi.
-        """
-        self.env.boucle_principale()
+        self.logger.info("Démarrage de la simulation...")
+        self.env.demarrer_simulation()
+        self.logger.info("Simulation terminée.")
     
     def ajuster_vitesse(self, vitesse_gauche, vitesse_droite):
         """
