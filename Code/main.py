@@ -1,11 +1,12 @@
 from controleur import Controleur
 
 def main():
-    """
-    Fonction principale pour démarrer la simulation.
-    """
-    vitesse_gauche = float(input("Entrez la vitesse de la roue gauche : "))
-    vitesse_droite = float(input("Entrez la vitesse de la roue droite : "))
+    try:
+        vitesse_gauche = float(input("Entrez la vitesse de la roue gauche : "))
+        vitesse_droite = float(input("Entrez la vitesse de la roue droite : "))
+    except ValueError:
+        print("Veuillez entrer des nombres pour les vitesses.")
+        return
 
     mode = ""
     while mode.lower() not in ["a", "m", "c"]:
@@ -16,7 +17,15 @@ def main():
     elif mode.lower() == "m":
         mode_str = "manuel"
     else:
-        mode_str = "carré"
+        mode_str = "carré" 
+        
+    longueur_carre = 200  # Valeur par défaut
+    if mode_str == "carré":
+        try:
+            longueur_carre = float(input("Entrez la longueur du côté du carré : "))
+        except ValueError:
+            print("Valeur invalide, utilisation de 200.")
+            longueur_carre = 200
 
     controleur = Controleur(vitesse_gauche, vitesse_droite, mode_str)
     controleur.demarrer_simulation()
