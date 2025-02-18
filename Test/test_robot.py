@@ -19,6 +19,15 @@ class TestRobot(unittest.TestCase):
         angle_avant = self.robot.angle
         self.robot.deplacer()
         self.assertNotEqual(self.robot.angle, angle_avant) 
+    
+    def test_limite_fenetre(self):
+        self.robot.x = 795
+        self.robot.y = 595
+        self.robot.vitesse_gauche = 10
+        self.robot.vitesse_droite = 10
+        self.robot.deplacer()
+        self.assertLessEqual(self.robot.x, 800)
+        self.assertLessEqual(self.robot.y, 600)
 
         
     def test_scan_infrarouge(self):
