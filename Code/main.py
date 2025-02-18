@@ -26,8 +26,11 @@ def main():
         except ValueError:
             print("Valeur invalide, utilisation de 200.")
             longueur_carre = 200
+    
+    affichage_input = input("Voulez-vous l'affichage graphique ? (true/false) : ").strip().lower()
+    affichage = affichage_input in ['true', 't', '1', 'oui']
 
-    controleur = Controleur(vitesse_gauche, vitesse_droite, mode_str)
+    controleur = Controleur(vitesse_gauche, vitesse_droite, mode_str, affichage, longueur_carre)
     controleur.demarrer_simulation()
 
 if __name__ == "__main__":
