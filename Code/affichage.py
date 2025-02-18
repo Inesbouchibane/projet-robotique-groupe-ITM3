@@ -10,15 +10,13 @@ VERT = (0, 255, 0)
 CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
 
-
-
 class Affichage:
     def __init__(self, largeur, hauteur, obstacles):
         """
-        Initialise l'affichage de la simulation.
+        Initialise l'affichage graphique.
         :param largeur: Largeur de la fenêtre.
         :param hauteur: Hauteur de la fenêtre.
-        :param obstacles: Liste des obstacles.
+        :param obstacles: Liste des obstacles à dessiner.
         """
         pygame.init()
         self.ecran = pygame.display.set_mode((largeur, hauteur))
@@ -27,6 +25,7 @@ class Affichage:
         self.font = pygame.font.SysFont(None, 30)
         self.obstacles = obstacles
         self.trajet = []
+
     def handle_events(self):
         """
         Gère les événements Pygame et renvoie une action.
@@ -46,33 +45,28 @@ class Affichage:
 
     def mettre_a_jour(self, robot, ir_point, distance_ir):
         """
-        Met à jour l'affichage de la simulation.
+        Met à jour l'affichage : efface l'écran, dessine la trajectoire, les obstacles,
+        le robot et la ligne du capteur.
         :param robot: Instance du robot.
         :param ir_point: Point détecté par le capteur infrarouge.
-        :param distance_ir: Distance détectée par le capteur.
+        :param distance_ir: Distance mesurée par le capteur.
         """
         self.ecran.fill(BLANC)
         self.trajet.append((robot.x, robot.y))
         if len(self.trajet) > 1:
             pygame.draw.lines(self.ecran, NOIR, False, self.trajet, 2)
-
-        for( ox, oy, ow, oh) in self.obstacles:
+        for (ox, oy, ow, oh) in self.obstacles:
             pygame.draw.rect(self.ecran, ROUGE, (ox, oy, ow, oh))
-        
         pygame.draw.polygon(self.ecran, BLEU, self.calculer_points_robot(robot))
         pygame.draw.line(self.ecran, VERT, (robot.x, robot.y), ir_point, 2)
         pygame.draw.circle(self.ecran, MAGENTA, (int(ir_point[0]), int(ir_point[1])), 5)
-        
         text = self.font.render(f"Distance: {round(distance_ir,2)} px", True, NOIR)
         self.ecran.blit(text, (10, 10))
-        
         pygame.display.flip()
         self.clock.tick(30)
 
     def reset_trajet(self):
-        """
-        Réinitialise la trajectoire du robot.
-        """
+        """Réinitialise la trajectoire enregistrée."""
         self.trajet = []
 
     def calculer_points_robot(self, robot):
@@ -93,5 +87,3 @@ class Affichage:
             (robot.x + cos_a * robot.longueur / 2 + sin_a * robot.largeur / 2,
              robot.y - sin_a * robot.longueur / 2 + cos_a * robot.largeur / 2)
         ]
-
-    

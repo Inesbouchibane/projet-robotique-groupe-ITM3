@@ -11,14 +11,14 @@ def main():
     mode = ""
     while mode.lower() not in ["a", "m", "c"]:
         mode = input("Choisissez le mode : automatique (a), manuel (m) ou carré (c) ? ")
-    
+
     if mode.lower() == "a":
         mode_str = "automatique"
     elif mode.lower() == "m":
         mode_str = "manuel"
     else:
-        mode_str = "carré" 
-        
+        mode_str = "carré"
+
     longueur_carre = 200  # Valeur par défaut
     if mode_str == "carré":
         try:
@@ -26,7 +26,7 @@ def main():
         except ValueError:
             print("Valeur invalide, utilisation de 200.")
             longueur_carre = 200
-    
+
     affichage_input = input("Voulez-vous l'affichage graphique ? (true/false) : ").strip().lower()
     affichage = affichage_input in ['true', 't', '1', 'oui']
 

@@ -1,33 +1,34 @@
-
-from robot import Robot
-from affichage import Affichage
-import pygame
 import math
 import random
+from robot import Robot
+from affichage import Affichage
 
 IR_MAX_DISTANCE = 100
 IR_SEUIL_ARRET = 50
 LARGEUR, HAUTEUR = 800, 600
 
 class Environnement:
-    def __init__(self, vitesse_gauche, vitesse_droite, mode):
+    def __init__(self, vitesse_gauche, vitesse_droite, mode, affichage=True, longueur_carre=200):
         """
         Initialise l'environnement de simulation.
         :param vitesse_gauche: Vitesse de la roue gauche.
         :param vitesse_droite: Vitesse de la roue droite.
-        :param mode: Mode de simulation (automatique, manuel, carré).
+        :param mode: "automatique", "manuel" ou "carré".
+        :param affichage: True pour affichage graphique, False pour console.
+        :param longueur_carre: Longueur du côté du carré (pour le mode carré).
         """
-        self.robot = Robot(LARGEUR / 2, HAUTEUR / 2, vitesse_gauche, vitesse_droite)
+        self.robot = Robot(LARGEUR/2, HAUTEUR/2, vitesse_gauche, vitesse_droite)
         self.mode = mode
         self.obstacles = [
-            (200, 200, 100, 100), 
-            (400, 100, 50, 50), 
-            (600, 270, 50, 50), 
-            (700, 500, 80, 80)  # Nouvel obstacle en bas à droite
-        ]
+    (200, 200, 100, 100), 
+    (400, 100, 50, 50), 
+    (600, 270, 50, 50), 
+    (700, 500, 80, 80)  # Nouvel obstacle en bas à droite
+]
+
         self.affichage_active = affichage
         if self.affichage_active:
-           self.affichage = Affichage(LARGEUR, HAUTEUR, self.obstacles)
+            self.affichage = Affichage(LARGEUR, HAUTEUR, self.obstacles)
         else:
             self.affichage = None
         self.avoidance_mode = False
@@ -35,15 +36,14 @@ class Environnement:
         self.avoidance_counter = 0
         self.default_vg = vitesse_gauche
         self.default_vd = vitesse_droite
+        self.segment_length = longueur_carre
+        self.trajectoire = []
 
     def detecter_collision(self, x, y):
         """
-        Détecte une collision entre le robot et un obstacle.
-        :param x: Position x du robot.
-        :param y: Position y du robot.
-        :return: True si collision, False sinon.
+        Détecte une collision avec un obstacle.
         """
-        for ox, oy, ow, oh in self.obstacles:
+        for (ox, oy, ow, oh) in self.obstacles:
             if ox < x < ox + ow and oy < y < oy + oh:
                 return True
         return False
@@ -95,12 +95,11 @@ class Environnement:
                                 self.default_vg = new_vg
                                 self.default_vd = new_vd
                                 print("Robot démarré avec nouvelles vitesses")
-
                     elif action == "reset":
-                      self.robot.x, self.robot.y = LARGEUR/2, HAUTEUR/2
-                      if self.affichage_active:
-                          self.affichage.reset_trajet()
-                      print("Robot réinitialisé")
+                        self.robot.x, self.robot.y = LARGEUR/2, HAUTEUR/2
+                        if self.affichage_active:
+                            self.affichage.reset_trajet()
+                        print("Robot réinitialisé")
 
             old_x, old_y = self.robot.x, self.robot.y
             self.robot.deplacer()
@@ -136,21 +135,21 @@ class Environnement:
             else:
                 print(f"Position: ({self.robot.x:.2f}, {self.robot.y:.2f}) - Distance IR: {distance_ir:.2f}")
 
-        # Fin de la boucle principale 
-       
+        # Fin de la boucle principale
 
     def tracer_carre(self, cote):
         """
-        Fait tracer un carré de côté donné par le robot.  
-        Le robot avance de manière incrémentale (vitesse fixe) et effectue une rotation de 90° après chaque côté. """
-       	 if not self.verifier_limite_carre(cote):
+        Fait tracer un carré de côté donné par le robot.
+        Le robot avance de manière incrémentale (vitesse fixe) et effectue une rotation de 90° après chaque côté.
+        """
+        if not self.verifier_limite_carre(cote):
             print("Impossible de tracer le carré : obstacle détecté.")
             return
 
-       	 vitesse = 1.0  # Vitesse fixe pour le tracé
-         self.trajectoire = []  # Réinitialise la trajectoire
+        vitesse = 1.0  # Vitesse fixe pour le tracé
+        self.trajectoire = []  # Réinitialise la trajectoire
 
-         for _ in range(4):
+        for _ in range(4):
             distance_parcourue = 0
             while distance_parcourue < cote:
                 distance_a_parcourir = min(vitesse, cote - distance_parcourue)
@@ -185,5 +184,3 @@ class Environnement:
         Retourne True par défaut.
         """
         return True
-
-          
