@@ -1,7 +1,16 @@
 import pygame
 import math
 
-BLANC, NOIR, BLEU, ROUGE, VERT, CYAN, MAGENTA = (255,255,255), (0,0,0), (0,0,255), (255,0,0), (0,255,0), (0,255,255), (255,0,255)
+# Définition des couleurs et dimensions
+BLANC = (255, 255, 255)
+NOIR = (0, 0, 0)
+BLEU = (0, 0, 255)
+ROUGE = (255, 0, 0)
+VERT = (0, 255, 0)
+CYAN = (0, 255, 255)
+MAGENTA = (255, 0, 255)
+
+
 
 class Affichage:
     def __init__(self, largeur, hauteur, obstacles):
@@ -72,7 +81,8 @@ class Affichage:
         :param robot: Instance du robot.
         :return: Liste des points du polygone.
         """
-        cos_a, sin_a = math.cos(math.radians(robot.angle)), math.sin(math.radians(robot.angle))
+        cos_a = math.cos(math.radians(robot.angle))
+        sin_a = math.sin(math.radians(robot.angle))
         return [
             (robot.x + cos_a * robot.longueur / 2 - sin_a * robot.largeur / 2,
              robot.y - sin_a * robot.longueur / 2 - cos_a * robot.largeur / 2),
