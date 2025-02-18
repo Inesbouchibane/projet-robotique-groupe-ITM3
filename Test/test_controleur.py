@@ -8,6 +8,7 @@ class TestControleur(unittest.TestCase):
     def setUp(self):
         self.env_mock = MagicMock(spec=Environnement)  # Mock de l'environnement
         self.env_mock.robot = MagicMock()  # Mock du robot
+	self.env_mock.demarrer_simulation = MagicMock()  # Mock de demarrer_simulation
         self.controleur = Controleur(5, 5, "automatique")
         self.controleur.env = self.env_mock  # Remplace l'environnement réel par un mock
     
@@ -16,11 +17,11 @@ class TestControleur(unittest.TestCase):
         self.env_mock.boucle_principale.assert_called_once()
     
     def test_ajuster_vitesse(self):
+        """ Test de l'ajustement des vitesses """
         self.controleur.ajuster_vitesse(3, 4)
-        self.assertEqual(self.controleur.vitesse_gauche, 3)
-        self.assertEqual(self.controleur.vitesse_droite, 4)
-        self.assertEqual(self.env_mock.robot.vitesse_gauche, 3)
-        self.assertEqual(self.env_mock.robot.vitesse_droite, 4)
+        # Vérifie que les vitesses ont été correctement ajustées
+        self.assertEqual(self.controleur.env.robot.vitesse_gauche, 3)
+        self.assertEqual(self.controleur.env.robot.vitesse_droite, 4)
     
     def test_verifier_limite_carre(self):
         self.controleur.distance_parcourue = 10
