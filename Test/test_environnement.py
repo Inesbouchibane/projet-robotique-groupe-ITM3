@@ -31,6 +31,7 @@ class TestEnvironnement(unittest.TestCase):
         self.assertTrue(self.env.detecter_collision(250, 250))
         # Coordonnées hors des obstacles
         self.assertFalse(self.env.detecter_collision(50, 50))
+
     def test_changer_vitesse_manuel(self):
         """Test du changement de vitesse en mode manuel."""
         # Changer les vitesses
@@ -46,7 +47,7 @@ class TestEnvironnement(unittest.TestCase):
         self.assertNotEqual((initial_x, initial_y), (self.env.robot.x, self.env.robot.y))
         
     def test_avoidance_mode_activation(self):
-        """Test si l'évitement d'obstacles s'active en mode automatique"""
+         """Test si l'évitement d'obstacles s'active en mode automatique"""
         # On définit un obstacle couvrant la zone de (200,200) à (300,300)
         self.env.obstacles = [(200, 200, 100, 100)]
         # On place le robot à l'intérieur de cet obstacle
@@ -60,7 +61,6 @@ class TestEnvironnement(unittest.TestCase):
 
         print(f"avoidance_mode: {self.env.avoidance_mode}")  # Pour le débogage
         self.assertTrue(self.env.avoidance_mode)
-
 
 if __name__ == '__main__':
     unittest.main()
