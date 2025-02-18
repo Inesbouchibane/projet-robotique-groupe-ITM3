@@ -91,7 +91,7 @@ class Environnement:
                                 self.default_vd = new_vd
                                 print("Robot démarré avec nouvelles vitesses")
 
-                  elif action == "reset":
+                    elif action == "reset":
                       self.robot.x, self.robot.y = LARGEUR/2, HAUTEUR/2
                       if self.affichage_active:
                           self.affichage.reset_trajet()
