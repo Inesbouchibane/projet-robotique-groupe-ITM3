@@ -17,10 +17,11 @@ class Controleur:
         self.logger.info("Contrôleur initialisé en mode: %s", mode)
 
     def demarrer_simulation(self):
-        """
-        Démarre la simulation en fonction du mode choisi.
-        """
-        self.env.boucle_principale()
+         """ Test du démarrage de la simulation """
+        self.controleur.demarrer_simulation()
+        # Vérifie que la méthode demarrer_simulation a bien été appelée sur l'objet env_mock
+        self.env_mock.demarrer_simulation.assert_called_once() 
+
     
     def ajuster_vitesse(self, vitesse_gauche, vitesse_droite):
         """
