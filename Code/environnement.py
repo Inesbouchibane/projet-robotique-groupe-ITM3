@@ -19,7 +19,12 @@ class Environnement:
         """
         self.robot = Robot(LARGEUR / 2, HAUTEUR / 2, vitesse_gauche, vitesse_droite)
         self.mode = mode
-        self.obstacles = [(200, 200, 100, 100), (400, 100, 50, 50)]
+        self.obstacles = [
+            (200, 200, 100, 100), 
+            (400, 100, 50, 50), 
+            (600, 270, 50, 50), 
+            (700, 500, 80, 80)  # Nouvel obstacle en bas à droite
+        ]
         self.affichage_active = affichage
         if self.affichage_active:
            self.affichage = Affichage(LARGEUR, HAUTEUR, self.obstacles)
