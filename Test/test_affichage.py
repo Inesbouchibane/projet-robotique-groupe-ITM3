@@ -32,6 +32,7 @@ class TestAffichage(unittest.TestCase):
         # Mock des méthodes Pygame
         self.affichage.ecran = MagicMock()
         self.affichage.clock = MagicMock()
+
     def test_handle_events_quit(self):
         """Test de la gestion de l'événement 'QUIT'."""
         # Simuler un événement QUIT
@@ -51,3 +52,11 @@ class TestAffichage(unittest.TestCase):
         pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_d))
         action = self.affichage.handle_events()
         self.assertEqual(action, "change")
+   
+     
+    def test_handle_events_reset(self):
+        """Test de la gestion de l'événement 'reset'."""
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_r))
+        action = self.affichage.handle_events()
+        self.assertEqual(action, "reset")
+    
