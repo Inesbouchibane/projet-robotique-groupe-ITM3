@@ -43,78 +43,69 @@ class Environnement:
                 return True
         return False
 
-    def boucle_principale(self):
+    def demarrer_simulation(self):
         """
-        Boucle principale de la simulation.
+        Démarre la simulation.
+        En mode "carré", lance directement le tracé du carré.
+        En mode "automatique" ou "manuel", exécute la boucle de 
+simulation.
         """
         if self.mode == "carré":
-            self.dessiner_carre()
+            self.tracer_carre(self.segment_length)
             return
 
         running = True
         while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+            if self.affichage_active:
+                action = self.affichage.handle_events()
+                if action == "quit":
                     running = False
-                elif event.type == pygame.KEYDOWN:
-                    if self.mode == "manuel":
-                        if event.key == pygame.K_s:
-                            self.robot.vitesse_gauche = 0
-                            self.robot.vitesse_droite = 0
-                            print("Robot arrêté")
-                        elif event.key == pygame.K_d:
-                            try:
-                                new_vg = float(input("Entrez la nouvelle vitesse de la roue gauche : "))
-                                new_vd = float(input("Entrez la nouvelle vitesse de la roue droite : "))
-                            except ValueError:
-                                print("Valeurs invalides. Utilisation des vitesses par défaut (2).")
-                                new_vg, new_vd = 2, 2
-                            self.robot.vitesse_gauche = new_vg
-                            self.robot.vitesse_droite = new_vd
-                            self.default_vg = new_vg
-                            self.default_vd = new_vd
-                            print("Robot démarré avec nouvelles vitesses")
-                        elif event.key == pygame.K_r:
-                            self.robot.x, self.robot.y = LARGEUR / 2, HAUTEUR / 2
-                            self.affichage.reset_trajet()
-                            print("Robot réinitialisé")
+                    continue
+                elif self.mode == "manuel":
+                    if action == "stop":
+                        self.robot.vitesse_gauche = 0
+                        self.robot.vitesse_droite = 0
+                        print("Robot arrêté")
+                    elif action == "change":
+                        if self.robot.vitesse_gauche == 0 and 
+self.robot.vitesse_droite == 0:
+                            rep = input("Voulez-vous tracer un carré ? 
+(y/n) : ").strip().lower()
+                            # Vider la file d'événements pour éviter des 
+événements résiduels
+                            import pygame; pygame.event.clear()
+                            if rep == "y":
+                                try:
+                                    cote = float(input("Entrez la longueur 
+du côté du carré : "))
+                                except ValueError:
+                                    cote = self.segment_length
+                                    print(f"Valeur invalide, utilisation 
+de {self.segment_length}.")
+                                self.tracer_carre(cote)
+                                continue
+                            else:
+                                try:
+                                    new_vg = float(input("Entrez la 
+nouvelle vitesse de la roue gauche : "))
+                                    new_vd = float(input("Entrez la 
+nouvelle vitesse de la roue droite : "))
+                                except ValueError:
+                                    print("Valeurs invalides. Utilisation 
+des vitesses par défaut (2).")
+                                    new_vg, new_vd = 2, 2
+                                self.robot.vitesse_gauche = new_vg
+                                self.robot.vitesse_droite = new_vd
+                                self.default_vg = new_vg
+                                self.default_vd = new_vd
+                                print("Robot démarré avec nouvelles 
+vitesses")
 
-            old_x, old_y = self.robot.x, self.robot.y
-            self.robot.deplacer()
-            if self.detecter_collision(self.robot.x, self.robot.y):
-                self.robot.x, self.robot.y = old_x, old_y
+        
 
-            ir_point = self.robot.scan_infrarouge(self.obstacles, IR_MAX_DISTANCE)
-            distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - self.robot.y)
-
-            if self.mode == "automatique":
-                if distance_ir < IR_SEUIL_ARRET or self.detecter_collision(self.robot.x, self.robot.y):
-                    if not self.avoidance_mode:
-                        self.avoidance_direction = random.choice(["left", "right"])
-                        self.avoidance_mode = True
-                        self.avoidance_counter = 30
-                    else:
-                        if self.avoidance_counter > 0:
-                            self.avoidance_counter -= 1
-                    if self.avoidance_direction == "left":
-                        self.robot.vitesse_gauche = -abs(self.default_vg)
-                        self.robot.vitesse_droite = abs(self.default_vd)
-                    else:
-                        self.robot.vitesse_gauche = abs(self.default_vg)
-                        self.robot.vitesse_droite = -abs(self.default_vd)
-                else:
-                    if self.avoidance_mode and self.avoidance_counter == 0:
-                        self.avoidance_mode = False
-                        self.robot.vitesse_gauche = self.default_vg
-                        self.robot.vitesse_droite = self.default_vd
-
-            self.affichage.mettre_a_jour(self.robot, ir_point, distance_ir)
-            pygame.display.flip()
-            pygame.time.delay(30)
-
-        def tracer_carre(self, cote):
+    def tracer_carre(self, cote):
         """
-        Fait tracer un carré de côté donné par le robot.
+        Fait tracer un carré de côté donné par le robot.  
         Le robot avance de manière incrémentale (vitesse fixe) et effectue une rotation de 90° après chaque côté. """
        	 if not self.verifier_limite_carre(cote):
             print("Impossible de tracer le carré : obstacle détecté.")
