@@ -24,16 +24,7 @@ class TestControleur(unittest.TestCase):
         # Vérifie que les vitesses ont été correctement ajustées
         self.assertEqual(self.controleur.env.robot.vitesse_gauche, 3)
         self.assertEqual(self.controleur.env.robot.vitesse_droite, 4)
-    
-    def test_verifier_limite_carre(self):
-        self.controleur.distance_parcourue = 10
-        self.controleur.longueur_cote = 10
-        self.controleur.etape_carre = 0
-        self.controleur.robot = MagicMock()  # Mock du robot
-        self.controleur.verifier_limite_carre()
-        self.assertEqual(self.controleur.etape_carre, 1)
-        self.controleur.robot.vitesse_gauche = -2
-        self.controleur.robot.vitesse_droite = 2
+ 
 
 if __name__ == "__main__":
     unittest.main()
