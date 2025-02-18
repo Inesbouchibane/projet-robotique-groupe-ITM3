@@ -2,7 +2,12 @@ import math
 
 class Robot:
     def __init__(self, x, y, vitesse_gauche, vitesse_droite):
-    
+        """
+        Initialise l'affichage graphique.
+        :param largeur: Largeur de la fenêtre.
+        :param hauteur: Hauteur de la fenêtre.
+        :param obstacles: Liste des obstacles à dessiner.
+        """
         self.x, self.y = x, y
         self.vitesse_gauche = vitesse_gauche
         self.vitesse_droite = vitesse_droite
