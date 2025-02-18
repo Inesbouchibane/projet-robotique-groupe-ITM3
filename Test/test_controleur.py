@@ -13,9 +13,11 @@ class TestControleur(unittest.TestCase):
         self.controleur.env = self.env_mock  # Remplace l'environnement réel par un mock
     
     def test_demarrer_simulation(self):
+        """ Test du démarrage de la simulation """
         self.controleur.demarrer_simulation()
-        self.env_mock.boucle_principale.assert_called_once()
-    
+        # Vérifie que la méthode demarrer_simulation a bien été appelée sur l'objet env_mock
+        self.env_mock.demarrer_simulation.assert_called_once() 
+
     def test_ajuster_vitesse(self):
         """ Test de l'ajustement des vitesses """
         self.controleur.ajuster_vitesse(3, 4)
