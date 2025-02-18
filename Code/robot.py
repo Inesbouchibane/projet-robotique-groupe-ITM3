@@ -16,6 +16,9 @@ class Robot:
         
 
     def deplacer(self):
+        """
+        Déplace le robot en fonction de ses vitesses et de son angle.
+        """
         vitesse_moyenne = (self.vitesse_gauche + self.vitesse_droite) / 2
         delta_angle = (self.vitesse_droite - self.vitesse_gauche) / self.largeur * 10
         self.angle = (self.angle + delta_angle) % 360
@@ -31,6 +34,12 @@ class Robot:
         
     
     def scan_infrarouge(self, obstacles, max_distance):
+         """
+        Simule un capteur infrarouge pour détecter les obstacles.
+        :param obstacles: Liste des obstacles (tuples : (x, y, largeur, hauteur)).
+        :param max_distance: Distance maximale de détection.
+        :return: Le point de collision ou le point maximal détecté.
+        """
         angle_rad = math.radians(self.angle)
         for d in range(0, int(max_distance), 5):
             x_point, y_point = self.x + d * math.cos(angle_rad), self.y - d * math.sin(angle_rad)
