@@ -60,3 +60,11 @@ class TestAffichage(unittest.TestCase):
         action = self.affichage.handle_events()
         self.assertEqual(action, "reset")
     
+    def test_reset_trajet(self):
+        """Test de la réinitialisation de la trajectoire."""
+        self.affichage.trajet = [(100, 100), (200, 200)]
+        self.affichage.reset_trajet()
+        self.assertEqual(self.affichage.trajet, [])
+
+if __name__ == "__main__":
+    unittest.main()
