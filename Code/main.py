@@ -8,6 +8,17 @@ def main():
         print("Veuillez entrer des nombres pour les vitesses.")
         return
 
+    
+        try:
+        pos_x = float(input("Position x initiale (0-800) : "))
+        pos_y = float(input("Position y initiale (0-600) : "))
+        if not (0 <= pos_x <= 800 and 0 <= pos_y <= 600):
+            raise ValueError("Position hors limites (0-800, 0-600).")
+    except ValueError as e:
+        print(f"Erreur: {e}. Utilisation des valeurs par défaut (400, 300).")
+        pos_x, pos_y = 400, 300
+
+
     mode = ""
     while mode.lower() not in ["a", "m", "c"]:
         mode = input("Choisissez le mode : automatique (a), manuel (m) ou carré (c) ? ")
