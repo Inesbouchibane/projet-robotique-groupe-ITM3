@@ -1,15 +1,28 @@
 from controleur import Controleur
 
 def main():
-    try:
-        vitesse_gauche = float(input("Entrez la vitesse de la roue gauche : "))
-        vitesse_droite = float(input("Entrez la vitesse de la roue droite : "))
-    except ValueError:
-        print("Veuillez entrer des nombres pour les vitesses.")
-        return
+    mode = ""
+    while mode.lower() not in ["a", "m", "c"]:
+        mode = input("Mode : automatique (a), manuel (m) ou carré (c) ? ").strip().lower()
 
-    
+    mode_str = {"a": "automatique", "m": "manuel", "c": "carré"}[mode]
+
+    if mode_str in ["automatique", "manuel"]:
         try:
+            vitesse_gauche = float(input("Vitesse de la roue gauche : "))
+            vitesse_droite = float(input("Vitesse de la roue droite : "))
+        except ValueError:
+            print("Erreur: Utilisation des vitesses par défaut (2).")
+            vitesse_gauche, vitesse_droite = 2, 2
+    else:  # mode "carré"
+        try:
+            vitesse = float(input("Vitesse des roues (par défaut 2) : ") or 2)
+            vitesse_gauche, vitesse_droite = vitesse, vitesse
+        except ValueError:
+            print("Erreur: Utilisation de la vitesse par défaut (2).")
+            vitesse_gauche, vitesse_droite = 2, 2
+
+    try:
         pos_x = float(input("Position x initiale (0-800) : "))
         pos_y = float(input("Position y initiale (0-600) : "))
         if not (0 <= pos_x <= 800 and 0 <= pos_y <= 600):
@@ -18,31 +31,21 @@ def main():
         print(f"Erreur: {e}. Utilisation des valeurs par défaut (400, 300).")
         pos_x, pos_y = 400, 300
 
-
-    mode = ""
-    while mode.lower() not in ["a", "m", "c"]:
-        mode = input("Choisissez le mode : automatique (a), manuel (m) ou carré (c) ? ")
-
-    if mode.lower() == "a":
-        mode_str = "automatique"
-    elif mode.lower() == "m":
-        mode_str = "manuel"
-    else:
-        mode_str = "carré"
-
-    longueur_carre = 200  # Valeur par défaut
+    longueur_carre = 200
     if mode_str == "carré":
         try:
-            longueur_carre = float(input("Entrez la longueur du côté du carré : "))
-        except ValueError:
-            print("Valeur invalide, utilisation de 200.")
+            longueur_carre = float(input("Longueur du côté du carré : "))
+            if longueur_carre <= 0:
+                raise ValueError("La longueur doit être positive.")
+        except ValueError as e:
+            print(f"Erreur: {e}. Utilisation de 200.")
             longueur_carre = 200
 
-    affichage_input = input("Voulez-vous l'affichage graphique ? (true/false) : ").strip().lower()
+    affichage_input = input("Affichage graphique ? (true/false) : ").strip().lower()
     affichage = affichage_input in ['true', 't', '1', 'oui']
 
-    controleur = Controleur(vitesse_gauche, vitesse_droite, mode_str, affichage, longueur_carre)
-    controleur.demarrer_simulation()
+    controleur = Controleur(vitesse_gauche, vitesse_droite, mode_str, affichage, longueur_carre, pos_x, pos_y)
+    controleur.env.demarrer_simulation()
 
 if __name__ == "__main__":
     main()
