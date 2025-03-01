@@ -69,7 +69,7 @@ class Controleur:
         self.env.robot.vitesse_droite = vitesse_droite
         self.logger.info("Vitesses ajustées: vg=%.2f, vd=%.2f", vitesse_gauche, vitesse_droite)
     
-        def tourner(self, angle):
+    def tourner(self, angle):
         self.logger.info("Rotation de %d degrés, angle actuel: %.2f", angle, self.env.robot.angle)
         current_angle = self.env.robot.angle
         target_angle = (current_angle + angle) % 360
@@ -101,4 +101,4 @@ class Controleur:
             iteration += 1
 
         self.logger.info("Rotation terminée, angle atteint: %.2f (cible: %.2f)", self.env.robot.angle, target_angle)
-        return True  # Rotation réussie
+        return True  
