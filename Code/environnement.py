@@ -109,21 +109,28 @@ class Environnement:
             ir_point = self.robot.scan_infrarouge(self.obstacles, IR_MAX_DISTANCE)
             distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - self.robot.y)
 
-            if self.mode == "automatique":
-                if distance_ir < IR_SEUIL_ARRET or self.detecter_collision(self.robot.x, self.robot.y):
-                    if not self.avoidance_mode:
-                        self.avoidance_direction = random.choice(["left", "right"])
-                        self.avoidance_mode = True
-                        self.avoidance_counter = 30
-                    else:
-                        if self.avoidance_counter > 0:
-                            self.avoidance_counter -= 1
-                    if self.avoidance_direction == "left":
-                        self.robot.vitesse_gauche = -abs(self.default_vg)
-                        self.robot.vitesse_droite = abs(self.default_vd)
-                    else:
-                        self.robot.vitesse_gauche = abs(self.default_vg)
-                        self.robot.vitesse_droite = -abs(self.default_vd)
+if self.mode == "automatique":
+    if distance_ir < IR_SEUIL_ARRET or self.detecter_collision(self.robot.x, self.robot.y):
+        if not self.avoidance_mode:
+            self.robot.angle = random.uniform(0, 360)  # Ligne clé : rotation aléatoire
+            self.avoidance_mode = True
+            self.avoidance_counter = 30
+            print(f"Obstacle détecté à {distance_ir:.2f}px ! Nouvelle direction: {self.robot.angle:.2f}°")
+        else:
+            if self.avoidance_counter > 0:
+                self.avoidance_counter -= 1
+        self.robot.vitesse_gauche = self.default_vg  # Maintient les vitesses par défaut
+        self.robot.vitesse_droite = self.default_vd
+    else:
+        if self.avoidance_mode and self.avoidance_counter == 0:
+            self.avoidance_mode = False
+            self.robot.vitesse_gauche = self.default_vg
+            self.robot.vitesse_droite = self.default_vd
+else:
+    if self.avoidance_counter > 0:
+        self.avoidance_counter -= 1
+self.robot.vitesse_gauche = self.default_vg
+self.robot.vitesse_droite = self.default_vd
                 else:
                     if self.avoidance_mode and self.avoidance_counter == 0:
                         self.avoidance_mode = False
