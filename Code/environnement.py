@@ -47,7 +47,14 @@ class Environnement:
             if ox < x < ox + ow and oy < y < oy + oh:
                 return True
         return False
-
+    def detecter_murs(self):
+        distances = {
+            "haut": self.robot.y,
+            "bas": HAUTEUR - self.robot.y,
+            "gauche": self.robot.x,
+            "droite": LARGEUR - self.robot.x
+        }
+        return distances
     def demarrer_simulation(self):
         """
         Démarre la simulation.
