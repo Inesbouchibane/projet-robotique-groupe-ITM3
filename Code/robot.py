@@ -9,7 +9,6 @@ class Robot:
         :param vitesse_gauche: Vitesse de la roue gauche.
         :param vitesse_droite: Vitesse de la roue droite.
         """
-        def __init__(self, x, y, vitesse_gauche, vitesse_droite):
         self.x, self.y = x, y
         self.vitesse_gauche = vitesse_gauche
         self.vitesse_droite = vitesse_droite
