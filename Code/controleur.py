@@ -102,3 +102,77 @@ class Controleur:
 
         self.logger.info("Rotation terminée, angle atteint: %.2f (cible: %.2f)", self.env.robot.angle, target_angle)
         return True  
+   
+    def tracer_carre(self, cote):
+        """
+        Fait tracer un carré de côté donné par le robot avec les vitesses initiales.
+        Avant de commencer, vérifie que la trajectoire du carré reste dans les limites.
+        Utilise une rotation instantanée pour éviter les délais entre chaque côté.
+        Vérifie également les collisions avec les obstacles.
+        """
+        # Vérifier si la position initiale permet de tracer un carré complet
+        x, y = self.env.robot.x, self.env.robot.y
+        if (x - cote/2 < 0 or x + cote/2 > 800 or y - cote/2 < 0 or y + cote/2 > 600):
+            self.logger.warning("Position initiale inadaptée pour un carré de côté %.2f. Recentrage du robot.", cote)
+            self.env.robot.x, self.env.robot.y = 400, 300
+            print(f"Tracé d'un carré de côté {cote}, position initiale: ({self.env.robot.x}, {self.env.robot.y})")
+
+        if self.env.affichage_active:
+            self.env.affichage.reset_trajet()
+
+        # Tracer les 4 côtés
+        for i in range(4):
+            distance_parcourue = 0
+            while distance_parcourue < cote:
+                old_x, old_y = self.env.robot.x, self.env.robot.y
+                self.env.robot.vitesse_gauche = self.vitesse_gauche_initiale
+                self.env.robot.vitesse_droite = self.vitesse_droite_initiale
+                self.env.robot.deplacer()
+                delta_dist = math.hypot(self.env.robot.x - old_x, self.env.robot.y - old_y)
+                distance_parcourue += delta_dist
+
+      
+                if not (0 <= self.env.robot.x <= 800 and 0 <= self.env.robot.y <= 600):
+                    self.logger.warning("Le robot a atteint les limites pendant le tracé du carré. Arrêt.")
+                    self.env.robot.x, self.env.robot.y = old_x, old_y
+                    self.env.robot.vitesse_gauche = 0
+                    self.env.robot.vitesse_droite = 0
+                    break  
+
+                # Vérifier si une collision avec un obstacle se produit
+                if self.env.detecter_collision(self.env.robot.x, self.env.robot.y):
+                    self.logger.warning("Collision détectée avec un obstacle pendant le tracé du carré. Arrêt.")
+                    self.env.robot.x, self.env.robot.y = old_x, old_y
+                    self.env.robot.vitesse_gauche = 0
+                    self.env.robot.vitesse_droite = 0
+                    break 
+
+                # Vérifier la distance IR pour éviter de frôler les obstacles
+                ir_point = self.env.robot.scan_infrarouge(self.env.obstacles, self.env.IR_SEUIL_ARRET)
+                distance_ir = math.hypot(ir_point[0] - self.env.robot.x, ir_point[1] - self.env.robot.y)
+                if distance_ir < self.env.IR_SEUIL_ARRET:
+                    self.logger.warning("Obstacle détecté à proximité pendant le tracé du carré. Arrêt.")
+                    self.env.robot.x, self.env.robot.y = old_x, old_y
+                    self.env.robot.vitesse_gauche = 0
+                    self.env.robot.vitesse_droite = 0
+                    break  # Arrêter ce côté du carré
+
+                if self.env.affichage_active:
+                    self.env.affichage.mettre_a_jour(self.env.robot, ir_point, distance_ir)
+
+                time.sleep(0.01) 
+
+            if self.env.robot.vitesse_gauche == 0 and self.env.robot.vitesse_droite == 0:
+                break 
+
+            self.tourner_instant(90)
+
+            self.env.robot.vitesse_gauche = 0
+            self.env.robot.vitesse_droite = 0
+
+        print("Carré terminé ou arrêté à cause d'un obstacle")
+
+        # Garder la fenêtre ouverte après l'arrêt du robot
+        if self.env.affichage_active:
+            print("Appuyez sur Entrée pour quitter...")
+            input()
