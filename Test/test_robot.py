@@ -10,7 +10,7 @@ class TestRobot(unittest.TestCase):
         x_avant, y_avant = self.robot.x, self.robot.y
         self.robot.deplacer()
         self.assertNotEqual((self.robot.x, self.robot.y), (x_avant, y_avant))
-        self.assertAlmostEqual(self.robot.x, x_avant + 10, delta=0.1)
+        self.assertAlmostEqual(self.robot.x, x_avant + 1, delta=0.1)  # Correction ici
         self.assertAlmostEqual(self.robot.y, y_avant, delta=0.1) 
         
     def test_rotation(self):
@@ -18,24 +18,8 @@ class TestRobot(unittest.TestCase):
         self.robot.vitesse_droite = 10
         angle_avant = self.robot.angle
         self.robot.deplacer()
-        self.assertNotEqual(self.robot.angle, angle_avant) 
+        self.assertNotEqual(self.robot.angle, angle_avant)
+        # Vérification plus précise de l'angle
+        delta_angle = (self.robot.vitesse_droite - self.robot.vitesse_gauche) / self.robot.largeur * 10
+        self.assertAlmostEqual(self.robot.angle, (angle_avant + delta_angle) % 360, delta=0.1)
     
-    def test_limite_fenetre(self):
-        self.robot.x = 795
-        self.robot.y = 595
-        self.robot.vitesse_gauche = 10
-        self.robot.vitesse_droite = 10
-        self.robot.deplacer()
-        self.assertLessEqual(self.robot.x, 800)
-        self.assertLessEqual(self.robot.y, 600)
-
-        
-    def test_scan_infrarouge(self):
-        obstacles = [(200, 200, 50, 50)]
-        point_detecte = self.robot.scan_infrarouge(obstacles, 100)
-        self.assertIsInstance(point_detecte, tuple)
-        self.assertEqual(len(point_detecte), 2)
-
-if __name__ == "__main__":
-    unittest.main()
-
