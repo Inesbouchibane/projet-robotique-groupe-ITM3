@@ -23,3 +23,24 @@ class TestRobot(unittest.TestCase):
         delta_angle = (self.robot.vitesse_droite - self.robot.vitesse_gauche) / self.robot.largeur * 10
         self.assertAlmostEqual(self.robot.angle, (angle_avant + delta_angle) % 360, delta=0.1)
     
+    def test_limite_fenetre(self):
+        self.robot.x = 795
+        self.robot.y = 595
+        self.robot.vitesse_gauche = 10
+        self.robot.vitesse_droite = 10
+        self.robot.deplacer()
+        # Vérification que le robot ne bouge pas car il est déjà à la limite
+        self.assertEqual(self.robot.x, 795)
+        self.assertEqual(self.robot.y, 595)
+    def test_scan_infrarouge(self):
+        obstacles = [(200, 200, 50, 50)]
+        point_detecte = self.robot.scan_infrarouge(obstacles, 100)
+        self.assertIsInstance(point_detecte, tuple)
+        self.assertEqual(len(point_detecte), 2)
+        # Vérification que le point détecté est bien dans l'obstacle
+        if point_detecte != (self.robot.x + 100 * math.cos(math.radians(self.robot.angle)),
+                            self.robot.y - 100 * math.sin(math.radians(self.robot.angle))):
+            self.assertTrue(200 <= point_detecte[0] <= 250 and 200 <= point_detecte[1] <= 250)
+
+if __name__ == "__main__":
+    unittest.main()
