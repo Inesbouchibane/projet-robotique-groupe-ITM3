@@ -58,10 +58,7 @@ class Controleur:
         self.env.robot.angle = (self.env.robot.angle + angle) % 360
         if self.env.affichage_active:
             ir_point = self.env.robot.scan_infrarouge(self.env.obstacles, self.env.IR_MAX_DISTANCE)
-            self.env.affichage.mettre_a_jour(
-                self.env.robot,
-                ir_point,
-                math.hypot(ir_point[0] - self.env.robot.x, ir_point[1] - self.env.robot.y))
+            self.env.affichage.mettre_a_jour(self.env.robot,ir_point,math.hypot(ir_point[0] - self.env.robot.x, ir_point[1] - self.env.robot.y))
         self.logger.info("Rotation instantanée de %d degrés, nouvel angle: %.2f", angle, self.env.robot.angle)
 
     def demarrer_simulation(self):
