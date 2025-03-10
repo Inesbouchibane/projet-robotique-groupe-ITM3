@@ -29,9 +29,9 @@ class Robot:
         nouvelle_x = self.x + dx
         nouvelle_y = self.y + dy
         # S'assurer que le robot reste dans la fenêtre (0,800)x(0,600)
-        if 0 < nouvelle_x < 800 and 0 < nouvelle_y < 600:
-            self.x = nouvelle_x
-            self.y = nouvelle_y
+        if 0 <= nouvelle_x <= 800 and 0 <= nouvelle_y < 600:
+            self.last_x, self.last_y = self.x, self.y
+	    self.x, self.y = nouvelle_x, nouvelle_y
 
     def scan_infrarouge(self, obstacles, max_distance):
         """
