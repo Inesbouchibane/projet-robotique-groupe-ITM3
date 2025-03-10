@@ -16,7 +16,7 @@ class Controleur:
         self.env = Environnement(vitesse_gauche, vitesse_droite, mode, affichage, longueur_carre)
         self.logger.info("Contrôleur initialisé en mode: %s", mode)
 
-        def avancer(self, distance):
+     def avancer(self, distance):
         self.logger.info("Début avancement de %.2f unités, position: (%.2f, %.2f), angle: %.2f", 
                          distance, self.env.robot.x, self.env.robot.y, self.env.robot.angle)
         distance_parcourue = 0
@@ -51,6 +51,18 @@ class Controleur:
                          distance_parcourue, self.env.robot.x, self.env.robot.y)
         return True  # Avancement réussi
 
+    def tourner_instant(self, angle):
+        """
+        Effectue une rotation instantanée (utilisée pour le mode carré).
+        """
+        self.env.robot.angle = (self.env.robot.angle + angle) % 360
+        if self.env.affichage_active:
+            ir_point = self.env.robot.scan_infrarouge(self.env.obstacles, self.env.IR_MAX_DISTANCE)
+            self.env.affichage.mettre_a_jour(
+                self.env.robot,
+                ir_point,
+                math.hypot(ir_point[0] - self.env.robot.x, ir_point[1] - self.env.robot.y))
+        self.logger.info("Rotation instantanée de %d degrés, nouvel angle: %.2f", angle, self.env.robot.angle)
 
     def demarrer_simulation(self):
         """
@@ -69,7 +81,7 @@ class Controleur:
         self.env.robot.vitesse_droite = vitesse_droite
         self.logger.info("Vitesses ajustées: vg=%.2f, vd=%.2f", vitesse_gauche, vitesse_droite)
     
-     def tourner(self, angle):
+    def tourner(self, angle):
         self.logger.info("Rotation de %d degrés, angle actuel: %.2f", angle, self.env.robot.angle)
         current_angle = self.env.robot.angle
         target_angle = (current_angle + angle) % 360
