@@ -47,6 +47,8 @@ class Environnement:
             if ox < x < ox + ow and oy < y < oy + oh:
                 return True
         return False
+
+
     def detecter_murs(self):
         distances = {
             "haut": self.robot.y,
@@ -55,17 +57,26 @@ class Environnement:
             "droite": LARGEUR - self.robot.x
         }
         return distances
+
+
     def demarrer_simulation(self):
         """
         Démarre la simulation.
         En mode "carré", lance directement le tracé du carré.
         En mode "automatique" ou "manuel", exécute la boucle de simulation.
         """
-        if self.mode == "carré":
-            self.tracer_carre(self.segment_length)
+	running = True
+        from controleur import Controleur
+        controleur = Controleur(self.default_vg, self.default_vd, self.mode, self.affichage_active, self.segment_length, self.robot.x, self.robot.y)
+  
+	if self.mode == "carré":
+            if (self.robot.x - self.segment_length/2 < 0 or self.robot.x + self.segment_length/2 > LARGEUR or
+                    self.robot.y - self.segment_length/2 < 0 or self.robot.y + self.segment_length/2 > HAUTEUR):
+                print("Position initiale inadaptée pour tracer un carré complet. Recentrage du robot.")
+                self.robot.x, self.robot.y = LARGEUR/2, HAUTEUR/2
+            controleur.tracer_carre(self.segment_length)
             return
 
-        running = True
         while running:
             if self.affichage_active:
                 action = self.affichage.handle_events()
