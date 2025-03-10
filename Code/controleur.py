@@ -69,7 +69,7 @@ class Controleur:
         self.env.robot.vitesse_droite = vitesse_droite
         self.logger.info("Vitesses ajustées: vg=%.2f, vd=%.2f", vitesse_gauche, vitesse_droite)
     
-    def tourner(self, angle):
+     def tourner(self, angle):
         self.logger.info("Rotation de %d degrés, angle actuel: %.2f", angle, self.env.robot.angle)
         current_angle = self.env.robot.angle
         target_angle = (current_angle + angle) % 360
@@ -81,13 +81,21 @@ class Controleur:
             delta = (target_angle - self.env.robot.angle + 360) % 360
             direction = 1 if delta < 180 else -1
             vitesse_rotation = 1.5
-            self.env.robot.vitesse_gauche = direction * vitesse_rotation
-            self.env.robot.vitesse_droite = -direction * vitesse_rotation
+
+            # Correction pour tourner correctement vers la gauche (a été ajouté)
+            if angle > 0:  # Si l'angle est positif, on tourne à gauche
+                self.env.robot.vitesse_gauche = -direction * vitesse_rotation
+                self.env.robot.vitesse_droite = direction * vitesse_rotation
+            else:  # Sinon, on tourne à droite
+                self.env.robot.vitesse_gauche = direction * vitesse_rotation
+                self.env.robot.vitesse_droite = -direction * vitesse_rotation
+
             old_x, old_y = self.env.robot.x, self.env.robot.y
             self.env.robot.deplacer()
 
             ir_point = self.env.robot.scan_infrarouge(self.env.obstacles, self.env.IR_MAX_DISTANCE)
             distance_ir = math.hypot(ir_point[0] - self.env.robot.x, ir_point[1] - self.env.robot.y)
+
             if distance_ir < 50 or self.env.detecter_collision(self.env.robot.x, self.env.robot.y):
                 self.env.robot.x, self.env.robot.y = old_x, old_y
                 self.logger.warning("Obstacle détecté pendant la rotation (distance IR: %.2f)", distance_ir)
@@ -98,10 +106,11 @@ class Controleur:
 
             if self.env.affichage_active and iteration % 10 == 0:
                 self.env.affichage.mettre_a_jour(self.env.robot, ir_point, distance_ir)
+
             iteration += 1
 
         self.logger.info("Rotation terminée, angle atteint: %.2f (cible: %.2f)", self.env.robot.angle, target_angle)
-        return True  
+        return True  # Rotation réussie  
    
     def tracer_carre(self, cote):
         """
