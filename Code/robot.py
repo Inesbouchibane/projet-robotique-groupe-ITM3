@@ -34,18 +34,12 @@ class Robot:
 	    self.x, self.y = nouvelle_x, nouvelle_y
 
     def scan_infrarouge(self, obstacles, max_distance):
-        """
-        Simule un capteur infrarouge pour détecter les obstacles.
-        :param obstacles: Liste des obstacles (tuples : (x, y, largeur, hauteur)).
-        :param max_distance: Distance maximale de détection.
-        :return: Le point de collision ou le point maximal détecté.
-        """
         angle_rad = math.radians(self.angle)
         for d in range(0, int(max_distance), 5):
             x_point = self.x + d * math.cos(angle_rad)
             y_point = self.y - d * math.sin(angle_rad)
             for (ox, oy, ow, oh) in obstacles:
-                if ox < x_point < ox + ow and oy < y_point < oy + oh:
+                if ox <= x_point <= ox + ow and oy <= y_point <= oy + oh:
                     return (x_point, y_point)
-        return (self.x + max_distance * math.cos(angle_rad),
-                self.y - max_distance * math.sin(angle_rad))
+        return (self.x + max_distance * math.cos(angle_rad), self.y - max_distance * math.sin(angle_rad))
+
