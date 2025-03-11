@@ -56,6 +56,13 @@ class Environnement:
         :param hauteur: Hauteur de l'obstacle
         """
      
+        if x < 0 or y < 0 or x + largeur > LARGEUR or y + hauteur > HAUTEUR:
+            raise ValueError("L'obstacle est hors des limites de l'environnement.")
+        self.obstacles.append((x, y, largeur, hauteur))
+        if self.affichage_active and self.affichage:
+            self.affichage.obstacles = self.obstacles
+        print(f"Obstacle ajouté à la position ({x}, {y}) avec une largeur de {largeur} et une hauteur de {hauteur}.")
+
 
     def detecter_murs(self):
         distances = {
