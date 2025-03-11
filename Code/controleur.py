@@ -121,6 +121,74 @@ class Controleur:
         self.logger.info("Rotation terminée, angle atteint: %.2f (cible: %.2f)", self.env.robot.angle, target_angle)
         return True  # Rotation réussie  
    
+    def avancer_vers_mur_proche(self):
+        """
+        Détermine le mur le plus proche et avance vers lui tout en évitant les obstacles.
+        Affiche des messages clairs pour indiquer le mur le plus proche et l'avancement.
+        La fenêtre reste ouverte jusqu'à ce que l'utilisateur la ferme manuellement.
+        """
+        # Détecter les distances aux murs
+        distances = self.env.detecter_murs()
+        mur_proche = min(distances, key=distances.get)
+        distance_mur = distances[mur_proche]
+
+        print(f"Mur le plus proche détecté : {mur_proche} à une distance de {distance_mur:.2f} px")
+
+        if mur_proche == "haut":
+            angle_cible = 270  
+        elif mur_proche == "bas":
+            angle_cible = 90  
+        elif mur_proche == "gauche":
+            angle_cible = 180  
+        elif mur_proche == "droite":
+            angle_cible = 0    
+
+            print("Erreur : Mur non reconnu")
+            return
+
+        # Calculer la rotation la plus courte
+        delta_angle = (angle_cible - self.env.robot.angle + 360) % 360
+        if delta_angle > 180:
+            delta_angle -= 360  
+
+        if mur_proche == "haut":
+            delta_angle = (delta_angle + 180) % 360 
+        elif mur_proche == "bas":
+            delta_angle = (delta_angle + 180) % 360
+
+        print(f"Orientation du robot vers le mur : angle cible = {angle_cible}°")
+        print(f"Rotation nécessaire : {delta_angle}°")
+
+        if not self.tourner(delta_angle):
+            print("Rotation interrompue à cause d'un obstacle.")
+            return
+
+        # Verifier les obstacles 
+        print("Début de l'avancement vers le mur...")
+        while distance_mur > 10: 
+            distances = self.env.detecter_murs()
+            if mur_proche not in distances:
+                print(f"Erreur: Le mur le plus proche '{mur_proche}' n'est plus détecté.")
+                break
+            distance_mur = distances[mur_proche]
+            print(f"Distance actuelle au mur : {distance_mur:.2f} px")
+
+            # Avancer d'un petit pas (ici 10 px)
+            if not self.avancer(10):  # Si un obstacle est détecté, arrêter
+                print("Obstacle détecté ! Arrêt de l'avancement.")
+                break
+
+            if self.env.affichage_active:
+                ir_point = self.env.robot.scan_infrarouge(self.env.obstacles, self.env.IR_MAX_DISTANCE)
+                distance_ir = math.hypot(ir_point[0] - self.env.robot.x, ir_point[1] - self.env.robot.y)
+                self.env.affichage.mettre_a_jour(self.env.robot, ir_point, distance_ir)
+
+            time.sleep(0.1) 
+
+        print("Le robot a atteint le mur ou a été arrêté par un obstacle.")
+        if self.env.affichage_active:
+            self.env.affichage.attendre_fermeture()
+
     def tracer_carre(self, cote):
         """
         Fait tracer un carré de côté donné par le robot avec les vitesses initiales.
