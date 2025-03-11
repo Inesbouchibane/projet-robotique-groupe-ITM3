@@ -1,11 +1,12 @@
+
 from controleur import Controleur
 
 def main():
     mode = ""
-    while mode.lower() not in ["a", "m", "c"]:
-        mode = input("Mode : automatique (a), manuel (m) ou carré (c) ? ").strip().lower()
+    while mode.lower() not in ["a", "m", "c", "mur"]:
+        mode = input("Mode : automatique (a), manuel (m), carré (c) ou avancer vers mur (mur) ? ").strip().lower()
 
-    mode_str = {"a": "automatique", "m": "manuel", "c": "carré"}[mode]
+    mode_str = {"a": "automatique", "m": "manuel", "c": "carré", "mur": "mur"}[mode]
 
     if mode_str in ["automatique", "manuel"]:
         try:
@@ -14,7 +15,14 @@ def main():
         except ValueError:
             print("Erreur: Utilisation des vitesses par défaut (2).")
             vitesse_gauche, vitesse_droite = 2, 2
-    else:  # mode "carré"
+    elif mode_str == "carré":  # mode "carré"
+        try:
+            vitesse = float(input("Vitesse des roues (par défaut 2) : ") or 2)
+            vitesse_gauche, vitesse_droite = vitesse, vitesse
+        except ValueError:
+            print("Erreur: Utilisation de la vitesse par défaut (2).")
+            vitesse_gauche, vitesse_droite = 2, 2
+    else:  # mode "mur"
         try:
             vitesse = float(input("Vitesse des roues (par défaut 2) : ") or 2)
             vitesse_gauche, vitesse_droite = vitesse, vitesse
@@ -45,7 +53,11 @@ def main():
     affichage = affichage_input in ['true', 't', '1', 'oui']
 
     controleur = Controleur(vitesse_gauche, vitesse_droite, mode_str, affichage, longueur_carre, pos_x, pos_y)
-    controleur.env.demarrer_simulation()
+
+    if mode_str == "mur":
+        controleur.avancer_vers_mur_proche()
+    else:
+        controleur.env.demarrer_simulation()
 
 if __name__ == "__main__":
     main()
