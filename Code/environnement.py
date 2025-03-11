@@ -47,22 +47,7 @@ class Environnement:
             if ox < x < ox + ow and oy < y < oy + oh:
                 return True
         return False
-     def ajouter_obstacle(self, x, y, largeur, hauteur):
-        """
-        Ajoute un obstacle rectangulaire à la liste des obstacles.
-        :param x: Position x du coin supérieur gauche de l'obstacle
-        :param y: Position y du coin supérieur gauche de l'obstacle
-        :param largeur: Largeur de l'obstacle
-        :param hauteur: Hauteur de l'obstacle
-        """
      
-        if x < 0 or y < 0 or x + largeur > LARGEUR or y + hauteur > HAUTEUR:
-            raise ValueError("L'obstacle est hors des limites de l'environnement.")
-        self.obstacles.append((x, y, largeur, hauteur))
-        if self.affichage_active and self.affichage:
-            self.affichage.obstacles = self.obstacles
-        print(f"Obstacle ajouté à la position ({x}, {y}) avec une largeur de {largeur} et une hauteur de {hauteur}.")
-
 
     def detecter_murs(self):
         distances = {
@@ -176,46 +161,4 @@ self.robot.vitesse_droite = self.default_vd
                 print(f"Position: ({self.robot.x:.2f}, {self.robot.y:.2f}) - Distance IR: {distance_ir:.2f}")
 
         # Fin de la boucle principale
-
-    def tracer_carre(self, cote):
-        """
-        Fait tracer un carré de côté donné par le robot.
-        Le robot avance de manière incrémentale (vitesse fixe) et effectue une rotation de 90° après chaque côté.
-        """
-        if not self.verifier_limite_carre(cote):
-            print("Impossible de tracer le carré : obstacle détecté.")
-            return
-
-        vitesse = 1.0  # Vitesse fixe pour le tracé
-        self.trajectoire = []  # Réinitialise la trajectoire
-
-        for _ in range(4):
-            distance_parcourue = 0
-            while distance_parcourue < cote:
-                distance_a_parcourir = min(vitesse, cote - distance_parcourue)
-                dx = distance_a_parcourir * math.cos(math.radians(self.robot.angle))
-                dy = -distance_a_parcourir * math.sin(math.radians(self.robot.angle))
-                nouvelle_x = self.robot.x + dx
-                nouvelle_y = self.robot.y + dy
-
-                if not self.detecter_collision(nouvelle_x, nouvelle_y):
-                    self.robot.x = nouvelle_x
-                    self.robot.y = nouvelle_y
-                    self.trajectoire.append((self.robot.x, self.robot.y))
-                    distance_parcourue += distance_a_parcourir
-                else:
-                    print("Obstacle détecté pendant le tracé du carré. Arrêt du tracé.")
-                    return
-
-                ir_point = self.robot.scan_infrarouge(self.obstacles, IR_MAX_DISTANCE)
-                distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - self.robot.y)
-                if self.affichage_active:
-                    self.affichage.mettre_a_jour(self.robot, ir_point, distance_ir)
-                else:
-                    print(f"[Carré] Position: ({self.robot.x:.2f}, {self.robot.y:.2f}) - IR: {distance_ir:.2f}")
-            # Rotation de 90°
-            self.robot.angle = (self.robot.angle + 90) % 360
-
-        print("Carré terminé")
-
-    
+   
