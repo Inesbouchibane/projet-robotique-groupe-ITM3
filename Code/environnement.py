@@ -96,10 +96,12 @@ class Environnement:
                             if rep == "y":
                                 try:
                                     cote = float(input("Entrez la longueur du côté du carré : "))
+				    controleur.tracer_carre(cote)
                                 except ValueError:
                                     cote = self.segment_length
                                     print(f"Valeur invalide, utilisation de {self.segment_length}.")
-                                self.tracer_carre(cote)
+                                    controleur.tracer_carre(self.segment_length)
+
                                 continue
                             else:
                                 try:
@@ -127,28 +129,18 @@ class Environnement:
             ir_point = self.robot.scan_infrarouge(self.obstacles, IR_MAX_DISTANCE)
             distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - self.robot.y)
 
-if self.mode == "automatique":
-    if distance_ir < IR_SEUIL_ARRET or self.detecter_collision(self.robot.x, self.robot.y):
-        if not self.avoidance_mode:
-            self.robot.angle = random.uniform(0, 360)  # Ligne clé : rotation aléatoire
-            self.avoidance_mode = True
-            self.avoidance_counter = 30
-            print(f"Obstacle détecté à {distance_ir:.2f}px ! Nouvelle direction: {self.robot.angle:.2f}°")
-        else:
-            if self.avoidance_counter > 0:
-                self.avoidance_counter -= 1
-        self.robot.vitesse_gauche = self.default_vg  # Maintient les vitesses par défaut
-        self.robot.vitesse_droite = self.default_vd
-    else:
-        if self.avoidance_mode and self.avoidance_counter == 0:
-            self.avoidance_mode = False
-            self.robot.vitesse_gauche = self.default_vg
-            self.robot.vitesse_droite = self.default_vd
-else:
-    if self.avoidance_counter > 0:
-        self.avoidance_counter -= 1
-self.robot.vitesse_gauche = self.default_vg
-self.robot.vitesse_droite = self.default_vd
+	    if self.mode == "automatique":
+                if distance_ir < IR_SEUIL_ARRET or self.detecter_collision(self.robot.x, self.robot.y):
+                    if not self.avoidance_mode:
+                        self.robot.angle = random.uniform(0, 360)
+                        self.avoidance_mode = True
+                        self.avoidance_counter = 30
+                        print(f"Obstacle détecté à {distance_ir:.2f}px ! Nouvelle direction: {self.robot.angle:.2f}°")
+                    else:
+                        if self.avoidance_counter > 0:
+                            self.avoidance_counter -= 1
+                    self.robot.vitesse_gauche = self.default_vg
+                    self.robot.vitesse_droite = self.default_vd
                 else:
                     if self.avoidance_mode and self.avoidance_counter == 0:
                         self.avoidance_mode = False
@@ -159,6 +151,3 @@ self.robot.vitesse_droite = self.default_vd
                 self.affichage.mettre_a_jour(self.robot, ir_point, distance_ir)
             else:
                 print(f"Position: ({self.robot.x:.2f}, {self.robot.y:.2f}) - Distance IR: {distance_ir:.2f}")
-
-        # Fin de la boucle principale
-   
