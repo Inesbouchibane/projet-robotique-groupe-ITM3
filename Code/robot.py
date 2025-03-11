@@ -43,3 +43,7 @@ class Robot:
                     return (x_point, y_point)
         return (self.x + max_distance * math.cos(angle_rad), self.y - max_distance * math.sin(angle_rad))
 
+    def distance_parcourue(self):
+        dx = self.x - self.last_x
+        dy = self.y - self.last_y
+        return math.hypot(dx, dy)
