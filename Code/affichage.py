@@ -84,6 +84,10 @@ class Affichage:
             text_arret = self.font.render("Robot arrêté (obstacle détecté)", True, NOIR)
             self.ecran.blit(text_arret, (10, 40))  # Position du texte en dessous de la distance IR
 
+	# Afficher la distance totale parcourue
+        text_total = self.font.render(f"Distance parcourue: {round(self.distance_totale, 2)} px", True, NOIR)
+        self.ecran.blit(text_total, (10, 70))  # Position du texte en dessous du message d'arrêt
+
 
         # Mettre à jour l'affichage
         pygame.display.flip()
@@ -92,6 +96,7 @@ class Affichage:
     def reset_trajet(self):
         """Réinitialise la trajectoire enregistrée."""
         self.trajet = []
+	self.distance_totale = 0
 
     def calculer_points_robot(self, robot):
         """
