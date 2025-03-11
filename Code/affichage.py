@@ -88,3 +88,17 @@ class Affichage:
             (robot.x + cos_a * robot.longueur / 2 + sin_a * robot.largeur / 2,
              robot.y - sin_a * robot.longueur / 2 + cos_a * robot.largeur / 2)
         ]
+     def attendre_fermeture(self):
+        """
+
+        Attend que l'utilisateur ferme la fenêtre ou appuie sur une touche pour quitter.
+        """
+        print("Appuyez sur une touche pour quitter...")
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    pygame.quit()
+                    return
+
+    def __del__(self):
+        pygame.quit()
