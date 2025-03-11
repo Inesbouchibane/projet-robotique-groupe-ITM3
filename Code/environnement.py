@@ -47,7 +47,15 @@ class Environnement:
             if ox < x < ox + ow and oy < y < oy + oh:
                 return True
         return False
-
+     def ajouter_obstacle(self, x, y, largeur, hauteur):
+        """
+        Ajoute un obstacle rectangulaire à la liste des obstacles.
+        :param x: Position x du coin supérieur gauche de l'obstacle
+        :param y: Position y du coin supérieur gauche de l'obstacle
+        :param largeur: Largeur de l'obstacle
+        :param hauteur: Hauteur de l'obstacle
+        """
+     
 
     def detecter_murs(self):
         distances = {
