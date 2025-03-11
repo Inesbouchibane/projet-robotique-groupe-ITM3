@@ -25,6 +25,7 @@ class Affichage:
         self.font = pygame.font.SysFont(None, 30)
         self.obstacles = obstacles
         self.trajet = []
+	self.distance_totale = 0 
 
     def handle_events(self):
         """
