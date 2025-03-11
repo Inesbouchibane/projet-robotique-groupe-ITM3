@@ -218,9 +218,4 @@ self.robot.vitesse_droite = self.default_vd
 
         print("Carré terminé")
 
-    def verifier_limite_carre(self, cote):
-        """
-        Vérifie si le robot peut tracer le carré (stub).
-        Retourne True par défaut.
-        """
-        return True
+    
