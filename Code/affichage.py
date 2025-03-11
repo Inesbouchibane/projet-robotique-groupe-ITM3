@@ -9,6 +9,7 @@ ROUGE = (255, 0, 0)
 VERT = (0, 255, 0)
 CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
+JAUNE = (255, 255, 0)
 
 class Affichage:
     def __init__(self, largeur, hauteur, obstacles):
@@ -26,6 +27,8 @@ class Affichage:
         self.obstacles = obstacles
         self.trajet = []
 	self.distance_totale = 0 
+	self.robot_arrete = False  # Pour suivre si le robot est arrêté
+
 
     def handle_events(self):
         """
@@ -52,8 +55,13 @@ class Affichage:
         :param ir_point: Point détecté par le capteur infrarouge.
         :param distance_ir: Distance mesurée par le capteur.
         """
+	if len(self.trajet) > 0:
+    	    last_point = self.trajet[-1]
+    	    delta_dist = math.hypot(robot.x - last_point[0], robot.y - last_point[1])
+    	    self.distance_totale += delta_dist
+
         self.ecran.fill(BLANC)
-        self.trajet.append((robot.x, robot.y))
+
         if len(self.trajet) > 1:
             pygame.draw.lines(self.ecran, NOIR, False, self.trajet, 2)
         for (ox, oy, ow, oh) in self.obstacles:
