@@ -65,6 +65,10 @@ class Affichage:
         self.ecran.blit(text, (10, 10))
         pygame.display.flip()
         self.clock.tick(30)
+        
+        # Mettre à jour l'affichage
+        pygame.display.flip()
+        self.clock.tick(60)
 
     def reset_trajet(self):
         """Réinitialise la trajectoire enregistrée."""
