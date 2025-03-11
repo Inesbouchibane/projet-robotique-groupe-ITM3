@@ -262,3 +262,11 @@ class Controleur:
         if self.env.affichage_active:
             print("Appuyez sur Entrée pour quitter...")
             input()
+
+    def executer_strategies(self, strategies):
+        self.logger.info("Exécution de %d stratégies", len(strategies))
+        for strategie, args in strategies:
+            strategie(**args)
+        self.logger.info("Stratégies exécutées avec succès")
+
+
