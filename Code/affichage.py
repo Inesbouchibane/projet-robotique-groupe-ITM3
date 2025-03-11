@@ -75,6 +75,15 @@ class Affichage:
 	if ir_point:
             pygame.draw.line(self.ecran, VERT, (robot.x, robot.y), ir_point, 2)
             pygame.draw.circle(self.ecran, MAGENTA, (int(ir_point[0]), int(ir_point[1])), 5)
+	
+	# Afficher la distance IR en haut de la fenêtre
+        text_ir = self.font.render(f"Distance IR: {round(distance_ir, 2)} px", True, NOIR)
+        self.ecran.blit(text_ir, (10, 10))  # Position du texte en haut à gauche
+
+        if self.robot_arrete:
+            text_arret = self.font.render("Robot arrêté (obstacle détecté)", True, NOIR)
+            self.ecran.blit(text_arret, (10, 40))  # Position du texte en dessous de la distance IR
+
 
         # Mettre à jour l'affichage
         pygame.display.flip()
