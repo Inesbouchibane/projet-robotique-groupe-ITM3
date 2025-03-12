@@ -40,3 +40,17 @@ class TestEnvironnement(unittest.TestCase):
         self.robot.x, self.robot.y = 500, 500  # Positionner le robot loin de l'obstacle
         self.assertFalse(self.env.detecter_collision(self.robot.x, self.robot.y))
 
+    def test_mouvement_robot(self):
+        """
+        Tester le mouvement du robot.
+        """
+        # Sauvegarder la position initiale du robot
+        initial_x, initial_y = self.robot.x, self.robot.y
+
+        # Déplacer le robot
+        self.robot.deplacer()
+
+        # Vérifier que la position a changé après le déplacement
+        self.assertNotEqual(self.robot.x, initial_x)
+        self.assertNotEqual(self.robot.y, initial_y)
+
