@@ -20,11 +20,10 @@ class Environnement:
         self.robot = Robot(LARGEUR/2, HAUTEUR/2, vitesse_gauche, vitesse_droite)
         self.mode = mode
         self.obstacles = [
-    (200, 200, 100, 100), 
-    (400, 100, 50, 50), 
-    (600, 270, 50, 50), 
-    (700, 500, 80, 80)  # Nouvel obstacle en bas à droite
-]
+        (200, 200, 100, 100), 
+        (400, 100, 50, 50), 
+        (600, 270, 50, 50), 
+        (700, 500, 80, 80) ]
 
         self.affichage_active = affichage
         if self.affichage_active:
@@ -65,11 +64,11 @@ class Environnement:
         En mode "carré", lance directement le tracé du carré.
         En mode "automatique" ou "manuel", exécute la boucle de simulation.
         """
-	running = True
+        running = True
         from controleur import Controleur
         controleur = Controleur(self.default_vg, self.default_vd, self.mode, self.affichage_active, self.segment_length, self.robot.x, self.robot.y)
   
-	if self.mode == "carré":
+        if self.mode == "carré":
             if (self.robot.x - self.segment_length/2 < 0 or self.robot.x + self.segment_length/2 > LARGEUR or
                     self.robot.y - self.segment_length/2 < 0 or self.robot.y + self.segment_length/2 > HAUTEUR):
                 print("Position initiale inadaptée pour tracer un carré complet. Recentrage du robot.")
@@ -96,7 +95,7 @@ class Environnement:
                             if rep == "y":
                                 try:
                                     cote = float(input("Entrez la longueur du côté du carré : "))
-				    controleur.tracer_carre(cote)
+                    controleur.tracer_carre(cote)
                                 except ValueError:
                                     cote = self.segment_length
                                     print(f"Valeur invalide, utilisation de {self.segment_length}.")
@@ -129,7 +128,7 @@ class Environnement:
             ir_point = self.robot.scan_infrarouge(self.obstacles, IR_MAX_DISTANCE)
             distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - self.robot.y)
 
-	    if self.mode == "automatique":
+        if self.mode == "automatique":
                 if distance_ir < IR_SEUIL_ARRET or self.detecter_collision(self.robot.x, self.robot.y):
                     if not self.avoidance_mode:
                         self.robot.angle = random.uniform(0, 360)
