@@ -16,7 +16,7 @@ class Controleur:
         self.env = Environnement(vitesse_gauche, vitesse_droite, mode, affichage, longueur_carre)
         self.logger.info("Contrôleur initialisé en mode: %s", mode)
 
-     def avancer(self, distance):
+    def avancer(self, distance):
         self.logger.info("Début avancement de %.2f unités, position: (%.2f, %.2f), angle: %.2f", 
                          distance, self.env.robot.x, self.env.robot.y, self.env.robot.angle)
         distance_parcourue = 0
