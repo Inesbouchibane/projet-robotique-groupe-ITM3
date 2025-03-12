@@ -71,3 +71,24 @@ class TestEnvironnement(unittest.TestCase):
         # Vérifier que la distance IR est bien inférieure à 100
         self.assertLess(distance_ir, 100)
 
+    def test_update_position_on_collision(self):
+        """
+        Tester si la position du robot ne change pas après une collision.
+        """
+        # Sauvegarder la position initiale du robot
+        initial_x, initial_y = self.robot.x, self.robot.y
+        
+        # Ajouter un obstacle à la position de départ du robot
+        self.env.obstacles.append((initial_x, initial_y, 50, 50))
+        
+        # Déplacer le robot
+        self.robot.deplacer()
+
+        # Vérifier que la position du robot n'a pas changé
+        self.assertEqual(self.robot.x, initial_x)
+        self.assertEqual(self.robot.y, initial_y)
+
+if __name__ == '__main__':
+    unittest.main()
+
+
