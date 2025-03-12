@@ -95,7 +95,7 @@ class Environnement:
                             if rep == "y":
                                 try:
                                     cote = float(input("Entrez la longueur du côté du carré : "))
-                    controleur.tracer_carre(cote)
+                                    controleur.tracer_carre(cote)
                                 except ValueError:
                                     cote = self.segment_length
                                     print(f"Valeur invalide, utilisation de {self.segment_length}.")
