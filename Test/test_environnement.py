@@ -32,5 +32,11 @@ class TestEnvironnement(unittest.TestCase):
         # Vérifier que la détection de collision retourne False
         self.assertFalse(self.env.detecter_collision(self.robot.x, self.robot.y))
 
-
+    def test_no_collision(self):
+        """
+        Tester la situation où il n'y a pas de collision.
+        """
+        self.env.obstacles.append((200, 200, 50, 50))  # Ajouter un obstacle
+        self.robot.x, self.robot.y = 500, 500  # Positionner le robot loin de l'obstacle
+        self.assertFalse(self.env.detecter_collision(self.robot.x, self.robot.y))
 
