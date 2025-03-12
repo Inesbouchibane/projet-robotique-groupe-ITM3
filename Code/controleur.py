@@ -2,20 +2,16 @@ import logging
 from environnement import Environnement
 
 class Controleur:
-    def __init__(self, vitesse_gauche, vitesse_droite, mode, affichage=True, longueur_carre=200):
-        """
-        Initialise le contrôleur avec les paramètres de simulation.
-        :param vitesse_gauche: Vitesse de la roue gauche.
-        :param vitesse_droite: Vitesse de la roue droite.
-        :param mode: "automatique", "manuel" ou "carré".
-        :param affichage: True pour affichage graphique, False pour console.
-        :param longueur_carre: Longueur du côté du carré (pour le mode carré).
-        """
+    def __init__(self, vitesse_gauche, vitesse_droite, mode, affichage=True, longueur_carre=200, pos_x=400, pos_y=300):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.env = Environnement(vitesse_gauche, vitesse_droite, mode, affichage, longueur_carre)
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        self.logger.addHandler(handler)
+        self.env = Environnement(vitesse_gauche, vitesse_droite, mode, affichage, longueur_carre, pos_x, pos_y)
         self.logger.info("Contrôleur initialisé en mode: %s", mode)
-
+        self.vitesse_gauche_initiale = vitesse_gauche  # Stocker la vitesse initiale
+        self.vitesse_droite_initiale = vitesse_droite  # Stocker la vitesse initiale
     def avancer(self, distance):
         self.logger.info("Début avancement de %.2f unités, position: (%.2f, %.2f), angle: %.2f", 
                          distance, self.env.robot.x, self.env.robot.y, self.env.robot.angle)

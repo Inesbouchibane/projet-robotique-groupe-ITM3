@@ -20,10 +20,11 @@ class Environnement:
         self.robot = Robot(LARGEUR/2, HAUTEUR/2, vitesse_gauche, vitesse_droite)
         self.mode = mode
         self.obstacles = [
-        (200, 200, 100, 100), 
-        (400, 100, 50, 50), 
-        (600, 270, 50, 50), 
-        (700, 500, 80, 80) ]
+    (200, 200, 100, 100), 
+    (400, 100, 50, 50), 
+    (600, 270, 50, 50), 
+    (700, 500, 80, 80)  # Nouvel obstacle en bas à droite
+]
 
         self.affichage_active = affichage
         if self.affichage_active:
@@ -146,7 +147,7 @@ class Environnement:
                         self.robot.vitesse_gauche = self.default_vg
                         self.robot.vitesse_droite = self.default_vd
 
-            if self.affichage_active:
+        if self.affichage_active:
                 self.affichage.mettre_a_jour(self.robot, ir_point, distance_ir)
-            else:
+        else:
                 print(f"Position: ({self.robot.x:.2f}, {self.robot.y:.2f}) - Distance IR: {distance_ir:.2f}")
