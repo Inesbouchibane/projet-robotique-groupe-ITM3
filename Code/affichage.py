@@ -60,20 +60,35 @@ class Affichage:
     	    delta_dist = math.hypot(robot.x - last_point[0], robot.y - last_point[1])
     	    self.distance_totale += delta_dist
 
-        self.ecran.fill(BLANC)
+	self.ecran.fill(BLANC)
 
+	self.trajet.append((robot.x, robot.y))
         if len(self.trajet) > 1:
             pygame.draw.lines(self.ecran, NOIR, False, self.trajet, 2)
+
         for (ox, oy, ow, oh) in self.obstacles:
             pygame.draw.rect(self.ecran, ROUGE, (ox, oy, ow, oh))
-        pygame.draw.polygon(self.ecran, BLEU, self.calculer_points_robot(robot))
-        pygame.draw.line(self.ecran, VERT, (robot.x, robot.y), ir_point, 2)
-        pygame.draw.circle(self.ecran, MAGENTA, (int(ir_point[0]), int(ir_point[1])), 5)
-        text = self.font.render(f"Distance: {round(distance_ir,2)} px", True, NOIR)
-        self.ecran.blit(text, (10, 10))
-        pygame.display.flip()
-        self.clock.tick(30)
-        
+
+	couleur_robot = JAUNE if self.robot_arrete else BLEU
+	pygame.draw.polygon(self.ecran, couleur_robot, self.calculer_points_robot(robot))
+
+	if ir_point:
+            pygame.draw.line(self.ecran, VERT, (robot.x, robot.y), ir_point, 2)
+            pygame.draw.circle(self.ecran, MAGENTA, (int(ir_point[0]), int(ir_point[1])), 5)
+	
+	# Afficher la distance IR en haut de la fenêtre
+        text_ir = self.font.render(f"Distance IR: {round(distance_ir, 2)} px", True, NOIR)
+        self.ecran.blit(text_ir, (10, 10))  # Position du texte en haut à gauche
+
+        if self.robot_arrete:
+            text_arret = self.font.render("Robot arrêté (obstacle détecté)", True, NOIR)
+            self.ecran.blit(text_arret, (10, 40))  # Position du texte en dessous de la distance IR
+
+	# Afficher la distance totale parcourue
+        text_total = self.font.render(f"Distance parcourue: {round(self.distance_totale, 2)} px", True, NOIR)
+        self.ecran.blit(text_total, (10, 70))  # Position du texte en dessous du message d'arrêt
+
+
         # Mettre à jour l'affichage
         pygame.display.flip()
         self.clock.tick(60)
@@ -81,6 +96,7 @@ class Affichage:
     def reset_trajet(self):
         """Réinitialise la trajectoire enregistrée."""
         self.trajet = []
+	self.distance_totale = 0
 
     def calculer_points_robot(self, robot):
         """

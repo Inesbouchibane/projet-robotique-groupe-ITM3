@@ -1,66 +1,92 @@
 import unittest
-import time
-from unittest.mock import patch
+from unittest.mock import MagicMock
 from environnement import Environnement
 from robot import Robot
-from affichage import Affichage
-import random
-
-# Constantes
-IR_MAX_DISTANCE = 100
-IR_SEUIL_ARRET = 50
-LARGEUR, HAUTEUR = 800, 600
 
 class TestEnvironnement(unittest.TestCase):
 
     def setUp(self):
-        """Initialisation d'un environnement pour les tests"""
-        self.env = Environnement(2, 2, "automatique")
-        self.env.avoidance_mode = False
-        self.env.robot.x, self.env.robot.y = 150, 150  # Position initiale du robot
+        """
+        Initialisation avant chaque test.
+        """
+        # Crée un environnement avec des vitesses par défaut et mode manuel
+        self.env = Environnement(vitesse_gauche=2, vitesse_droite=2, mode="manuel", affichage=False)
+        self.robot = self.env.robot
 
-    def test_initialisation(self):
-        """Test l'initialisation de l'environnement"""
-        self.assertEqual(self.env.mode, "automatique")
-        self.assertIsInstance(self.env.robot, Robot)
-        self.assertEqual(len(self.env.obstacles), 2)
-
-    def test_detecter_collision(self):
-        """Test la détection de collision avec un obstacle"""
-        # Coordonnées dans un obstacle
-        self.assertTrue(self.env.detecter_collision(250, 250))
-        # Coordonnées hors des obstacles
-        self.assertFalse(self.env.detecter_collision(50, 50))
-
-    def test_changer_vitesse_manuel(self):
-        """Test du changement de vitesse en mode manuel."""
-        # Changer les vitesses
-        self.env.robot.vitesse_gauche = 5
-        self.env.robot.vitesse_droite = 5
+    def test_collision_detection(self):
+        """
+        Tester la détection de collision avec un obstacle.
+        """
+        # Ajouter un obstacle à une position spécifique
+        self.env.obstacles.append((100, 100, 50, 50))  # Un obstacle à (100, 100) de taille 50x50
         
-        self.assertEqual(self.env.robot.vitesse_gauche, 5)
-        self.assertEqual(self.env.robot.vitesse_droite, 5)
-
-        # Vérifier que le robot se déplace avec les nouvelles vitesses
-        initial_x, initial_y = self.env.robot.x, self.env.robot.y
-        self.env.robot.deplacer()
-        self.assertNotEqual((initial_x, initial_y), (self.env.robot.x, self.env.robot.y))
+        # Placer le robot à une position proche de l'obstacle
+        self.robot.x, self.robot.y = 120, 120
         
-    def test_avoidance_mode_activation(self):
-         """Test si l'évitement d'obstacles s'active en mode automatique"""
-        # On définit un obstacle couvrant la zone de (200,200) à (300,300)
-        self.env.obstacles = [(200, 200, 100, 100)]
-        # On place le robot à l'intérieur de cet obstacle
-        self.env.robot.x, self.env.robot.y = 250, 250
+        # Vérifier que la détection de collision retourne True
+        self.assertTrue(self.env.detecter_collision(self.robot.x, self.robot.y))
         
-        # Simulation de l'actualisation de l'état qui se ferait dans la boucle principale
-        if self.env.detecter_collision(self.env.robot.x, self.env.robot.y):
-            self.env.avoidance_mode = True
-        else:
-            self.env.avoidance_mode = False
+        # Placer le robot loin de l'obstacle
+        self.robot.x, self.robot.y = 200, 200
+        
+        # Vérifier que la détection de collision retourne False
+        self.assertFalse(self.env.detecter_collision(self.robot.x, self.robot.y))
 
-        print(f"avoidance_mode: {self.env.avoidance_mode}")  # Pour le débogage
-        self.assertTrue(self.env.avoidance_mode)
+    def test_no_collision(self):
+        """
+        Tester la situation où il n'y a pas de collision.
+        """
+        self.env.obstacles.append((200, 200, 50, 50))  # Ajouter un obstacle
+        self.robot.x, self.robot.y = 500, 500  # Positionner le robot loin de l'obstacle
+        self.assertFalse(self.env.detecter_collision(self.robot.x, self.robot.y))
+
+    def test_mouvement_robot(self):
+        """
+        Tester le mouvement du robot.
+        """
+        # Sauvegarder la position initiale du robot
+        initial_x, initial_y = self.robot.x, self.robot.y
+
+        # Déplacer le robot
+        self.robot.deplacer()
+
+        # Vérifier que la position a changé après le déplacement
+        self.assertNotEqual(self.robot.x, initial_x)
+        self.assertNotEqual(self.robot.y, initial_y)
+
+    def test_automatic_mode_obstacle_detection(self):
+        """
+        Tester le mode automatique et la détection d'obstacles.
+        """
+        # Ajouter un obstacle à une position spécifique
+        self.env.obstacles.append((100, 100, 50, 50))
+        
+        # Positionner le robot assez proche de l'obstacle
+        self.robot.x, self.robot.y = 110, 110
+        
+        # Simuler un scan infrarouge pour détecter l'obstacle
+        ir_point = self.robot.scan_infrarouge(self.env.obstacles, 100)
+        distance_ir = ((ir_point[0] - self.robot.x) ** 2 + (ir_point[1] - self.robot.y) ** 2) ** 0.5
+
+        # Vérifier que la distance IR est bien inférieure à 100
+        self.assertLess(distance_ir, 100)
+
+    def test_update_position_on_collision(self):
+        """
+        Tester si la position du robot ne change pas après une collision.
+        """
+        # Sauvegarder la position initiale du robot
+        initial_x, initial_y = self.robot.x, self.robot.y
+        
+        # Ajouter un obstacle à la position de départ du robot
+        self.env.obstacles.append((initial_x, initial_y, 50, 50))
+        
+        # Déplacer le robot
+        self.robot.deplacer()
+
+        # Vérifier que la position du robot n'a pas changé
+        self.assertEqual(self.robot.x, initial_x)
+        self.assertEqual(self.robot.y, initial_y)
 
 if __name__ == '__main__':
     unittest.main()
