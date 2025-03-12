@@ -31,15 +31,12 @@ class Environnement:
         self.trajectoire = []
         self.IR_MAX_DISTANCE = IR_MAX_DISTANCE
         self.IR_SEUIL_ARRET = IR_SEUIL_ARRET
+
     def detecter_collision(self, x, y):
-        """
-        Détecte une collision avec un obstacle.
-        """
         for (ox, oy, ow, oh) in self.obstacles:
             if ox < x < ox + ow and oy < y < oy + oh:
                 return True
         return False
-     
 
     def detecter_murs(self):
         distances = {
@@ -50,20 +47,14 @@ class Environnement:
         }
         return distances
 
-
     def demarrer_simulation(self):
-        """
-        Démarre la simulation.
-        En mode "carré", lance directement le tracé du carré.
-        En mode "automatique" ou "manuel", exécute la boucle de simulation.
-        """
         running = True
         from controleur import Controleur
         controleur = Controleur(self.default_vg, self.default_vd, self.mode, self.affichage_active, self.segment_length, self.robot.x, self.robot.y)
-  
+
         if self.mode == "carré":
             if (self.robot.x - self.segment_length/2 < 0 or self.robot.x + self.segment_length/2 > LARGEUR or
-                    self.robot.y - self.segment_length/2 < 0 or self.robot.y + self.segment_length/2 > HAUTEUR):
+                self.robot.y - self.segment_length/2 < 0 or self.robot.y + self.segment_length/2 > HAUTEUR):
                 print("Position initiale inadaptée pour tracer un carré complet. Recentrage du robot.")
                 self.robot.x, self.robot.y = LARGEUR/2, HAUTEUR/2
             controleur.tracer_carre(self.segment_length)
@@ -83,17 +74,14 @@ class Environnement:
                     elif action == "change":
                         if self.robot.vitesse_gauche == 0 and self.robot.vitesse_droite == 0:
                             rep = input("Voulez-vous tracer un carré ? (y/n) : ").strip().lower()
-                            # Vider la file d'événements pour éviter des événements résiduels
                             import pygame; pygame.event.clear()
                             if rep == "y":
                                 try:
                                     cote = float(input("Entrez la longueur du côté du carré : "))
                                     controleur.tracer_carre(cote)
                                 except ValueError:
-                                    cote = self.segment_length
                                     print(f"Valeur invalide, utilisation de {self.segment_length}.")
                                     controleur.tracer_carre(self.segment_length)
-
                                 continue
                             else:
                                 try:
@@ -108,7 +96,7 @@ class Environnement:
                                 self.default_vd = new_vd
                                 print("Robot démarré avec nouvelles vitesses")
                     elif action == "reset":
-                        self.robot.x, self.robot.y = LARGEUR/2, HAUTEUR/2
+                        self.robot.x, self.robot.y = LARGEUR / 2, HAUTEUR / 2
                         if self.affichage_active:
                             self.affichage.reset_trajet()
                         print("Robot réinitialisé")
@@ -121,7 +109,7 @@ class Environnement:
             ir_point = self.robot.scan_infrarouge(self.obstacles, IR_MAX_DISTANCE)
             distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - self.robot.y)
 
-        if self.mode == "automatique":
+            if self.mode == "automatique":
                 if distance_ir < IR_SEUIL_ARRET or self.detecter_collision(self.robot.x, self.robot.y):
                     if not self.avoidance_mode:
                         self.robot.angle = random.uniform(0, 360)
@@ -139,7 +127,7 @@ class Environnement:
                         self.robot.vitesse_gauche = self.default_vg
                         self.robot.vitesse_droite = self.default_vd
 
-        if self.affichage_active:
+            if self.affichage_active:
                 self.affichage.mettre_a_jour(self.robot, ir_point, distance_ir)
-        else:
+            else:
                 print(f"Position: ({self.robot.x:.2f}, {self.robot.y:.2f}) - Distance IR: {distance_ir:.2f}")
