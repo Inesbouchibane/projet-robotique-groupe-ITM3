@@ -54,3 +54,20 @@ class TestEnvironnement(unittest.TestCase):
         self.assertNotEqual(self.robot.x, initial_x)
         self.assertNotEqual(self.robot.y, initial_y)
 
+    def test_automatic_mode_obstacle_detection(self):
+        """
+        Tester le mode automatique et la détection d'obstacles.
+        """
+        # Ajouter un obstacle à une position spécifique
+        self.env.obstacles.append((100, 100, 50, 50))
+        
+        # Positionner le robot assez proche de l'obstacle
+        self.robot.x, self.robot.y = 110, 110
+        
+        # Simuler un scan infrarouge pour détecter l'obstacle
+        ir_point = self.robot.scan_infrarouge(self.env.obstacles, 100)
+        distance_ir = ((ir_point[0] - self.robot.x) ** 2 + (ir_point[1] - self.robot.y) ** 2) ** 0.5
+
+        # Vérifier que la distance IR est bien inférieure à 100
+        self.assertLess(distance_ir, 100)
+
