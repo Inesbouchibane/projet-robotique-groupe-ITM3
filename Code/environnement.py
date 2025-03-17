@@ -1,4 +1,16 @@
-   class Environnement:
+from time import time
+from utils import normaliserVecteur
+
+class Obstacle:
+    def __init__(self, nom, points):
+        self.nom, self.points = nom, points
+
+    def get_bounding_box(self):
+        min_x, max_x = min(x for x, y in self.points), max(x for x, y in self.points)
+        min_y, max_y = min(y for x, y in self.points), max(y for x, y in self.points)
+        return (min_x, min_y, max_x - min_x, max_y - min_y)
+
+class Environnement:
     def __init__(self, width, length, scale):
         self.logger = getLogger(self.__class__.__name__)
         self.width = width
