@@ -1,14 +1,5 @@
-import math
-import random
-from robot import Robot
-from affichage import Affichage
-
-IR_MAX_DISTANCE = 100
-IR_SEUIL_ARRET = 50
-LARGEUR, HAUTEUR = 800, 600
-
-class Environnement:
-   def __init__(self, width, length, scale):
+   class Environnement:
+    def __init__(self, width, length, scale):
         self.logger = getLogger(self.__class__.__name__)
         self.width = width
         self.length = length
@@ -18,6 +9,7 @@ class Environnement:
         self.dicoObs = {}
         self.last_refresh = 0
         self.initBorders()
+
 
 
     def detecter_collision(self, x, y):
