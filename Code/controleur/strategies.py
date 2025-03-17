@@ -7,3 +7,19 @@ class StrategieAvancer:
         self.robA = robAdapt
         self.parcouru = 0
         self.robA.initialise()
+        
+        
+        
+        
+        
+        
+        
+        
+        
+class StrategieTourner:
+    def __init__(self, robAdapt, angle):
+        self.logger = getLogger(self.__class__.__name__)
+        self.robA = robAdapt
+        self.angle = angle
+        self.angle_parcouru = 0
+        self.robA.initialise()
