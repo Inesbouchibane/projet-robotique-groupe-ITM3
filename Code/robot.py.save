@@ -1,0 +1,276 @@
+import math
+
+class Robot:
+    def __init__(self, x, y, vitesse_gauche, vitesse_droite):
+        """
+        Initialise le robot avec une position et des vitesses.
+        :param x: Position x initiale.
+        :param y: Position y initiale.
+        :param vitesse_gauche: Vitesse de la roue gauche.
+        :param vitesse_droite: Vitesse de la roue droite.
+        """
+        self.x, self.y = x, y
+        self.vitesse_gauche = vitesse_gauche
+        self.vitesse_droite = vitesse_droite
+        self.angle = 0
+        self.largeur, self.longueur = 20, 40
+        self.last_x, self.last_y = x, y
+
+
+    def deplacer(self):
+        """
+        Déplace le robot en fonction de ses vitesses et de son angle.
+        """
+        vitesse_moyenne = (self.vitesse_gauche + self.vitesse_droite) / 2
+        delta_angle = (self.vitesse_droite - self.vitesse_gauche) / self.largeur * 10
+        self.angle = (self.angle + delta_angle) % 360
+        dx = vitesse_moyenne * math.cos(math.radians(self.angle))
+        dy = -vitesse_moyenne * math.sin(math.radians(self.angle))
+        nouvelle_x = self.x + dx
+        nouvelle_y = self.y + dy
+        # S'assurer que le robot reste dans la fenêtre (0,800)x(0,600)
+        if 0 <= nouvelle_x <= 800 and 0 <= nouvelle_y < 600:
+            self.last_x, self.last_y = self.x, self.y
+	    self.x, self.y = nouvelle_x, nouvelle_y
+
+    def scan_infrarouge(self, obstacles, max_distance):
+        angle_rad = math.radians(self.angle)
+        for d in range(0, int(max_distance), 5):
+            x_point = self.x + d * math.cos(angle_rad)
+            y_point = self.y - d * math.sin(angle_rad)
+            for (ox, oy, ow, oh) in obstacles:
+                if ox <= x_point <= ox + ow and oy <= y_point <= oy + oh:
+                    return (x_point, y_point)
+        return (self.x + max_distance * math.cos(angle_rad), self.y - max_distance * math.sin(angle_rad))
+ 
+   import math
+import random
+from robot import Robot
+
+IR_MAX_DISTANCE = 100
+IR_SEUIL_ARRET = 50
+LARGEUR, HAUTEUR = 800, 600
+
+class Environnement:
+    def __init__(self, vitesse_gauche, vitesse_droite, mode, 
+affichage_active=True, longueur_carre=200, pos_x=400, pos_y=300):
+        self.robot = Robot(pos_x, pos_y, vitesse_gauche, vitesse_droite)
+        self.mode = mode
+        self.obstacles = []  # Liste vide pour stocker les obstacles
+        self.affichage_active = affichage_active  # Gardez cette variable 
+pour suivre l'état de l'affichage
+        if self.affichage_active:
+            from affichage import Affichage  # Importez Affichage ici, 
+quand il est nécessaire
+            self.affichage = Affichage(LARGEUR, HAUTEUR, self.obstacles)
+        else:
+            self.affichage = None
+        self.avoidance_mode = False
+        self.avoidance_direction = None
+        self.avoidance_counter = 0
+        self.default_vg = vitesse_gauche
+        self.default_vd = vitesse_droite
+        self.segment_length = longueur_carre
+        self.trajectoire = []
+        self.IR_MAX_DISTANCE = IR_MAX_DISTANCE
+        self.IR_SEUIL_ARRET = IR_SEUIL_ARRET
+
+    def detecter_collision(self, x, y):
+        for (ox, oy, ow, oh) in self.obstacles:
+            if ox < x < ox + ow and oy < y < oy + oh:
+                return True
+        return False
+
+    def detecter_murs(self):
+        distances = {
+            "haut": self.robot.y,
+            "bas": HAUTEUR - self.robot.y,
+            "gauche": self.robot.x,
+            "droite": LARGEUR - self.robot.x
+        }
+        return distances
+
+    def ajouter_obstacle(self, x, y, largeur, hauteur):
+        """
+        Ajoute un obstacle rectangulaire à la liste des obstacles.
+        :param x: Position x du coin supérieur gauche de l'obstacle
+        :param y: Position y du coin supérieur gauche de l'obstacle
+        :param largeur: Largeur de l'obstacle
+        :param hauteur: Hauteur de l'obstacle
+        """
+        if x < 0 or y < 0 or x + largeur > LARGEUR or y + hauteur > 
+HAUTEUR:
+            raise ValueError("L'obstacle est hors des limites de 
+l'environnement.")
+        self.obstacles.append((x, y, largeur, hauteur))
+        if self.affichage_active and self.affichage:
+            self.affichage.obstacles = self.obstacles
+        print(f"Obstacle ajouté à la position ({x}, {y}) avec une largeur 
+de {largeur} et une hauteur de {hauteur}.")
+
+    def definir_obstacles(self):
+        """
+        Permet à l'utilisateur de définir des obstacles via le terminal.
+        - Si l'utilisateur appuie sur 'o', il peut choisir entre utiliser 
+les obstacles par défaut ou définir ses propres obstacles.
+        - Si l'utilisateur appuie sur 'n', aucun obstacle ne sera utilisé.
+        """
+        reponse = input("Voulez-vous utiliser des obstacles ? (o/n) : 
+").strip().lower()
+        if reponse == 'o':  # L'utilisateur veut utiliser des obstacles
+            choix = input("Voulez-vous utiliser les obstacles par défaut ? 
+(o/n) : ").strip().lower()
+            if choix == 'o':  # Utiliser les obstacles par défaut
+                self.obstacles = [
+                    (200, 200, 100, 100),
+                    (400, 100, 50, 50),
+                    (600, 270, 50, 50),
+                    (700, 500, 80, 80)
+                ]
+                print("Utilisation des obstacles par défaut.")
+            elif choix == 'n':  # L'utilisateur veut définir ses propres 
+obstacles
+                while True:
+                    try:
+                        x = float(input("Position x du coin supérieur 
+gauche de l'obstacle : "))
+                        y = float(input("Position y du coin supérieur 
+gauche de l'obstacle : "))
+                        largeur = float(input("Largeur de l'obstacle : "))
+                        hauteur = float(input("Hauteur de l'obstacle : "))
+                        self.ajouter_obstacle(x, y, largeur, hauteur)
+                        reponse = input("Voulez-vous ajouter un autre 
+obstacle ? (o/n) : ").strip().lower()
+                        if reponse != 'o':
+                            break
+                    except ValueError as e:
+                        print(f"Erreur: {e}. Veuillez réessayer.")
+            else:
+                print("Choix invalide. Aucun obstacle ne sera utilisé.")
+        elif reponse == 'n':  # L'utilisateur ne veut aucun obstacle
+            self.obstacles = []
+            print("Aucun obstacle ne sera utilisé.")
+        else:  # Choix invalide
+            print("Choix invalide. Aucun obstacle ne sera utilisé.")
+        if self.affichage_active and self.affichage:
+            self.affichage.obstacles = self.obstacles
+
+    def gerer_evenements(self):
+        if self.affichage_active and self.affichage:
+            action = self.affichage.handle_events()
+            if action == "quit":
+                return False
+            elif self.mode == "manuel":
+                if action == "stop":
+                    self.robot.vitesse_gauche = 0
+                    self.robot.vitesse_droite = 0
+                    print("Robot arrêté")
+                elif action == "change":
+                    if self.robot.vitesse_gauche == 0 and 
+self.robot.vitesse_droite == 0:
+                        rep = input("Voulez-vous tracer un carré ? (y/n) : 
+").strip().lower()
+                        import pygame; pygame.event.clear()
+                        if rep == "y":
+                            try:
+                                cote = float(input("Entrez la longueur du 
+côté du carré : "))
+                                from controleur import Controleur
+                                controleur = Controleur(self.default_vg, 
+self.default_vd, self.mode, self.affichage_active, self.segment_length, 
+self.robot.x, self.robot.y)
+                                controleur.tracer_carre(cote)
+                            except ValueError:
+                                print(f"Valeur invalide, utilisation de 
+{self.segment_length}.")
+                                
+controleur.tracer_carre(self.segment_length)
+                            return True
+                        else:
+                            try:
+                                new_vg = float(input("Entrez la nouvelle 
+vitesse de la roue gauche : "))
+                                new_vd = float(input("Entrez la nouvelle 
+vitesse de la roue droite : "))
+                            except ValueError:
+                                print("Valeurs invalides. Utilisation des 
+vitesses par défaut (2).")
+                                new_vg, new_vd = 2, 2
+                            self.robot.vitesse_gauche = new_vg
+                            self.robot.vitesse_droite = new_vd
+                            self.default_vg = new_vg
+                            self.default_vd = new_vd
+                            print("Robot démarré avec nouvelles vitesses")
+                elif action == "reset":
+                    self.robot.x, self.robot.y = LARGEUR / 2, HAUTEUR / 2
+                    if self.affichage_active and self.affichage:
+                        self.affichage.reset_trajet()
+                    print("Robot réinitialisé")
+        return True
+
+    def deplacer_robot(self):
+        old_x, old_y = self.robot.x, self.robot.y
+        self.robot.deplacer()
+
+        if self.detecter_collision(self.robot.x, self.robot.y):
+            self.robot.x, self.robot.y = old_x, old_y
+
+    def gerer_obstacles(self):
+        ir_point = self.robot.scan_infrarouge(self.obstacles, 
+IR_MAX_DISTANCE)
+        distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - 
+self.robot.y)
+
+        if self.mode == "automatique":
+            if distance_ir < IR_SEUIL_ARRET or 
+self.detecter_collision(self.robot.x, self.robot.y):
+                if not self.avoidance_mode:
+                    self.robot.angle = random.uniform(0, 360)
+                    self.avoidance_mode = True
+                    self.avoidance_counter = 30
+                    print(f"Obstacle détecté à {distance_ir:.2f}px ! 
+Nouvelle direction: {self.robot.angle:.2f}°")
+                else:
+                    if self.avoidance_counter > 0:
+                        self.avoidance_counter -= 1
+                        self.robot.vitesse_gauche = self.default_vg
+                        self.robot.vitesse_droite = self.default_vd
+                    else:
+                        if self.avoidance_mode and self.avoidance_counter 
+== 0:
+                            self.avoidance_mode = False
+                        self.robot.vitesse_gauche = self.default_vg
+                        self.robot.vitesse_droite = self.default_vd
+
+        if self.affichage_active and self.affichage:
+            self.affichage.mettre_a_jour(self.robot, ir_point, 
+distance_ir)
+        else:
+            print(f"Position: ({self.robot.x:.2f}, {self.robot.y:.2f}) - 
+Distance IR: {distance_ir:.2f}")
+
+    def demarrer_simulation(self):
+        running = True
+        from controleur import Controleur
+        controleur = Controleur(self.default_vg, self.default_vd, 
+self.mode, self.affichage_active, self.segment_length, self.robot.x, 
+self.robot.y)
+
+        if self.mode == "carré":
+            if (self.robot.x - self.segment_length/2 < 0 or self.robot.x + 
+self.segment_length/2 > LARGEUR or
+                    self.robot.y - self.segment_length/2 < 0 or 
+self.robot.y + self.segment_length/2 > HAUTEUR):
+                print("Position initiale inadaptée pour tracer un carré 
+complet. Recentrage du robot.")
+                self.robot.x, self.robot.y = LARGEUR/2, HAUTEUR/2
+            controleur.tracer_carre(self.segment_length)
+            return
+
+        while running:
+            if not self.gerer_evenements():
+                running = False
+                continue
+
+            self.deplacer_robot()
+            self.gerer_obstacles()
