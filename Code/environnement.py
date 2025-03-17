@@ -8,29 +8,17 @@ IR_SEUIL_ARRET = 50
 LARGEUR, HAUTEUR = 800, 600
 
 class Environnement:
-    def __init__(self, vitesse_gauche, vitesse_droite, mode, affichage=True, longueur_carre=200, pos_x=400, pos_y=300):
-        self.robot = Robot(pos_x, pos_y, vitesse_gauche, vitesse_droite)
-        self.mode = mode
-        self.obstacles = [
-            (200, 200, 100, 100),
-            (400, 100, 50, 50),
-            (600, 270, 50, 50),
-            (700, 500, 80, 80)
-        ]
-        self.affichage_active = affichage
-        if self.affichage_active:
-            self.affichage = Affichage(LARGEUR, HAUTEUR, self.obstacles)
-        else:
-            self.affichage = None
-        self.avoidance_mode = False
-        self.avoidance_direction = None
-        self.avoidance_counter = 0
-        self.default_vg = vitesse_gauche
-        self.default_vd = vitesse_droite
-        self.segment_length = longueur_carre
-        self.trajectoire = []
-        self.IR_MAX_DISTANCE = IR_MAX_DISTANCE
-        self.IR_SEUIL_ARRET = IR_SEUIL_ARRET
+   def __init__(self, width, length, scale):
+        self.logger = getLogger(self.__class__.__name__)
+        self.width = width
+        self.length = length
+        self.scale = scale
+        self.listeRobots = []
+        self.listeObs = []
+        self.dicoObs = {}
+        self.last_refresh = 0
+        self.initBorders()
+
 
     def detecter_collision(self, x, y):
         for (ox, oy, ow, oh) in self.obstacles:
