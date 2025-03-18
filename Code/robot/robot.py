@@ -28,7 +28,17 @@ class Robot:
 
 
 
+    def getAngle(self):
+        return atan2(self.direction[1], self.direction[0])
 
+    @property
+    def vitAngG(self):
+        return self._vitAngG
+
+    @vitAngG.setter
+    def vitAngG(self, vit):
+        self._vitAngG = vit
+        self.logger.debug(f"Vitesse roueG set à {vit} pour {self.nom}")
 
 
 
