@@ -1,62 +1,81 @@
-from controleur import Controleur
+# main.py
+from threading import Thread
+from time import sleep
+from robot.robot import Robot
+from adapt import Adaptateur_simule
+from environnement import Environnement
+from affichage import Affichage
+from controleur.controleur import Controler
+from controleur.strategies import setStrategieCarre, StrategieAuto, StrategieVersMur  # Ajout de la nouvelle stratégie
+from utils import TIC_SIMULATION, LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1, LIST_PTS_OBS_RECTANGLE1, LIST_PTS_OBS_CARRE, LIST_PTS_OBS_RECTANGLE3
+from logging import basicConfig, INFO
 
-def main():
-    mode = ""
-    while mode.lower() not in ["a", "m", "c", "mur"]:
-        mode = input("Mode : automatique (a), manuel (m), carré (c) ou avancer vers mur (mur) ? ").strip().lower()
+basicConfig(level=INFO)
 
-    mode_str = {"a": "automatique", "m": "manuel", "c": "carré", "mur": "mur"}[mode]
+envi = Environnement(LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1)
+robot1 = Robot("r1", 500, 250, 20, 40, 10, 5, "lightblue")
+adaptateur = Adaptateur_simule(robot1, envi)
+envi.setRobot(adaptateur)
 
-    if mode_str in ["automatique", "manuel"]:
-        try:
-            vitesse_gauche = float(input("Vitesse de la roue gauche : "))
-            vitesse_droite = float(input("Vitesse de la roue droite : "))
-        except ValueError:
-            print("Erreur: Utilisation des vitesses par défaut (2).")
-            vitesse_gauche, vitesse_droite = 2, 2
-    elif mode_str == "carré":  # mode "carré"
-        try:
-            vitesse = float(input("Vitesse des roues (par défaut 2) : ") or 2)
-            vitesse_gauche, vitesse_droite = vitesse, vitesse
-        except ValueError:
-            print("Erreur: Utilisation de la vitesse par défaut (2).")
-            vitesse_gauche, vitesse_droite = 2, 2
-    else:  # mode "mur"
-        try:
-            vitesse = float(input("Vitesse des roues (par défaut 2) : ") or 2)
-            vitesse_gauche, vitesse_droite = vitesse, vitesse
-        except ValueError:
-            print("Erreur: Utilisation de la vitesse par défaut (2).")
-            vitesse_gauche, vitesse_droite = 2, 2
+for n, pts in [('R1', LIST_PTS_OBS_RECTANGLE1), ('R2', LIST_PTS_OBS_CARRE), ('R3', LIST_PTS_OBS_RECTANGLE3)]:
+    envi.addObstacle(n, pts)
 
-    try:
-        pos_x = float(input("Position x initiale (0-800) : "))
-        pos_y = float(input("Position y initiale (0-600) : "))
-        if not (0 <= pos_x <= 800 and 0 <= pos_y <= 600):
-            raise ValueError("Position hors limites (0-800, 0-600).")
-    except ValueError as e:
-        print(f"Erreur: {e}. Utilisation des valeurs par défaut (400, 300).")
-        pos_x, pos_y = 400, 300
+affichage = Affichage(LARGEUR_ENV, LONGUEUR_ENV, [o.get_bounding_box() for o in envi.listeObs])
 
-    longueur_carre = 200
-    if mode_str == "carré":
-        try:
-            longueur_carre = float(input("Longueur du côté du carré : "))
-            if longueur_carre <= 0:
-                raise ValueError("La longueur doit être positive.")
-        except ValueError as e:
-            print(f"Erreur: {e}. Utilisation de 200.")
-            longueur_carre = 200
+def loopEnv(envi):
+    while True:
+        envi.refreshEnvironnement()
+        sleep(TIC_SIMULATION)
 
-    affichage_input = input("Affichage graphique ? (true/false) : ").strip().lower()
-    affichage = affichage_input in ['true', 't', '1', 'oui']
+def main_loop():
+    controleur = Controler()
+    running = True
 
-    controleur = Controleur(vitesse_gauche, vitesse_droite, mode_str, affichage, longueur_carre, pos_x, pos_y)
+    print("Choisissez une stratégie :")
+    print("1. Tracer un carré (touche 'c')")
+    print("2. Mode automatique (touche 'a')")
+    print("3. Avancer vers le mur le plus proche")  # Nouvelle option
+    strategy_choice = input("Entrez 1, 2 ou 3 : ").strip()
 
-    if mode_str == "mur":
-        controleur.avancer_vers_mur_proche()
+    if strategy_choice == "1":
+        longueur_cote = float(input("Entrez la longueur du côté du carré : "))
+        strat_carre = setStrategieCarre(adaptateur, longueur_cote)
+        controleur.lancerStrategie(strat_carre)
+        print("Stratégie 'tracer_carre' lancée. Appuyez sur ESC pour quitter.")
+    elif strategy_choice == "2":
+        vitAngG = float(input("Entrez la vitesse angulaire de la roue gauche (vitAngG) : "))
+        vitAngD = float(input("Entrez la vitesse angulaire de la roue droite (vitAngD) : "))
+        strat_auto = StrategieAuto(adaptateur, vitAngG, vitAngD)
+        controleur.lancerStrategie(strat_auto)
+        print("Stratégie 'automatique' lancée. Appuyez sur ESC pour quitter.")
+    elif strategy_choice == "3":  # Gestion de la nouvelle stratégie
+        strat_vers_mur = StrategieVersMur(adaptateur)
+        controleur.lancerStrategie(strat_vers_mur)
+        print("Stratégie 'vers mur' lancée. Appuyez sur ESC pour quitter.")
     else:
-        controleur.env.demarrer_simulation()
+        print("Choix invalide. Démarrage sans stratégie prédéfinie.")
+
+    while running:
+        action = affichage.handle_events(adaptateur)
+        if action == "quit":
+            running = False
+        elif action == "tracer_carre":
+            longueur_cote = float(input("Entrez la longueur du côté du carré : "))
+            strat_carre = setStrategieCarre(adaptateur, longueur_cote)
+            controleur.lancerStrategie(strat_carre)
+            print("Stratégie 'tracer_carre' relancée.")
+        elif action == "automatique":
+            vitAngG = float(input("Entrez la vitesse angulaire de la roue gauche (vitAngG) : "))
+            vitAngD = float(input("Entrez la vitesse angulaire de la roue droite (vitAngD) : "))
+            strat_auto = StrategieAuto(adaptateur, vitAngG, vitAngD)
+            controleur.lancerStrategie(strat_auto)
+            print("Stratégie 'automatique' relancée.")
+
+        affichage.mettre_a_jour(robot1)
+        sleep(TIC_SIMULATION)
+
+    affichage.attendre_fermeture()
 
 if __name__ == "__main__":
-    main()
+    Thread(target=loopEnv, args=(envi,), daemon=True).start()
+    main_loop()

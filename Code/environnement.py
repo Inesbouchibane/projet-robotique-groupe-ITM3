@@ -1,133 +1,77 @@
-import math
-import random
-from robot import Robot
-from affichage import Affichage
+from logging import getLogger
+from math import sqrt
+from time import time
+from utils import normaliserVecteur
 
-IR_MAX_DISTANCE = 100
-IR_SEUIL_ARRET = 50
-LARGEUR, HAUTEUR = 800, 600
+class Obstacle:
+    def __init__(self, nom, points):
+        self.nom, self.points = nom, points
+
+    def get_bounding_box(self):
+        min_x, max_x = min(x for x, y in self.points), max(x for x, y in self.points)
+        min_y, max_y = min(y for x, y in self.points), max(y for x, y in self.points)
+        return (min_x, min_y, max_x - min_x, max_y - min_y)
 
 class Environnement:
-    def __init__(self, vitesse_gauche, vitesse_droite, mode, affichage=True, longueur_carre=200, pos_x=400, pos_y=300):
-        self.robot = Robot(pos_x, pos_y, vitesse_gauche, vitesse_droite)
-        self.mode = mode
-        self.obstacles = [
-            (200, 200, 100, 100),
-            (400, 100, 50, 50),
-            (600, 270, 50, 50),
-            (700, 500, 80, 80)
-        ]
-        self.affichage_active = affichage
-        if self.affichage_active:
-            self.affichage = Affichage(LARGEUR, HAUTEUR, self.obstacles)
-        else:
-            self.affichage = None
-        self.avoidance_mode = False
-        self.avoidance_direction = None
-        self.avoidance_counter = 0
-        self.default_vg = vitesse_gauche
-        self.default_vd = vitesse_droite
-        self.segment_length = longueur_carre
-        self.trajectoire = []
-        self.IR_MAX_DISTANCE = IR_MAX_DISTANCE
-        self.IR_SEUIL_ARRET = IR_SEUIL_ARRET
+    def __init__(self, width, length, scale):
+        self.logger = getLogger(self.__class__.__name__)
+        self.width = width
+        self.length = length
+        self.scale = scale
+        self.listeRobots = []
+        self.listeObs = []
+        self.dicoObs = {}
+        self.last_refresh = 0
+        self.initBorders()
 
-    def detecter_collision(self, x, y):
-        for (ox, oy, ow, oh) in self.obstacles:
-            if ox < x < ox + ow and oy < y < oy + oh:
+    def initBorders(self):
+        lstPoints = [(0, 0), (self.width, 0), (self.width, self.length), (0, self.length)]
+        for i in range(len(lstPoints)):
+            x1, y1 = lstPoints[i]
+            x2, y2 = lstPoints[(i + 1) % len(lstPoints)]
+            self.dicoObs[(int(y1 / self.scale), int(x1 / self.scale))] = 'bordure'
+            while (round(x1), round(y1)) != (round(x2), round(y2)):
+                dir = normaliserVecteur((x2 - x1, y2 - y1))
+                x1, y1 = (x1 + dir[0], y1 + dir[1])
+                self.dicoObs[(int(y1 / self.scale), int(x1 / self.scale))] = 'bordure'
+
+    def addObstacle(self, nom, lstPoints):
+        self.listeObs.append(Obstacle(nom, lstPoints))
+        for i in range(len(lstPoints)):
+            x1, y1 = lstPoints[i]
+            x2, y2 = lstPoints[(i + 1) % len(lstPoints)]
+            self.dicoObs[(int(y1 / self.scale), int(x1 / self.scale))] = nom
+            while (round(x1), round(y1)) != (round(x2), round(y2)):
+                dir = normaliserVecteur((x2 - x1, y2 - y1))
+                x1, y1 = (x1 + dir[0], y1 + dir[1])
+                self.dicoObs[(int(y1 / self.scale), int(x1 / self.scale))] = nom
+
+    def setRobot(self, robA):
+        self.listeRobots.append(robA)
+
+    def refreshEnvironnement(self):
+        temps = time()
+        if self.last_refresh == 0:
+            self.last_refresh = temps
+        duree = temps - self.last_refresh
+        self.logger.debug(f"Refreshing environment, duree: {duree}")
+        for robA in self.listeRobots:
+            if not robA.robot.estCrash and not self.verifCollision(robA.robot):
+                robA.robot.refresh(duree)
+            elif not robA.robot.estCrash:
+                robA.robot.estCrash = True
+        self.last_refresh = temps
+
+    def verifCollision(self, rob):
+        lstPoints = [
+            (rob.x - rob.width/2, rob.y + rob.length/2),
+            (rob.x + rob.width/2, rob.y + rob.length/2),
+            (rob.x + rob.width/2, rob.y - rob.length/2),
+            (rob.x - rob.width/2, rob.y - rob.length/2)
+        ]
+        for x, y in lstPoints:
+            if (int(y / self.scale), int(x / self.scale)) in self.dicoObs:
+                self.logger.warning("Collision de %s avec %s", rob.nom, self.dicoObs[(int(y / self.scale), int(x / self.scale))])
                 return True
         return False
 
-    def detecter_murs(self):
-        distances = {
-            "haut": self.robot.y,
-            "bas": HAUTEUR - self.robot.y,
-            "gauche": self.robot.x,
-            "droite": LARGEUR - self.robot.x
-        }
-        return distances
-
-    def demarrer_simulation(self):
-        running = True
-        from controleur import Controleur
-        controleur = Controleur(self.default_vg, self.default_vd, self.mode, self.affichage_active, self.segment_length, self.robot.x, self.robot.y)
-
-        if self.mode == "carré":
-            if (self.robot.x - self.segment_length/2 < 0 or self.robot.x + self.segment_length/2 > LARGEUR or
-                self.robot.y - self.segment_length/2 < 0 or self.robot.y + self.segment_length/2 > HAUTEUR):
-                print("Position initiale inadaptée pour tracer un carré complet. Recentrage du robot.")
-                self.robot.x, self.robot.y = LARGEUR/2, HAUTEUR/2
-            controleur.tracer_carre(self.segment_length)
-            return
-
-        while running:
-            if self.affichage_active:
-                action = self.affichage.handle_events()
-                if action == "quit":
-                    running = False
-                    continue
-                elif self.mode == "manuel":
-                    if action == "stop":
-                        self.robot.vitesse_gauche = 0
-                        self.robot.vitesse_droite = 0
-                        print("Robot arrêté")
-                    elif action == "change":
-                        if self.robot.vitesse_gauche == 0 and self.robot.vitesse_droite == 0:
-                            rep = input("Voulez-vous tracer un carré ? (y/n) : ").strip().lower()
-                            import pygame; pygame.event.clear()
-                            if rep == "y":
-                                try:
-                                    cote = float(input("Entrez la longueur du côté du carré : "))
-                                    controleur.tracer_carre(cote)
-                                except ValueError:
-                                    print(f"Valeur invalide, utilisation de {self.segment_length}.")
-                                    controleur.tracer_carre(self.segment_length)
-                                continue
-                            else:
-                                try:
-                                    new_vg = float(input("Entrez la nouvelle vitesse de la roue gauche : "))
-                                    new_vd = float(input("Entrez la nouvelle vitesse de la roue droite : "))
-                                except ValueError:
-                                    print("Valeurs invalides. Utilisation des vitesses par défaut (2).")
-                                    new_vg, new_vd = 2, 2
-                                self.robot.vitesse_gauche = new_vg
-                                self.robot.vitesse_droite = new_vd
-                                self.default_vg = new_vg
-                                self.default_vd = new_vd
-                                print("Robot démarré avec nouvelles vitesses")
-                    elif action == "reset":
-                        self.robot.x, self.robot.y = LARGEUR / 2, HAUTEUR / 2
-                        if self.affichage_active:
-                            self.affichage.reset_trajet()
-                        print("Robot réinitialisé")
-
-            old_x, old_y = self.robot.x, self.robot.y
-            self.robot.deplacer()
-            if self.detecter_collision(self.robot.x, self.robot.y):
-                self.robot.x, self.robot.y = old_x, old_y
-
-            ir_point = self.robot.scan_infrarouge(self.obstacles, IR_MAX_DISTANCE)
-            distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - self.robot.y)
-
-            if self.mode == "automatique":
-                if distance_ir < IR_SEUIL_ARRET or self.detecter_collision(self.robot.x, self.robot.y):
-                    if not self.avoidance_mode:
-                        self.robot.angle = random.uniform(0, 360)
-                        self.avoidance_mode = True
-                        self.avoidance_counter = 30
-                        print(f"Obstacle détecté à {distance_ir:.2f}px ! Nouvelle direction: {self.robot.angle:.2f}°")
-                    else:
-                        if self.avoidance_counter > 0:
-                            self.avoidance_counter -= 1
-                    self.robot.vitesse_gauche = self.default_vg
-                    self.robot.vitesse_droite = self.default_vd
-                else:
-                    if self.avoidance_mode and self.avoidance_counter == 0:
-                        self.avoidance_mode = False
-                        self.robot.vitesse_gauche = self.default_vg
-                        self.robot.vitesse_droite = self.default_vd
-
-            if self.affichage_active:
-                self.affichage.mettre_a_jour(self.robot, ir_point, distance_ir)
-            else:
-                print(f"Position: ({self.robot.x:.2f}, {self.robot.y:.2f}) - Distance IR: {distance_ir:.2f}")
