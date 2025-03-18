@@ -19,7 +19,7 @@ class Adaptateur_simule(Adaptateur):
 
     def setVitAngDA(self, vit):
         self.robot.vitAngD = vit
-
+getDistanceParcourue
     def setVitAngGA(self, vit):
         self.robot.vitAngG = vit
 

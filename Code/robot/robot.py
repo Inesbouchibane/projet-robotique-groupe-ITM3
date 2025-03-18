@@ -37,7 +37,14 @@ class Robot:
 
 
 
+    def getVitesseG(self):
+        return self.vitAngG * self.rayonRoue
 
+    def getVitesseD(self):
+        return self.vitAngD * self.rayonRoue
+
+    def getVitesse(self):
+        return (self.getVitesseD() + self.getVitesseG()) / 2
 
 
 
