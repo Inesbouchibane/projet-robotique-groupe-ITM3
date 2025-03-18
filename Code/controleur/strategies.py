@@ -12,6 +12,10 @@ class StrategieAvancer:
         self.logger.debug("Stratégie avancer démarrée")
         self.start_position = (self.robA.robot.x, self.robA.robot.y)
         self.robA.setVitAngA(VIT_ANG_AVAN)
+
+    def step(self):
+        # Aucun traitement particulier pendant l'avancée
+        pass
         
         
         
