@@ -33,7 +33,19 @@ class Robot:
 
 
 
+    @property
+    def vitAngD(self):
+        return self._vitAngD
 
+    @vitAngD.setter
+    def vitAngD(self, vit):
+        self._vitAngD = vit
+        self.logger.debug(f"Vitesse roueD set à {vit} pour {self.nom}")
+
+    def setVitAng(self, vit):
+        self.vitAngD = vit
+        self.vitAngG = vit
+        self.logger.debug(f"Vitesse globale set à {vit} pour {self.nom}")
 
 
 
