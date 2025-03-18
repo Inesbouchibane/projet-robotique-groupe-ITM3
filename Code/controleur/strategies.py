@@ -121,3 +121,6 @@ class StrategieAuto:
                     self.avoiding = False
                     self.robA.setVitAngGA(self.vitAngG)
                     self.robA.setVitAngDA(self.vitAngD)
+                    
+    def stop(self):
+        return False  # La stratégie automatique ne s'arrête pas d'elle-même
