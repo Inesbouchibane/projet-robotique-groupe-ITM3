@@ -47,4 +47,16 @@ class Environnement:
     def setRobot(self, robA):
         self.listeRobots.append(robA)
 
+    def refreshEnvironnement(self):
+        temps = time()
+        if self.last_refresh == 0:
+            self.last_refresh = temps
+        duree = temps - self.last_refresh
+        self.logger.debug(f"Refreshing environment, duree: {duree}")
+        for robA in self.listeRobots:
+            if not robA.robot.estCrash and not self.verifCollision(robA.robot):
+                robA.robot.refresh(duree)
+            elif not robA.robot.estCrash:
+                robA.robot.estCrash = True
+        self.last_refresh = temps
  
