@@ -142,4 +142,35 @@ class StrategieSeq:
         self.robA = robAdapt
         self.index = 0
 
-    
+    def start(self):
+        if self.index < len(self.liste_strategies):
+            self.liste_strategies[self.index].start()
+            
+    def step(self):
+        if self.index < len(self.liste_strategies):
+            self.liste_strategies[self.index].step()
+            
+    def stop(self):
+        if self.index >= len(self.liste_strategies):
+            return True
+        if self.liste_strategies[self.index].stop():
+            self.index += 1
+            if self.index < len(self.liste_strategies):
+                self.liste_strategies[self.index].start()
+            else:
+                return True
+        return False
+
+    def setStrategieCarre(robAdapt, longueur_cote):
+    # Un carré se compose de 4 segments d'avancée et 4 rotations de 90° chacune.
+    return StrategieSeq([
+        StrategieAvancer(robAdapt, longueur_cote),
+        StrategieTourner(robAdapt, 90),
+        StrategieAvancer(robAdapt, longueur_cote),
+        StrategieTourner(robAdapt, 90),
+        StrategieAvancer(robAdapt, longueur_cote),
+        StrategieTourner(robAdapt, 90),
+        StrategieAvancer(robAdapt, longueur_cote),
+        StrategieTourner(robAdapt, 90)
+    ], robAdapt)
+
