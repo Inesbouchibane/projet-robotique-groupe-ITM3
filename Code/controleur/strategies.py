@@ -151,3 +151,16 @@ class StrategieAuto:
                 return True
         return False
 
+    def setStrategieCarre(robAdapt, longueur_cote):
+    # Un carré se compose de 4 segments d'avancée et 4 rotations de 90° chacune.
+    return StrategieSeq([
+        StrategieAvancer(robAdapt, longueur_cote),
+        StrategieTourner(robAdapt, 90),
+        StrategieAvancer(robAdapt, longueur_cote),
+        StrategieTourner(robAdapt, 90),
+        StrategieAvancer(robAdapt, longueur_cote),
+        StrategieTourner(robAdapt, 90),
+        StrategieAvancer(robAdapt, longueur_cote),
+        StrategieTourner(robAdapt, 90)
+    ], robAdapt)
+
