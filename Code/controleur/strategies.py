@@ -54,6 +54,19 @@ class StrategieTourner:
             self.robA.setVitAngGA(VIT_ANG_TOUR)
             self.robA.setVitAngDA(-VIT_ANG_TOUR)
 
+    def step(self):
+        if self.robA.robot.estCrash:
+            return
+        current_angle = math.atan2(self.robA.robot.direction[1], self.robA.robot.direction[0])
+        diff = self.normalize_angle(current_angle - self.target_angle)
+        self.logger.debug("Différence angulaire: %.4f radians", diff)
+        if abs(diff) < self.tolerance:
+            # Correction de l'orientation pour atteindre exactement le target
+            self.robA.robot.direction = [math.cos(self.target_angle), math.sin(self.target_angle)]
+            self.robA.setVitAngA(0)
+            self.finished = True
+            self.logger.debug("Rotation terminée. Orientation corrigée.")
+
 
 
 
