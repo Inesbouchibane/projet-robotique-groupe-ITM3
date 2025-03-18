@@ -1,6 +1,8 @@
 from logging import getLogger
 from utils import VIT_ANG_AVAN, VIT_ANG_TOUR, getDistanceFromPts
 from time import sleep, time
+from utils import getAngleFromVect
+
 import math
 
 class StrategieAvancer:
@@ -164,5 +166,52 @@ def setStrategieCarre(robAdapt, longueur_cote):
         StrategieAvancer(robAdapt, longueur_cote),
         StrategieTourner(robAdapt, 90)
     ], robAdapt)
+    
+    
+# controleur/strategies.py
+class StrategieVersMur:
+    def __init__(self, robAdapt):
+        self.logger = getLogger(self.__class__.__name__)
+        self.robA = robAdapt
+        self.target_angle = 0
+        self.step_phase = 0  # 0: détection, 1: rotation, 2: avancement
+        self.strat_tourner = None
+        self.strat_avancer = None
 
+    def start(self):
+        self.logger.debug("Détection du mur le plus proche")
+        directions = [
+            (0, -1), (1, -1), (1, 0), (1, 1),
+            (0, 1), (-1, 1), (-1, 0), (-1, -1)
+        ]
+        min_dist = float('inf')
+        target_dir = (0, -1)
+        for dir in directions:
+            self.robA.robot.direction = dir  # Met la direction temporairement
+            dist = self.robA.robot.getDistance(self.robA.env)  # Appelle avec 2 arguments
+
+            if dist < min_dist:
+                min_dist = dist
+                target_dir = dir
+        current_vect = self.robA.robot.direction
+        angle = getAngleFromVect(current_vect, target_dir)
+        self.target_angle = angle
+        self.step_phase = 1
+        self.strat_tourner = StrategieTourner(self.robA, self.target_angle)
+        self.strat_tourner.start()
+
+    def step(self):
+        if self.step_phase == 1:
+            self.strat_tourner.step()
+            if self.strat_tourner.stop():
+                self.step_phase = 2
+                self.strat_avancer = StrategieAvancer(self.robA, 200)  # Avance de 200 unités
+                self.strat_avancer.start()
+        elif self.step_phase == 2:
+            self.strat_avancer.step()
+
+    def stop(self):
+        if self.step_phase == 2:
+            return self.strat_avancer.stop()
+        return False
 
