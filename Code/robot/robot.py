@@ -36,6 +36,21 @@ def refresh(self, duree):
             self.direction = norm_dir
             self.x += norm_dir[0] * vg * duree
             self.y += norm_dir[1] * vg * duree
+                    else:  # Turn
+            R = self.width * (vg + vd) / (2 * (vd - vg)) if vd != vg else float('inf')
+            omega = (vd - vg) / self.width
+            angle = self.getAngle() + omega * duree
+            self.direction = [cos(angle), sin(angle)]
+            ICC_x = self.x - R * sin(self.getAngle())
+            ICC_y = self.y + R * cos(self.getAngle())
+            self.x = ICC_x + R * sin(angle)
+            self.y = ICC_y - R * cos(angle)
+
+        # Check for movement
+        if abs(self.x - self.last_x) > 1 or abs(self.y - self.last_y) > 1:
+            self.logger.info(f"Robot {self.nom} moved to ({self.x:.1f}, {self.y:.1f})")
+            self.last_x = self.x
+            self.last_y = self.y
 
 
 
