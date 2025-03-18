@@ -42,7 +42,17 @@ class StrategieTourner:
         self.angle_parcouru = 0
         self.robA.initialise()
 
-
+    def start(self):
+        self.logger.debug("Stratégie tourner lancée")
+        self.initial_angle = math.atan2(self.robA.robot.direction[1], self.robA.robot.direction[0])
+        self.target_angle = self.initial_angle + math.radians(self.angle)
+        # Pour une rotation positive (sens anti-horaire), on inverse les commandes
+        if self.angle > 0:
+            self.robA.setVitAngGA(-VIT_ANG_TOUR)
+            self.robA.setVitAngDA(VIT_ANG_TOUR)
+        else:
+            self.robA.setVitAngGA(VIT_ANG_TOUR)
+            self.robA.setVitAngDA(-VIT_ANG_TOUR)
 
 
 
