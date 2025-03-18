@@ -48,3 +48,12 @@ class Robot:
         while (int(y2/env.scale), int(x2/env.scale)) not in env.dicoObs:
             x2, y2 = (x2 + dirNorm[0], y2 + dirNorm[1])
         return sqrt((x2 - x1)**2 + (y2 - y1)**2)
+
+
+    def avoidObstacle(self, env):
+        distance = self.getDistance(env)
+        if distance < 50:  # Si un obstacle est proche
+            self.logger.debug("Obstacle detected, turning...")
+            self.vitAngG = -VIT_ANG_TOUR
+            self.vitAngD = VIT_ANG_TOUR
+            sleep(0.5)
