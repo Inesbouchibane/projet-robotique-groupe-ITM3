@@ -9,3 +9,7 @@ import math
    def getDistanceFromPts(p1, p2):
     return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
 
+   def normaliserVecteur(v):
+    norm = math.sqrt(v[0]**2 + v[1]**2)
+    return [v[0]/norm, v[1]/norm] if norm != 0 else v
+
