@@ -4,8 +4,8 @@ from utils import getAngleFromVect, getDistanceFromPts, normaliserVecteur, VIT_A
 from time import sleep
 
 class Robot:
-    def _init_(self, nom, x, y, width, length, height, rayonRoue, couleur):
-        self.logger = getLogger(self._class.name_)
+    def __init__(self, nom, x, y, width, length, height, rayonRoue, couleur):
+        self.logger = getLogger(self.__class__.__name__)
         self.nom = nom
         self.x = x
         self.y = y
@@ -14,7 +14,7 @@ class Robot:
         self.height = height
         self.rayonRoue = rayonRoue
         self.couleur = couleur
-        self.direction = [0, -1]  # Initial direction: down
+        self.direction = [0, -1]  # Direction initiale: vers le bas
         self._vitAngG = 0
         self._vitAngD = 0
         self.estSousControle = False
@@ -26,26 +26,34 @@ class Robot:
         if self.estCrash:
             self.logger.debug(f"Robot {self.nom} is crashed, skipping refresh")
             return
-        vg = self.getVitesseG()  # Left wheel linear speed
-        vd = self.getVitesseD()  # Right wheel linear speed
+        
+        vg = self.getVitesseG()
+        vd = self.getVitesseD()
         self.logger.debug(f"Robot {self.nom} - Refresh: vg={vg}, vd={vd}, direction={self.direction}, position=({self.x}, {self.y})")
 
-        if abs(vg - vd) < 1e-5:  # Move straight
+        if abs(vg - vd) < 1e-5:  # Mouvement en ligne droite
             norm_dir = normaliserVecteur(self.direction)
-            self.direction = norm_dir
             self.x += norm_dir[0] * vg * duree
             self.y += norm_dir[1] * vg * duree
-        else:  # Turn
-            R = self.width * (vg + vd) / (2 * (vd - vg)) if vd != vg else float('inf')
-            omega = (vd - vg) / self.width
-            angle = self.getAngle() + omega * duree
-            self.direction = [cos(angle), sin(angle)]
-            ICC_x = self.x - R * sin(self.getAngle())
-            ICC_y = self.y + R * cos(self.getAngle())
-            self.x = ICC_x + R * sin(angle)
-            self.y = ICC_y - R * cos(angle)
+        else:
+            # Modèle de robot différentiel correct
+            R = (self.width / 2) * ((vg + vd) / (vd - vg)) if vd != vg else float('inf')
+            omega = (vd - vg) / self.width  # Vitesse angulaire
+            angle_actuel = self.getAngle()
+            nouvel_angle = angle_actuel + omega * duree
+            
+            if abs(R) < 1e5:  # Éviter les erreurs numériques
+                ICC_x = self.x - R * sin(angle_actuel)
+                ICC_y = self.y + R * cos(angle_actuel)
 
-        # Check for movement
+                self.x = ICC_x + R * sin(nouvel_angle)
+                self.y = ICC_y - R * cos(nouvel_angle)
+                self.direction = [cos(nouvel_angle), sin(nouvel_angle)]
+            else:  # Si R est énorme, on considère un mouvement droit
+                norm_dir = normaliserVecteur(self.direction)
+                self.x += norm_dir[0] * ((vg + vd) / 2) * duree
+                self.y += norm_dir[1] * ((vg + vd) / 2) * duree
+
         if abs(self.x - self.last_x) > 1 or abs(self.y - self.last_y) > 1:
             self.logger.info(f"Robot {self.nom} moved to ({self.x:.1f}, {self.y:.1f})")
             self.last_x = self.x
@@ -92,12 +100,26 @@ class Robot:
         dirNorm = normaliserVecteur(self.direction)
         while (int(y2/env.scale), int(x2/env.scale)) not in env.dicoObs:
             x2, y2 = (x2 + dirNorm[0], y2 + dirNorm[1])
-        return sqrt((x2 - x1)*2 + (y2 - y1)*2)
+        return sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
     def avoidObstacle(self, env):
         distance = self.getDistance(env)
-        if distance < 50:  # If an obstacle is close
+        if distance < 50:  # Si un obstacle est proche
             self.logger.debug("Obstacle detected, turning...")
-            self.vitAngG = -VIT_ANG_TOUR  # Turn left
+            self.vitAngG = -VIT_ANG_TOUR
             self.vitAngD = VIT_ANG_TOUR
-            sleep(0.5)  # Turn for half a second
+            sleep(0.5)
+            
+    # robot.py
+
+# robot.py
+def getDistance(self, env, direction=None):  # Correction de la signature
+    if direction is None:
+        direction = self.direction
+    dirNorm = normaliserVecteur(direction)
+    x1, y1 = (self.x + dirNorm[0] * (self.length/2), self.y + dirNorm[1] * (self.length/2))
+    x2, y2 = x1, y1
+    while (int(y2/env.scale), int(x2/env.scale)) not in env.dicoObs:
+        x2 += dirNorm[0]
+        y2 += dirNorm[1]
+    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
