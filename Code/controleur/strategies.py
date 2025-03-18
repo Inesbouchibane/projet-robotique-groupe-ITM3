@@ -16,6 +16,15 @@ class StrategieAvancer:
     def step(self):
         # Aucun traitement particulier pendant l'avancée
         pass
+
+    def stop(self):
+        current_position = (self.robA.robot.x, self.robA.robot.y)
+        parcouru = getDistanceFromPts(self.start_position, current_position)
+        self.logger.debug("Distance parcourue: %.2f (cible: %.2f)", parcouru, self.distance)
+        if parcouru >= self.distance:
+            self.robA.setVitAngA(0)
+            return True
+        return False
         
         
         
