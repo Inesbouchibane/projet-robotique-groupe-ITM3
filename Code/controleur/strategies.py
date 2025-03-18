@@ -139,3 +139,15 @@ class StrategieAuto:
     def step(self):
         if self.index < len(self.liste_strategies):
             self.liste_strategies[self.index].step()
+            
+    def stop(self):
+        if self.index >= len(self.liste_strategies):
+            return True
+        if self.liste_strategies[self.index].stop():
+            self.index += 1
+            if self.index < len(self.liste_strategies):
+                self.liste_strategies[self.index].start()
+            else:
+                return True
+        return False
+
