@@ -23,3 +23,28 @@ class Robot:
         self.estCrash = False
         self.last_x = x
         self.last_y = y
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def getDistance(self, env):
+        x1, y1 = (self.x + self.direction[0] * (self.length/2), self.y + self.direction[1] * (self.length/2))
+        x2, y2 = x1, y1
+        dirNorm = normaliserVecteur(self.direction)
+        while (int(y2/env.scale), int(x2/env.scale)) not in env.dicoObs:
+            x2, y2 = (x2 + dirNorm[0], y2 + dirNorm[1])
+        return sqrt((x2 - x1)**2 + (y2 - y1)**2)
