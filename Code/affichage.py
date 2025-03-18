@@ -21,17 +21,14 @@ class Affichage:
         self.distance_totale = 0
         self.robot_arrete = False  # Pour suivre si le robot est arrêté
 
-    def handle_events(self):
+    def handle_events(self, adaptateur):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 return "quit"
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_s:
-                    return "stop"
-                elif event.key == pygame.K_d:
-                    return "change"
-                elif event.key == pygame.K_r:
-                    return "reset"
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
+                return "tracer_carre"
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
+                return "automatique"
         return None
 
     def mettre_a_jour(self, robot, ir_point, distance_ir):
