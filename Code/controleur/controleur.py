@@ -23,3 +23,12 @@ class Controler:
                     self.strat_en_cours.robA.setVitAngA(0)
                     self.strat_en_cours = None
             sleep(TIC_SIMULATION)
+    def lancerStrategie(self, strat):
+        if self.strategie:
+            self.logger.error("Contrôleur occupé")
+            return False
+        self.strat_en_cours = strat
+        self.strategie = 1
+        self.strat_en_cours.start()
+        self.logger.debug("Strategy launched")
+        return True
