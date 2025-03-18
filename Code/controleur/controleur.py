@@ -11,3 +11,15 @@ class Controler:
         self.running = True
         Thread(target=self.mainControleur, daemon=True).start()
 
+    def mainControleur(self):
+        while self.running:
+            if self.strategie:
+                self.logger.debug("Controller active, calling step")
+                if not self.strat_en_cours.stop():
+                    self.strat_en_cours.step()
+                else:
+                    self.logger.debug("Strategy completed, stopping")
+                    self.strategie = 0
+                    self.strat_en_cours.robA.setVitAngA(0)
+                    self.strat_en_cours = None
+            sleep(TIC_SIMULATION)
