@@ -1,3 +1,5 @@
+from logging import getLogger
+from math import sqrt
 from time import time
 from utils import normaliserVecteur
 
@@ -59,4 +61,17 @@ class Environnement:
             elif not robA.robot.estCrash:
                 robA.robot.estCrash = True
         self.last_refresh = temps
- 
+
+    def verifCollision(self, rob):
+        lstPoints = [
+            (rob.x - rob.width/2, rob.y + rob.length/2),
+            (rob.x + rob.width/2, rob.y + rob.length/2),
+            (rob.x + rob.width/2, rob.y - rob.length/2),
+            (rob.x - rob.width/2, rob.y - rob.length/2)
+        ]
+        for x, y in lstPoints:
+            if (int(y / self.scale), int(x / self.scale)) in self.dicoObs:
+                self.logger.warning("Collision de %s avec %s", rob.nom, self.dicoObs[(int(y / self.scale), int(x / self.scale))])
+                return True
+        return False
+
