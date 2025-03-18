@@ -2,69 +2,71 @@ import unittest
 from unittest.mock import MagicMock, patch
 import pygame
 from affichage import Affichage
-from robot import Robot
-import math
 
 # Constantes pour simuler l'environnement
 LARGEUR = 800
 HAUTEUR = 600
-OBSTACLES = [(200, 200, 100, 100), (400, 300, 50, 50)]  # Liste d'obstacles
+OBSTACLES = [(200, 200, 100, 100), (400, 300, 50, 50)]
 
 class TestAffichage(unittest.TestCase):
 
-    @patch("pygame.display.set_mode")
-    @patch("pygame.font.SysFont")
-    def setUp(self, mock_font, mock_set_mode):
-        """
-        Initialisation avant chaque test.
-        On mock pygame.display et pygame.font pour éviter de lancer la fenêtre Pygame.
-        """
-        # Mock pygame
-        mock_set_mode.return_value = MagicMock()
-        mock_font.return_value = MagicMock()
-        
-        # Création de l'objet Affichage
+    def setUp(self):
+        """Initialisation avant chaque test."""
+        pygame.init()
+        pygame.display.set_mode((1, 1))  # Mode d'affichage minimal pour éviter l'erreur "Display mode not set"
+
         self.affichage = Affichage(LARGEUR, HAUTEUR, OBSTACLES)
-        
-        # Création du robot
-        self.robot = Robot(LARGEUR / 2, HAUTEUR / 2, 2, 2)
-        
-        # Mock des méthodes Pygame
-        self.affichage.ecran = MagicMock()
-        self.affichage.clock = MagicMock()
+
+        # Simulation d'un robot
+        self.robot = MagicMock()
+        self.robot.x = LARGEUR / 2
+        self.robot.y = HAUTEUR / 2
+        self.robot.width = 20
+        self.robot.length = 20
+        self.robot.direction = (1, 0)
+        self.robot.estCrash = False
+
+        self.affichage.ecran = pygame.Surface((LARGEUR, HAUTEUR))
+
+    def tearDown(self):
+        """Nettoyage après chaque test pour éviter les conflits."""
+        pygame.quit()
 
     def test_handle_events_quit(self):
-        """Test de la gestion de l'événement 'QUIT'."""
-        # Simuler un événement QUIT
+        """Test de l'événement 'QUIT'."""
         pygame.event.post(pygame.event.Event(pygame.QUIT))
-        action = self.affichage.handle_events()
+        action = self.affichage.handle_events(None)
         self.assertEqual(action, "quit")
 
-    def test_handle_events_stop(self):
-        """Test de la gestion de l'événement 'stop'."""
-        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_s))
-        action = self.affichage.handle_events()
-        self.assertEqual(action, "stop")
-    
+    def test_handle_events_tracer_carre(self):
+        """Test de l'événement 'tracer_carre'."""
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_c))
+        action = self.affichage.handle_events(None)
+        self.assertEqual(action, "tracer_carre")
 
-    def test_handle_events_change(self):
-        """Test de la gestion de l'événement 'change'."""
-        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_d))
-        action = self.affichage.handle_events()
-        self.assertEqual(action, "change")
-   
-     
-    def test_handle_events_reset(self):
-        """Test de la gestion de l'événement 'reset'."""
-        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_r))
-        action = self.affichage.handle_events()
-        self.assertEqual(action, "reset")
-    
-    def test_reset_trajet(self):
-        """Test de la réinitialisation de la trajectoire."""
-        self.affichage.trajet = [(100, 100), (200, 200)]
-        self.affichage.reset_trajet()
-        self.assertEqual(self.affichage.trajet, [])
+    def test_handle_events_automatique(self):
+        """Test de l'événement 'automatique'."""
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a))
+        action = self.affichage.handle_events(None)
+        self.assertEqual(action, "automatique")
+
+    def test_mettre_a_jour(self):
+        """Test de la mise à jour de l'affichage."""
+        self.affichage.mettre_a_jour(self.robot)
+        self.assertGreater(len(self.affichage.trajet), 0, "Le trajet du robot devrait être mis à jour.")
+
+    def test_calculer_points_robot(self):
+        """Test du calcul des points du robot."""
+        points = self.affichage.calculer_points_robot(self.robot)
+        self.assertEqual(len(points), 4, "Le robot doit être représenté par un quadrilatère.")
+
+    def test_attendre_fermeture(self):
+        """Test de la fermeture de l'affichage."""
+        with patch("pygame.event.get", return_value=[pygame.event.Event(pygame.QUIT)]):
+            with patch("pygame.quit") as mock_quit:
+                self.affichage.attendre_fermeture()
+                mock_quit.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main()
+
