@@ -23,3 +23,12 @@ class TestControler(unittest.TestCase):
         self.assertEqual(self.controler.strategie, 1)
         strat_mock.start.assert_called_once()
 
+     def test_lancerStrategie_deja_occupe(self):
+        strat_mock1 = MagicMock()
+        strat_mock2 = MagicMock()
+        self.controler.lancerStrategie(strat_mock1)
+        
+        result = self.controler.lancerStrategie(strat_mock2)
+        
+        self.assertFalse(result)
+        strat_mock2.start.assert_not_called()
