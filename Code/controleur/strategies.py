@@ -1,12 +1,14 @@
 from logging import getLogger
+from utils import VIT_ANG_AVAN, VIT_ANG_TOUR, getDistanceFromPts
+from time import sleep, time
+import math
 
 class StrategieAvancer:
     def __init__(self, robAdapt, distance):
         self.logger = getLogger(self.__class__.__name__)
         self.distance = distance
         self.robA = robAdapt
-        self.parcouru = 0
-        self.robA.initialise()
+        self.start_position = (self.robA.robot.x, self.robA.robot.y)
 
     def start(self):
         self.logger.debug("Stratégie avancer démarrée")
@@ -25,22 +27,16 @@ class StrategieAvancer:
             self.robA.setVitAngA(0)
             return True
         return False
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
 class StrategieTourner:
     def __init__(self, robAdapt, angle):
         self.logger = getLogger(self.__class__.__name__)
         self.robA = robAdapt
-        self.angle = angle
-        self.angle_parcouru = 0
-        self.robA.initialise()
+        self.angle = angle  # Angle en degrés (90° pour le carré)
+        self.initial_angle = None
+        self.target_angle = None
+        self.tolerance = math.radians(2)  # Tolérance de 2 degrés
+        self.finished = False
 
     def start(self):
         self.logger.debug("Stratégie tourner lancée")
@@ -76,9 +72,6 @@ class StrategieTourner:
         while angle < -math.pi:
             angle += 2 * math.pi
         return angle
-
-
-
 
 class StrategieAuto:
     def __init__(self, robAdapt, vitAngG, vitAngD):
@@ -134,8 +127,6 @@ class StrategieAuto:
     def stop(self):
         return False  # La stratégie automatique ne s'arrête pas d'elle-même
 
-
-        
 class StrategieSeq:
     def __init__(self, liste_strategies, robAdapt):
         self.liste_strategies = liste_strategies
@@ -145,11 +136,11 @@ class StrategieSeq:
     def start(self):
         if self.index < len(self.liste_strategies):
             self.liste_strategies[self.index].start()
-            
+
     def step(self):
         if self.index < len(self.liste_strategies):
             self.liste_strategies[self.index].step()
-            
+
     def stop(self):
         if self.index >= len(self.liste_strategies):
             return True
@@ -161,7 +152,7 @@ class StrategieSeq:
                 return True
         return False
 
-    def setStrategieCarre(robAdapt, longueur_cote):
+def setStrategieCarre(robAdapt, longueur_cote):
     # Un carré se compose de 4 segments d'avancée et 4 rotations de 90° chacune.
     return StrategieSeq([
         StrategieAvancer(robAdapt, longueur_cote),
@@ -173,4 +164,5 @@ class StrategieSeq:
         StrategieAvancer(robAdapt, longueur_cote),
         StrategieTourner(robAdapt, 90)
     ], robAdapt)
+
 
