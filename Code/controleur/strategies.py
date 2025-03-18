@@ -67,6 +67,16 @@ class StrategieTourner:
             self.finished = True
             self.logger.debug("Rotation terminée. Orientation corrigée.")
 
+    def stop(self):
+        return self.finished
+
+    def normalize_angle(self, angle):
+        while angle > math.pi:
+            angle -= 2 * math.pi
+        while angle < -math.pi:
+            angle += 2 * math.pi
+        return angle
+
 
 
 
