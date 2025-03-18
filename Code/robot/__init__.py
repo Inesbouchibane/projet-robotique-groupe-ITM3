@@ -1,4 +1,2 @@
-from robot.robot import Robot
-from robot.adapt import Adaptateur, Adaptateur_simule
+from .robot import Robot
 
-__all__ = ['Robot', 'Adaptateur', 'Adaptateur_simule']
