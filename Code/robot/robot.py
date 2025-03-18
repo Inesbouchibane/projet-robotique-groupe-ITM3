@@ -23,7 +23,19 @@ class Robot:
         self.estCrash = False
         self.last_x = x
         self.last_y = y
+def refresh(self, duree):
+        if self.estCrash:
+            self.logger.debug(f"Robot {self.nom} is crashed, skipping refresh")
+            return
+        vg = self.getVitesseG()  # Vitesse linéaire de la roue gauche
+        vd = self.getVitesseD()  # Vitesse linéaire de la roue droite
+        self.logger.debug(f"Robot {self.nom} - Refresh: vg={vg}, vd={vd}, direction={self.direction}, position=({self.x}, {self.y})")
 
+        if abs(vg - vd) < 1e-5:  # Mouvement en ligne droite
+            norm_dir = normaliserVecteur(self.direction)
+            self.direction = norm_dir
+            self.x += norm_dir[0] * vg * duree
+            self.y += norm_dir[1] * vg * duree
 
 
 
