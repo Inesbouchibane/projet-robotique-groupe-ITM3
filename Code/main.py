@@ -21,3 +21,8 @@ for n, pts in [('R1', LIST_PTS_OBS_RECTANGLE1), ('R2', LIST_PTS_OBS_CARRE), ('R3
      envi.addObstacle(n, pts)
 
 affichage = Affichage(LARGEUR_ENV, LONGUEUR_ENV, [o.get_bounding_box() for o in envi.listeObs])
+
+def loopEnv(envi):
+    while True:
+        envi.refreshEnvironnement()
+        sleep(TIC_SIMULATION)
