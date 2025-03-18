@@ -26,3 +26,53 @@ def loopEnv(envi):
     while True:
         envi.refreshEnvironnement()
         sleep(TIC_SIMULATION)
+
+def main_loop():
+    controleur = Controler()
+    running = True
+
+    print("Choisissez une stratégie :")
+    print("1. Tracer un carré (touche 'c')")
+    print("2. Mode automatique (touche 'a')")
+    strategy_choice = input("Entrez 1 ou 2 : ").strip()
+
+    if strategy_choice == "1":
+        longueur_cote = float(input("Entrez la longueur du côté du carré : "))
+        strat_carre = setStrategieCarre(adaptateur, longueur_cote)
+        controleur.lancerStrategie(strat_carre)
+        print("Stratégie 'tracer_carre' lancée. Appuyez sur ESC pour quitter.")
+    elif strategy_choice == "2":
+        vitAngG = float(input("Entrez la vitesse angulaire de la roue gauche (vitAngG) : "))
+        vitAngD = float(input("Entrez la vitesse angulaire de la roue droite (vitAngD) : "))
+        strat_auto = StrategieAuto(adaptateur, vitAngG, vitAngD)
+        controleur.lancerStrategie(strat_auto)
+        print("Stratégie 'automatique' lancée. Appuyez sur ESC pour quitter.")
+    else:
+        print("Choix invalide. Démarrage sans stratégie prédéfinie.")
+
+    while running:
+        action = affichage.handle_events(adaptateur)
+        if action == "quit":
+            running = False
+        elif action == "tracer_carre":
+            longueur_cote = float(input("Entrez la longueur du côté du carré : "))
+            strat_carre = setStrategieCarre(adaptateur, longueur_cote)
+            controleur.lancerStrategie(strat_carre)
+            print("Stratégie 'tracer_carre' relancée.")
+        elif action == "automatique":
+            vitAngG = float(input("Entrez la vitesse angulaire de la roue gauche (vitAngG) : "))
+            vitAngD = float(input("Entrez la vitesse angulaire de la roue droite (vitAngD) : "))
+            strat_auto = StrategieAuto(adaptateur, vitAngG, vitAngD)
+            controleur.lancerStrategie(strat_auto)
+            print("Stratégie 'automatique' relancée.")
+
+        affichage.mettre_a_jour(robot1)
+        sleep(TIC_SIMULATION)
+
+    affichage.attendre_fermeture()
+
+if __name__ == "__main__":
+    Thread(target=loopEnv, args=(envi,), daemon=True).start()
+    main_loop()
+
+
