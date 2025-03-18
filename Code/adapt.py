@@ -28,3 +28,14 @@ class Adaptateur_simule(Adaptateur):
 
     def getDistanceA(self):
         return self.robot.getDistance(self.env)
+    def getDistanceParcourue(self):
+        pos_actuelle = (self.robot.x, self.robot.y)
+        dist = getDistanceFromPts(pos_actuelle, self.last_point)
+        self.last_point = pos_actuelle
+        return dist
+
+    def getAngleParcouru(self):
+        dir_actuelle = self.robot.direction
+        angle = getAngleFromVect(self.last_dir, dir_actuelle)
+        self.last_dir = dir_actuelle
+        return angle
