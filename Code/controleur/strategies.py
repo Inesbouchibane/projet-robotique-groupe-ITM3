@@ -91,6 +91,7 @@ class StrategieAuto:
         self.avoid_start_time = None
         self.avoid_duration = 0.5  # Durée d'évitement en secondes
         self.robA.initialise()
+
     def start(self):
         self.logger.debug("Stratégie automatique démarrée avec vitAngG: %f, vitAngD: %f", self.vitAngG, self.vitAngD)
         self.running = True
@@ -132,3 +133,13 @@ class StrategieAuto:
 
     def stop(self):
         return False  # La stratégie automatique ne s'arrête pas d'elle-même
+
+
+        
+class StrategieSeq:
+    def __init__(self, liste_strategies, robAdapt):
+        self.liste_strategies = liste_strategies
+        self.robA = robAdapt
+        self.index = 0
+
+    
