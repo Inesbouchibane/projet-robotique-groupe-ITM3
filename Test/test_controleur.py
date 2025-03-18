@@ -32,3 +32,22 @@ class TestControler(unittest.TestCase):
         
         self.assertFalse(result)
         strat_mock2.start.assert_not_called()
+        
+    @patch("controleur.sleep", return_value=None)  # Évite les pauses réelles
+    def test_mainControleur_arret_strategie(self, _):
+        strat_mock = MagicMock()
+        strat_mock.stop.side_effect = [False, False, True]
+        strat_mock.robA.setVitAngA = MagicMock()
+        
+        self.controler.strat_en_cours = strat_mock
+        self.controler.strategie = 1
+        self.controler.mainControleur()
+        
+        strat_mock.step.assert_called()
+        strat_mock.robA.setVitAngA.assert_called_once_with(0)
+        self.assertEqual(self.controler.strategie, 0)
+        self.assertIsNone(self.controler.strat_en_cours)
+
+if __name__ == "__main__":
+    unittest.main()
+
