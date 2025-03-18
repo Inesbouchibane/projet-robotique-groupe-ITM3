@@ -41,3 +41,21 @@ class StrategieTourner:
         self.angle = angle
         self.angle_parcouru = 0
         self.robA.initialise()
+
+
+
+
+
+
+
+class StrategieAuto:
+    def __init__(self, robAdapt, vitAngG, vitAngD):
+        self.logger = getLogger(self.__class__.__name__)
+        self.robA = robAdapt
+        self.vitAngG = vitAngG
+        self.vitAngD = vitAngD
+        self.running = False
+        self.avoiding = False
+        self.avoid_start_time = None
+        self.avoid_duration = 0.5  # Durée d'évitement en secondes
+        self.robA.initialise()
