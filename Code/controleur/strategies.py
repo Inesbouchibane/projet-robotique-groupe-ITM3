@@ -7,6 +7,11 @@ class StrategieAvancer:
         self.robA = robAdapt
         self.parcouru = 0
         self.robA.initialise()
+
+    def start(self):
+        self.logger.debug("Stratégie avancer démarrée")
+        self.start_position = (self.robA.robot.x, self.robA.robot.y)
+        self.robA.setVitAngA(VIT_ANG_AVAN)
         
         
         
