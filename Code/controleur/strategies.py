@@ -124,3 +124,14 @@ class StrategieAuto:
                     
     def stop(self):
         return False  # La stratégie automatique ne s'arrête pas d'elle-même
+        
+    
+    class StrategieSeq:
+    def __init__(self, liste_strategies, robAdapt):
+        self.liste_strategies = liste_strategies
+        self.robA = robAdapt
+        self.index = 0
+
+    def start(self):
+        if self.index < len(self.liste_strategies):
+            self.liste_strategies[self.index].start()
