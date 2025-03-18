@@ -8,4 +8,18 @@ class TestControler(unittest.TestCase):
     def setUp(self):
         self.controler = Controler()
         self.controler.running = False  # Empêcher le thread de tourner en test
+        
+    def tearDown(self):
+        self.controler.running = False
+
+    def test_lancerStrategie_succes(self):
+        strat_mock = MagicMock()
+        strat_mock.stop.return_value = False
+        
+        result = self.controler.lancerStrategie(strat_mock)
+        
+        self.assertTrue(result)
+        self.assertEqual(self.controler.strat_en_cours, strat_mock)
+        self.assertEqual(self.controler.strategie, 1)
+        strat_mock.start.assert_called_once()
 
