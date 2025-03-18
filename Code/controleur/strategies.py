@@ -80,7 +80,6 @@ class StrategieTourner:
 
 
 
-
 class StrategieAuto:
     def __init__(self, robAdapt, vitAngG, vitAngD):
         self.logger = getLogger(self.__class__.__name__)
@@ -92,45 +91,3 @@ class StrategieAuto:
         self.avoid_start_time = None
         self.avoid_duration = 0.5  # Durée d'évitement en secondes
         self.robA.initialise()
-
-    def start(self):
-        self.logger.debug("Stratégie automatique démarrée avec vitAngG: %f, vitAngD: %f", self.vitAngG, self.vitAngD)
-        self.running = True
-        self.avoiding = False
-        self.robA.setVitAngGA(self.vitAngG)
-        self.robA.setVitAngDA(self.vitAngD)
-        self.robA.initialise()
-
-    def step(self):
-        if self.running and not self.robA.robot.estCrash:
-            distance = self.robA.getDistanceA()
-            self.logger.debug("Distance à l'obstacle: %f", distance)
-            if distance < 50:
-                if not self.avoiding:
-                    self.logger.debug("Obstacle détecté, démarrage de l'évitement")
-                    self.avoid_start_time = time()
-                    self.avoiding = True
-                    # Choix du virage d'évitement en fonction des vitesses de base
-                    if self.vitAngG < self.vitAngD:
-                        # Si la roue gauche est plus lente, le robot tourne naturellement vers la gauche.
-                        # Pour éviter l'obstacle, on force un virage plus prononcé vers la droite.
-                        self.robA.setVitAngGA(abs(VIT_ANG_TOUR))
-                        self.robA.setVitAngDA(-abs(VIT_ANG_TOUR))
-                    else:
-                        # Si la roue droite est plus lente, le robot tourne naturellement vers la droite.
-                        # Pour éviter l'obstacle, on force un virage plus prononcé vers la gauche.
-                        self.robA.setVitAngGA(-abs(VIT_ANG_TOUR))
-                        self.robA.setVitAngDA(abs(VIT_ANG_TOUR))
-            else:
-                if not self.avoiding:
-                    self.robA.setVitAngGA(self.vitAngG)
-                    self.robA.setVitAngDA(self.vitAngD)
-            if self.avoiding:
-                if time() - self.avoid_start_time >= self.avoid_duration:
-                    self.logger.debug("Fin de l'évitement, reprise de la vitesse automatique")
-                    self.avoiding = False
-                    self.robA.setVitAngGA(self.vitAngG)
-                    self.robA.setVitAngDA(self.vitAngD)
-                    
-    def stop(self):
-        return False  # La stratégie automatique ne s'arrête pas d'elle-même
