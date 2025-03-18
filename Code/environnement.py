@@ -22,104 +22,17 @@ class Environnement:
         self.last_refresh = 0
         self.initBorders()
 
+    def initBorders(self):
+        lstPoints = [(0, 0), (self.width, 0), (self.width, self.length), (0, self.length)]
+        for i in range(len(lstPoints)):
+            x1, y1 = lstPoints[i]
+            x2, y2 = lstPoints[(i + 1) % len(lstPoints)]
+            self.dicoObs[(int(y1 / self.scale), int(x1 / self.scale))] = 'bordure'
+            while (round(x1), round(y1)) != (round(x2), round(y2)):
+                dir = normaliserVecteur((x2 - x1, y2 - y1))
+                x1, y1 = (x1 + dir[0], y1 + dir[1])
+                self.dicoObs[(int(y1 / self.scale), int(x1 / self.scale))] = 'bordure'
 
 
-    def detecter_collision(self, x, y):
-        for (ox, oy, ow, oh) in self.obstacles:
-            if ox < x < ox + ow and oy < y < oy + oh:
-                return True
-        return False
-
-    def detecter_murs(self):
-        distances = {
-            "haut": self.robot.y,
-            "bas": HAUTEUR - self.robot.y,
-            "gauche": self.robot.x,
-            "droite": LARGEUR - self.robot.x
-        }
-        return distances
-
-    def demarrer_simulation(self):
-        running = True
-        from controleur import Controleur
-        controleur = Controleur(self.default_vg, self.default_vd, self.mode, self.affichage_active, self.segment_length, self.robot.x, self.robot.y)
-
-        if self.mode == "carré":
-            if (self.robot.x - self.segment_length/2 < 0 or self.robot.x + self.segment_length/2 > LARGEUR or
-                self.robot.y - self.segment_length/2 < 0 or self.robot.y + self.segment_length/2 > HAUTEUR):
-                print("Position initiale inadaptée pour tracer un carré complet. Recentrage du robot.")
-                self.robot.x, self.robot.y = LARGEUR/2, HAUTEUR/2
-            controleur.tracer_carre(self.segment_length)
-            return
-
-        while running:
-            if self.affichage_active:
-                action = self.affichage.handle_events()
-                if action == "quit":
-                    running = False
-                    continue
-                elif self.mode == "manuel":
-                    if action == "stop":
-                        self.robot.vitesse_gauche = 0
-                        self.robot.vitesse_droite = 0
-                        print("Robot arrêté")
-                    elif action == "change":
-                        if self.robot.vitesse_gauche == 0 and self.robot.vitesse_droite == 0:
-                            rep = input("Voulez-vous tracer un carré ? (y/n) : ").strip().lower()
-                            import pygame; pygame.event.clear()
-                            if rep == "y":
-                                try:
-                                    cote = float(input("Entrez la longueur du côté du carré : "))
-                                    controleur.tracer_carre(cote)
-                                except ValueError:
-                                    print(f"Valeur invalide, utilisation de {self.segment_length}.")
-                                    controleur.tracer_carre(self.segment_length)
-                                continue
-                            else:
-                                try:
-                                    new_vg = float(input("Entrez la nouvelle vitesse de la roue gauche : "))
-                                    new_vd = float(input("Entrez la nouvelle vitesse de la roue droite : "))
-                                except ValueError:
-                                    print("Valeurs invalides. Utilisation des vitesses par défaut (2).")
-                                    new_vg, new_vd = 2, 2
-                                self.robot.vitesse_gauche = new_vg
-                                self.robot.vitesse_droite = new_vd
-                                self.default_vg = new_vg
-                                self.default_vd = new_vd
-                                print("Robot démarré avec nouvelles vitesses")
-                    elif action == "reset":
-                        self.robot.x, self.robot.y = LARGEUR / 2, HAUTEUR / 2
-                        if self.affichage_active:
-                            self.affichage.reset_trajet()
-                        print("Robot réinitialisé")
-
-            old_x, old_y = self.robot.x, self.robot.y
-            self.robot.deplacer()
-            if self.detecter_collision(self.robot.x, self.robot.y):
-                self.robot.x, self.robot.y = old_x, old_y
-
-            ir_point = self.robot.scan_infrarouge(self.obstacles, IR_MAX_DISTANCE)
-            distance_ir = math.hypot(ir_point[0] - self.robot.x, ir_point[1] - self.robot.y)
-
-            if self.mode == "automatique":
-                if distance_ir < IR_SEUIL_ARRET or self.detecter_collision(self.robot.x, self.robot.y):
-                    if not self.avoidance_mode:
-                        self.robot.angle = random.uniform(0, 360)
-                        self.avoidance_mode = True
-                        self.avoidance_counter = 30
-                        print(f"Obstacle détecté à {distance_ir:.2f}px ! Nouvelle direction: {self.robot.angle:.2f}°")
-                    else:
-                        if self.avoidance_counter > 0:
-                            self.avoidance_counter -= 1
-                    self.robot.vitesse_gauche = self.default_vg
-                    self.robot.vitesse_droite = self.default_vd
-                else:
-                    if self.avoidance_mode and self.avoidance_counter == 0:
-                        self.avoidance_mode = False
-                        self.robot.vitesse_gauche = self.default_vg
-                        self.robot.vitesse_droite = self.default_vd
-
-            if self.affichage_active:
-                self.affichage.mettre_a_jour(self.robot, ir_point, distance_ir)
-            else:
-                print(f"Position: ({self.robot.x:.2f}, {self.robot.y:.2f}) - Distance IR: {distance_ir:.2f}")
+     def setRobot(self, robA):
+        self.listeRobots.append(robA)
