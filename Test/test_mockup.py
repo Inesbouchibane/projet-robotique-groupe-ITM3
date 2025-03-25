@@ -13,3 +13,8 @@ class TestRobotMockup(unittest.TestCase):
         self.robot.setVitAng(1.0)
         self.robot.refresh(1.0)
         self.assertNotEqual((self.robot.x, self.robot.y), (0, 0))
+        
+    def test_getDistance(self):
+        distance = self.robot.getDistance()
+        self.assertTrue(10 <= distance <= 100)
+    
