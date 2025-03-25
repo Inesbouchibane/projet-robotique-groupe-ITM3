@@ -13,4 +13,7 @@ def main():
         rayonRoue=5,  # Rayon des roues
         couleur="red" # Couleur (non utilisé ici)
     )
-
+ 
+    print("Bienvenue dans le test de RobotMockup !")
+    print(f"Position initiale : ({robot.x:.2f}, {robot.y:.2f})")
+    print(f"Direction initiale : {robot.direction}")
