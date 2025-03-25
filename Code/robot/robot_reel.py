@@ -7,3 +7,10 @@ class RobotReel(Robot):
         """Initialise le robot réel avec ses caractéristiques physiques."""
         super().__init__(nom, x, y, width, length, height, rayonRoue, couleur)
         self.capteur_distance = None  # Capteur de distance (à définir)
+
+
+        def setMoteurDPS(self, vitesse_gauche, vitesse_droite):
+        """Définit la vitesse en degré par seconde des moteurs gauche et droit."""
+            self.vitAngG = vitesse_gauche
+            self.vitAngD = vitesse_droite
+
