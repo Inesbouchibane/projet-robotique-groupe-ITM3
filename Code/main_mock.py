@@ -59,3 +59,12 @@ def main():
                     robot.refresh(0.1)
                     print(f"Position : ({robot.x:.2f}, {robot.y:.2f}), Direction : {robot.direction}")
                     sleep(0.1)
+                    
+                    
+         except ValueError:
+            print("Erreur : Entrez une valeur numérique valide pour la vitesse.")
+        except Exception as e:
+            print(f"Une erreur s'est produite : {e}")
+
+if __name__ == "__main__":
+    main()
