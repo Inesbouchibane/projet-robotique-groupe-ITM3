@@ -17,4 +17,14 @@ class TestRobotMockup(unittest.TestCase):
     def test_getDistance(self):
         distance = self.robot.getDistance()
         self.assertTrue(10 <= distance <= 100)
+        @patch("robot_mockup.uniform", return_value=0)
+        
+    def test_setVitAng(self, mock_uniform):
+        self.robot.setVitAng(2.0)
+        self.assertAlmostEqual(self.robot.vitAngD, 2.0, delta=0.05)
+        self.assertAlmostEqual(self.robot.vitAngG, 2.0, delta=0.05)
+    
+if __name__ == "__main__":
+    unittest.main()
+
     
