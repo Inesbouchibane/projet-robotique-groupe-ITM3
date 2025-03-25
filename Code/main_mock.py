@@ -28,3 +28,27 @@ def main():
         print("4. Arrêter le robot")
         print("5. Quitter")
         choix = input("Entrez votre choix (1-5) : ").strip()
+        
+        try:
+            if choix == "1":
+                vitesse = float(input("Entrez la vitesse angulaire (ex. 10) : "))
+                robot.setVitAng(vitesse)
+                print(f"Avance avec vitesse {vitesse}")
+            elif choix == "2":
+                vitesse = float(input("Entrez la vitesse de rotation (ex. 10) : "))
+                robot.vitAngG = vitesse
+                robot.vitAngD = -vitesse / 2
+                print(f"Tourne à gauche : vitG = {vitesse}, vitD = {-vitesse / 2}")
+            elif choix == "3":
+                vitesse = float(input("Entrez la vitesse de rotation (ex. 10) : "))
+                robot.vitAngG = -vitesse / 2
+                robot.vitAngD = vitesse
+                print(f"Tourne à droite : vitG = {-vitesse / 2}, vitD = {vitesse}")
+            elif choix == "4":
+                robot.setVitAng(0)
+                print("Robot arrêté")
+            elif choix == "5":
+                print("Au revoir !")
+                running = False
+            else:
+                print("Choix invalide, essayez encore.")
