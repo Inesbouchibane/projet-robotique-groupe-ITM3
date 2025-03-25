@@ -10,7 +10,12 @@ class AdaptateurReel(Adaptateur):
 
     def initialise(self):
         self.last_position = (self.robot.x, self.robot.y)
-        self.last_direction = self.robot.direction  
+        self.last_direction = self.robot.direction 
+
+    def setVitAngA(self, vit):
+        self.robot.setVitAng(vit)
+
+     
           
     def getDistanceParcourue(self):
         pos_actuelle = (self.robot.x, self.robot.y)
