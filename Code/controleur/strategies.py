@@ -1,11 +1,12 @@
 from logging import getLogger
-from utils import VIT_ANG_AVAN, VIT_ANG_TOUR, getDistanceFromPts
+from utils import VIT_ANG_AVAN, VIT_ANG_TOUR, getDistanceFromPts, getAngleFromVect,TIC_CONTROLEUR
 from time import sleep, time
-from utils import getAngleFromVect
-
+from math import atan2, cos, sin, degrees
 import math
 
 class StrategieAvancer:
+    """Stratégie permettant au robot d'avancer d'une distance donnée."""
+
     def __init__(self, robAdapt, distance):
         self.logger = getLogger(self.__class__.__name__)
         self.distance = distance
@@ -13,38 +14,43 @@ class StrategieAvancer:
         self.start_position = (self.robA.robot.x, self.robA.robot.y)
 
     def start(self):
-        self.logger.debug("Stratégie avancer démarrée")
+        """Démarre la stratégie d'avancement."""
+        self.logger.debug("Stratégie d'avancement démarrée.")
         self.start_position = (self.robA.robot.x, self.robA.robot.y)
         self.robA.setVitAngA(VIT_ANG_AVAN)
 
     def step(self):
-        # Aucun traitement particulier pendant l'avancée
+        """Aucun traitement spécifique pendant l'avancée."""
         pass
 
     def stop(self):
+        """Arrête la stratégie si la distance cible est atteinte."""
         current_position = (self.robA.robot.x, self.robA.robot.y)
         parcouru = getDistanceFromPts(self.start_position, current_position)
-        self.logger.debug("Distance parcourue: %.2f (cible: %.2f)", parcouru, self.distance)
+        self.logger.debug(f"Distance parcourue: {parcouru:.2f} / {self.distance:.2f}")
         if parcouru >= self.distance:
             self.robA.setVitAngA(0)
             return True
         return False
 
 class StrategieTourner:
+    """Stratégie permettant au robot de tourner d'un angle donné."""
+
     def __init__(self, robAdapt, angle):
         self.logger = getLogger(self.__class__.__name__)
         self.robA = robAdapt
-        self.angle = angle  # Angle en degrés (90° pour le carré)
+        self.angle = angle
         self.initial_angle = None
         self.target_angle = None
-        self.tolerance = math.radians(2)  # Tolérance de 2 degrés
+        self.tolerance = math.radians(2)
         self.finished = False
 
     def start(self):
-        self.logger.debug("Stratégie tourner lancée")
+        """Démarre la rotation du robot."""
+        self.logger.debug("Stratégie de rotation démarrée.")
         self.initial_angle = math.atan2(self.robA.robot.direction[1], self.robA.robot.direction[0])
         self.target_angle = self.initial_angle + math.radians(self.angle)
-        # Pour une rotation positive (sens anti-horaire), on inverse les commandes
+
         if self.angle > 0:
             self.robA.setVitAngGA(-VIT_ANG_TOUR)
             self.robA.setVitAngDA(VIT_ANG_TOUR)
@@ -53,109 +59,30 @@ class StrategieTourner:
             self.robA.setVitAngDA(-VIT_ANG_TOUR)
 
     def step(self):
+        """Corrige l'orientation du robot pour respecter l'angle cible."""
         if self.robA.robot.estCrash:
             return
         current_angle = math.atan2(self.robA.robot.direction[1], self.robA.robot.direction[0])
         diff = self.normalize_angle(current_angle - self.target_angle)
-        self.logger.debug("Différence angulaire: %.4f radians", diff)
         if abs(diff) < self.tolerance:
-            # Correction de l'orientation pour atteindre exactement le target
             self.robA.robot.direction = [math.cos(self.target_angle), math.sin(self.target_angle)]
             self.robA.setVitAngA(0)
             self.finished = True
-            self.logger.debug("Rotation terminée. Orientation corrigée.")
 
     def stop(self):
+        """Retourne si la rotation est terminée."""
         return self.finished
 
     def normalize_angle(self, angle):
+        """Normalise un angle entre -π et π."""
         while angle > math.pi:
             angle -= 2 * math.pi
         while angle < -math.pi:
             angle += 2 * math.pi
         return angle
 
-class StrategieAuto:
-    def __init__(self, robAdapt, vitAngG, vitAngD):
-        self.logger = getLogger(self.__class__.__name__)
-        self.robA = robAdapt
-        self.vitAngG = vitAngG
-        self.vitAngD = vitAngD
-        self.running = False
-        self.avoiding = False
-        self.avoid_start_time = None
-        self.avoid_duration = 0.5  # Durée d'évitement en secondes
-        self.robA.initialise()
-
-    def start(self):
-        self.logger.debug("Stratégie automatique démarrée avec vitAngG: %f, vitAngD: %f", self.vitAngG, self.vitAngD)
-        self.running = True
-        self.avoiding = False
-        self.robA.setVitAngGA(self.vitAngG)
-        self.robA.setVitAngDA(self.vitAngD)
-        self.robA.initialise()
-
-    def step(self):
-        if self.running and not self.robA.robot.estCrash:
-            distance = self.robA.getDistanceA()
-            self.logger.debug("Distance à l'obstacle: %f", distance)
-            if distance < 50:
-                if not self.avoiding:
-                    self.logger.debug("Obstacle détecté, démarrage de l'évitement")
-                    self.avoid_start_time = time()
-                    self.avoiding = True
-                    # Choix du virage d'évitement en fonction des vitesses de base
-                    if self.vitAngG < self.vitAngD:
-                        # Si la roue gauche est plus lente, le robot tourne naturellement vers la gauche.
-                        # Pour éviter l'obstacle, on force un virage plus prononcé vers la droite.
-                        self.robA.setVitAngGA(abs(VIT_ANG_TOUR))
-                        self.robA.setVitAngDA(-abs(VIT_ANG_TOUR))
-                    else:
-                        # Si la roue droite est plus lente, le robot tourne naturellement vers la droite.
-                        # Pour éviter l'obstacle, on force un virage plus prononcé vers la gauche.
-                        self.robA.setVitAngGA(-abs(VIT_ANG_TOUR))
-                        self.robA.setVitAngDA(abs(VIT_ANG_TOUR))
-            else:
-                if not self.avoiding:
-                    self.robA.setVitAngGA(self.vitAngG)
-                    self.robA.setVitAngDA(self.vitAngD)
-            if self.avoiding:
-                if time() - self.avoid_start_time >= self.avoid_duration:
-                    self.logger.debug("Fin de l'évitement, reprise de la vitesse automatique")
-                    self.avoiding = False
-                    self.robA.setVitAngGA(self.vitAngG)
-                    self.robA.setVitAngDA(self.vitAngD)
-
-    def stop(self):
-        return False  # La stratégie automatique ne s'arrête pas d'elle-même
-
-class StrategieSeq:
-    def __init__(self, liste_strategies, robAdapt):
-        self.liste_strategies = liste_strategies
-        self.robA = robAdapt
-        self.index = 0
-
-    def start(self):
-        if self.index < len(self.liste_strategies):
-            self.liste_strategies[self.index].start()
-
-    def step(self):
-        if self.index < len(self.liste_strategies):
-            self.liste_strategies[self.index].step()
-
-    def stop(self):
-        if self.index >= len(self.liste_strategies):
-            return True
-        if self.liste_strategies[self.index].stop():
-            self.index += 1
-            if self.index < len(self.liste_strategies):
-                self.liste_strategies[self.index].start()
-            else:
-                return True
-        return False
-
 def setStrategieCarre(robAdapt, longueur_cote):
-    # Un carré se compose de 4 segments d'avancée et 4 rotations de 90° chacune.
+    """Crée une séquence de stratégies pour tracer un carré."""
     return StrategieSeq([
         StrategieAvancer(robAdapt, longueur_cote),
         StrategieTourner(robAdapt, 90),
@@ -166,52 +93,160 @@ def setStrategieCarre(robAdapt, longueur_cote):
         StrategieAvancer(robAdapt, longueur_cote),
         StrategieTourner(robAdapt, 90)
     ], robAdapt)
-    
-    
-# controleur/strategies.py
+
 class StrategieVersMur:
+    """Stratégie permettant au robot d'avancer vers le mur le plus proche."""
+
     def __init__(self, robAdapt):
         self.logger = getLogger(self.__class__.__name__)
         self.robA = robAdapt
         self.target_angle = 0
-        self.step_phase = 0  # 0: détection, 1: rotation, 2: avancement
+        self.step_phase = 0
         self.strat_tourner = None
         self.strat_avancer = None
 
     def start(self):
-        self.logger.debug("Détection du mur le plus proche")
-        directions = [
-            (0, -1), (1, -1), (1, 0), (1, 1),
-            (0, 1), (-1, 1), (-1, 0), (-1, -1)
-        ]
+        """Détecte le mur le plus proche et oriente le robot vers lui."""
+        self.logger.debug("Détection du mur le plus proche.")
+        directions = [(0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
         min_dist = float('inf')
         target_dir = (0, -1)
-        for dir in directions:
-            self.robA.robot.direction = dir  # Met la direction temporairement
-            dist = self.robA.robot.getDistance(self.robA.env)  # Appelle avec 2 arguments
 
+        for dir in directions:
+            self.robA.robot.direction = dir
+            dist = self.robA.robot.getDistance(self.robA.env)
             if dist < min_dist:
                 min_dist = dist
                 target_dir = dir
-        current_vect = self.robA.robot.direction
-        angle = getAngleFromVect(current_vect, target_dir)
-        self.target_angle = angle
+
+        self.target_angle = getAngleFromVect(self.robA.robot.direction, target_dir)
         self.step_phase = 1
         self.strat_tourner = StrategieTourner(self.robA, self.target_angle)
         self.strat_tourner.start()
 
     def step(self):
+        """Exécute la rotation puis l'avance vers le mur."""
         if self.step_phase == 1:
             self.strat_tourner.step()
             if self.strat_tourner.stop():
                 self.step_phase = 2
-                self.strat_avancer = StrategieAvancer(self.robA, 200)  # Avance de 200 unités
+                self.strat_avancer = StrategieAvancer(self.robA, 200)
                 self.strat_avancer.start()
         elif self.step_phase == 2:
             self.strat_avancer.step()
 
     def stop(self):
-        if self.step_phase == 2:
-            return self.strat_avancer.stop()
-        return False
+        """Retourne si la stratégie est terminée."""
+        return self.step_phase == 2 and self.strat_avancer.stop()
+
+class StrategieAuto:
+    """Stratégie permettant au robot de se déplacer avec des vitesses angulaires définies."""
+
+    def __init__(self, robAdapt, vitAngG, vitAngD):
+        self.logger = getLogger(self.__class__.__name__)
+        self.robA = robAdapt
+        self.vitAngG = vitAngG
+        self.vitAngD = vitAngD
+        self.running = False
+
+    def start(self):
+        """Démarre le déplacement automatique."""
+        self.logger.debug("Stratégie automatique démarrée.")
+        self.robA.setVitAngGA(self.vitAngG)
+        self.robA.setVitAngDA(self.vitAngD)
+        self.running = True
+
+    def step(self):
+        """Maintient les vitesses définies, rien de plus."""
+        pass
+
+    def stop(self):
+        """Arrête la stratégie si demandée explicitement (pas de condition automatique ici)."""
+        return not self.running
+
+class StrategieSeq:
+    """Séquence de stratégies exécutées les unes après les autres."""
+    def __init__(self, strategies, robAdapt):
+        self.strategies = strategies
+        self.robA = robAdapt
+        self.current = 0
+
+    def start(self):
+        if self.current < len(self.strategies):
+            self.strategies[self.current].start()
+
+    def step(self):
+        if self.current < len(self.strategies):
+            self.strategies[self.current].step()
+            if self.strategies[self.current].stop():
+                self.current += 1
+                if self.current < len(self.strategies):
+                    self.strategies[self.current].start()
+
+    def stop(self):
+        return self.current >= len(self.strategies)
+        
+
+class StrategieSuivreBalise:
+    """Stratégie pour faire suivre une balise au robot."""
+    def __init__(self, adaptateur, balise, vitesse_max=VIT_ANG_AVAN, vitesse_tour=VIT_ANG_TOUR, tolerance_angle=0.1, distance_arret=10):
+        self.adaptateur = adaptateur
+        self.balise = balise
+        self.vitesse_max = vitesse_max  # Vitesse pour avancer (ex. 50)
+        self.vitesse_tour = vitesse_tour  # Vitesse pour tourner (ex. 30)
+        self.tolerance_angle = tolerance_angle  # Tolérance en radians (≈5.7°)
+        self.distance_arret = distance_arret  # Distance pour considérer la balise atteinte
+        self.running = False
+
+    def step(self):
+        """Effectue une étape de la stratégie."""
+        if not self.running:
+            return
+
+        robot = self.adaptateur.robot
+        # Calcul de la distance à la balise
+        distance = getDistanceFromPts((robot.x, robot.y), (self.balise.x, self.balise.y))
+        if distance < self.distance_arret:
+            self.stop()
+            print(f"Balise atteinte ! Distance = {distance:.2f}")
+            return
+
+        # Calcul de l'angle vers la balise
+        dx = self.balise.x - robot.x
+        dy = self.balise.y - robot.y
+        angle_cible = atan2(dy, dx)
+        angle_actuel = atan2(robot.direction[1], robot.direction[0])
+        angle_diff = (angle_cible - angle_actuel + 3.14159) % (2 * 3.14159) - 3.14159
+
+        # Ajustement proportionnel de la vitesse en fonction de l'angle
+        facteur_vitesse = min(1.0, abs(angle_diff) / 0.5)  # Réduit la vitesse si l'angle est petit
+        vitesse_tour_effective = self.vitesse_tour * facteur_vitesse
+
+        # Si l'angle est trop grand, tourner
+        if abs(angle_diff) > self.tolerance_angle:
+            if angle_diff > 0:
+                # Tourner à droite
+                self.adaptateur.setVitAngGA(-vitesse_tour_effective / 2)
+                self.adaptateur.setVitAngDA(vitesse_tour_effective)
+                print(f"Tourne droite, angle_diff={degrees(angle_diff):.1f}°, vitesse_tour={vitesse_tour_effective:.2f}")
+            else:
+                # Tourner à gauche
+                self.adaptateur.setVitAngGA(vitesse_tour_effective)
+                self.adaptateur.setVitAngDA(-vitesse_tour_effective / 2)
+                print(f"Tourne gauche, angle_diff={degrees(angle_diff):.1f}°, vitesse_tour={vitesse_tour_effective:.2f}")
+        else:
+            # Avancer tout droit vers la balise
+            self.adaptateur.setVitAngA(self.vitesse_max)
+            print(f"Avance vers la balise, angle_diff={degrees(angle_diff):.1f}°, distance={distance:.2f}")
+
+    def start(self):
+        """Démarre la stratégie."""
+        self.running = True
+        print("Stratégie Suivre Balise démarrée.")
+
+    def stop(self):
+        """Arrête la stratégie."""
+        self.running = False
+        self.adaptateur.setVitAngA(0)
+        print("Stratégie Suivre Balise arrêtée.")
 
