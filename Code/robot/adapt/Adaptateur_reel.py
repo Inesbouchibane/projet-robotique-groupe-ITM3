@@ -15,7 +15,8 @@ class AdaptateurReel(Adaptateur):
     def setVitAngA(self, vit):
         self.robot.setVitAng(vit)
 
-     
+    def getDistanceA(self):
+        return self.robot.getDistance() 
           
     def getDistanceParcourue(self):
         pos_actuelle = (self.robot.x, self.robot.y)
