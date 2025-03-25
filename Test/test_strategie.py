@@ -18,10 +18,10 @@ from environnement.Environnement import Environnement
 
 class TestStrategieAvancer(unittest.TestCase):
     def setUp(self):
-        # Paramètres CORRECTS pour Environnement (width, length, scale)
+        
         self.env = Environnement(width=800, length=600, scale=1)
         
-        # Paramètres CORRECTS pour Robot (nom, x, y, width, length, height, rayonRoue, couleur)
+      
         self.robot = Robot(
             nom="RobotTest",
             x=0, 
@@ -68,4 +68,4 @@ class TestStrategieTourner(unittest.TestCase):
         self.adaptateur_mock.setVitAngGA.assert_called_with(-VIT_ANG_TOUR)
         self.adaptateur_mock.setVitAngDA.assert_called_with(VIT_ANG_TOUR)
 
-# ... (Adaptez de même pour les autres tests)
+
