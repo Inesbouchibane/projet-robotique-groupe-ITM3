@@ -52,3 +52,10 @@ def main():
                 running = False
             else:
                 print("Choix invalide, essayez encore.")
+                
+            # Si le robot bouge, met à jour sa position
+            if choix in ["1", "2", "3"]:
+                for _ in range(10):  # Simule 1 seconde (10 x 0.1s)
+                    robot.refresh(0.1)
+                    print(f"Position : ({robot.x:.2f}, {robot.y:.2f}), Direction : {robot.direction}")
+                    sleep(0.1)
