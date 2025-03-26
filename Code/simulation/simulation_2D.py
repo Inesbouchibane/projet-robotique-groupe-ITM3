@@ -33,3 +33,48 @@ class Simulation2D:
             obstacles.append(self.envi.listeObs[-1].get_bounding_box())
         print("Obstacles ajoutés")
         return obstacles
+
+    
+    def run(self):
+        print("Début de la boucle run")
+        running = True
+        clock = pygame.time.Clock()
+
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    print("Événement QUIT détecté")
+
+            dx = self.balise.x - self.robot.x
+            dy = self.balise.y - self.robot.y
+            angle_cible = atan2(dy, dx)
+            angle_actuel = atan2(self.robot.direction[1], self.robot.direction[0])
+            angle_diff = (angle_cible - angle_actuel + 3.14159) % (2 * 3.14159) - 3.14159
+
+            if abs(angle_diff) > 0.1:
+                if angle_diff > 0:
+                    self.adaptateur.setVitAngGA(-VIT_ANG_TOUR / 2)
+                    self.adaptateur.setVitAngDA(VIT_ANG_TOUR)
+                    print(f"Tourne droite, angle_diff={degrees(angle_diff):.1f}°, vitG={self.robot.vitAngG}, vitD={self.robot.vitAngD}")
+                else:
+                    self.adaptateur.setVitAngGA(VIT_ANG_TOUR)
+                    self.adaptateur.setVitAngDA(-VIT_ANG_TOUR / 2)
+                    print(f"Tourne gauche, angle_diff={degrees(angle_diff):.1f}°, vitG={self.robot.vitAngG}, vitD={self.robot.vitAngD}")
+            else:
+                self.adaptateur.setVitAngA(VIT_ANG_AVAN)
+                print(f"Avance, angle_diff={degrees(angle_diff):.1f}°, vitG={self.robot.vitAngG}, vitD={self.robot.vitAngD}")
+
+            self.envi.refreshEnvironnement()
+            print(f"Position après refresh: ({self.robot.x:.3f}, {self.robot.y:.3f})")
+            self.affichage.mettre_a_jour(self.robot)
+            clock.tick(30)
+
+        print("Fin de la boucle run")
+        pygame.quit()
+
+if __name__ == "__main__":
+    print("Lancement de la simulation")
+    sim = Simulation2D()
+    sim.run()
+
