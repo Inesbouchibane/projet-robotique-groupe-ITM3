@@ -4,7 +4,7 @@ from time import sleep
 from robot.robot import Robot
 from robot.adapt import Adaptateur_simule
 from environnement.environnement import Environnement
-from affichage import Affichage
+from interface_graphique.affichage import Affichage
 from controleur.controleur import Controler
 from controleur.strategies import setStrategieCarre, StrategieAuto, StrategieVersMur  # Ajout de la nouvelle stratégie
 from utils import TIC_SIMULATION, LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1, LIST_PTS_OBS_RECTANGLE1, LIST_PTS_OBS_CARRE, LIST_PTS_OBS_RECTANGLE3
