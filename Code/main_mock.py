@@ -61,7 +61,7 @@ def main():
                     sleep(0.1)
                     
                     
-         except ValueError:
+        except ValueError:
             print("Erreur : Entrez une valeur numérique valide pour la vitesse.")
         except Exception as e:
             print(f"Une erreur s'est produite : {e}")
