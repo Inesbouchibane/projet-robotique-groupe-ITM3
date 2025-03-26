@@ -2,8 +2,8 @@
 from threading import Thread
 from time import sleep
 from robot.robot import Robot
-from adapt import Adaptateur_simule
-from environnement import Environnement
+from robot.adapt import Adaptateur_simule
+from environnement.environnement import Environnement
 from affichage import Affichage
 from controleur.controleur import Controler
 from controleur.strategies import setStrategieCarre, StrategieAuto, StrategieVersMur  # Ajout de la nouvelle stratégie
