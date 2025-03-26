@@ -2,7 +2,7 @@ from robot.robot_mockup import RobotMockup
 from robot.adapt.Adaptateur_simule import Adaptateur_simule
 from environnement.balise import Balise
 from controleur.strategies import StrategieSuivreBalise
-from interface_graphique import Affichage
+from affichage import Affichage
 from time import sleep
 from utils import TIC_SIMULATION, LARGEUR_ENV, LONGUEUR_ENV
 
