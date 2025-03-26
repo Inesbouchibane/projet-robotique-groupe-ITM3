@@ -4,11 +4,7 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-BLANC = (255, 255, 255)
-NOIR = (0, 0, 0)
-BLEU = (0, 0, 255)
-ROUGE = (255, 0, 0)
-JAUNE = (255, 255, 0)
+BLANC, NOIR, BLEU, ROUGE, JAUNE = (255, 255, 255), (0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 255, 0)
 
 class Affichage:
     def __init__(self, largeur, hauteur, obstacles):
@@ -36,10 +32,13 @@ class Affichage:
         if self.last_position is None or getDistanceFromPts(current_position, self.last_position) > 1:
             self.trajet.append(current_position)
             self.last_position = current_position
+
         if len(self.trajet) > 1:
             pygame.draw.lines(self.ecran, NOIR, False, self.trajet, 2)
+
         for rect in self.obstacles:
             pygame.draw.rect(self.ecran, ROUGE, rect)
+
         points = self.calculer_points_robot(robot)
         pygame.draw.polygon(self.ecran, JAUNE if robot.estCrash else BLEU, points)
         pos_text = self.font.render(f"Pos: ({robot.x:.1f}, {robot.y:.1f})", True, NOIR)
@@ -64,3 +63,4 @@ class Affichage:
             if any(event.type in [pygame.QUIT, pygame.KEYDOWN] for event in pygame.event.get()):
                 pygame.quit()
                 return
+
