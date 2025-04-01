@@ -27,9 +27,9 @@ couleur="lightblue"):
         self.vitAngG = vitesse_angulaire
         self.vitAngD = vitesse_angulaire
         
-        
-    
-    
+    def arreter(self):
+        self.vitAngG = 0
+        self.vitAngD = 0 
     
     
     def getDistanceParcouru(self):
