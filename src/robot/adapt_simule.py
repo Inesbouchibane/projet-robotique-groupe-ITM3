@@ -27,3 +27,9 @@ class Adaptateur_simule(Adaptateur):
 
     def getVitG(self):
         return self.robot.get_VitG()
+
+   def getDistanceParcourue(self):
+        return self.robot.getDistanceParcouru()
+
+    def getAngleParcouru(self):
+        return self.robot.getAngleParcouru()
