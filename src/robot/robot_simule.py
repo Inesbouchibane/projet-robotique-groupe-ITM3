@@ -13,3 +13,9 @@
 
     def getDistanceObstacle(self):
         return float('inf')
+        
+    def get_VitG(self):
+        return self.vitAngG
+
+    def get_VitD(self):
+        return self.vitAngD
