@@ -5,33 +5,33 @@ from math import atan2, cos, sin, degrees
 import math
 
 class StrategieAvancer:
-    """Stratégie permettant au robot d'avancer d'une distance donnée."""
-
-    def __init__(self, robAdapt, distance):
-        self.logger = getLogger(self.__class__.__name__)
+    def __init__(self, distance):
         self.distance = distance
-        self.robA = robAdapt
-        self.start_position = (self.robA.robot.x, self.robA.robot.y)
+        self.parcouru = 0
+        
+    def start(self, adaptateur):
+        adaptateur.initialise()
+        self.parcouru = 0
+        adaptateur.setVitAngA(VIT_ANG_AVAN)
+        print(f"Début de l'avancée, cible: {self.distance}")
 
-    def start(self):
-        """Démarre la stratégie d'avancement."""
-        self.logger.debug("Stratégie d'avancement démarrée.")
-        self.start_position = (self.robA.robot.x, self.robA.robot.y)
-        self.robA.setVitAngA(VIT_ANG_AVAN)
+    def step(self, adaptateur):
+        self.parcouru = adaptateur.getDistanceParcourue()
+        position = adaptateur.getPosition()
+        direction = m.degrees(m.atan2(adaptateur.getDirection()[1], adaptateur.getDirection()[0]))
+        print(f"Position: {position}, Direction: {direction:.2f}°, J'ai parcouru: {self.parcouru:.2f}/{self.distance}")
 
-    def step(self):
-        """Aucun traitement spécifique pendant l'avancée."""
-        pass
-
-    def stop(self):
-        """Arrête la stratégie si la distance cible est atteinte."""
-        current_position = (self.robA.robot.x, self.robA.robot.y)
-        parcouru = getDistanceFromPts(self.start_position, current_position)
-        self.logger.debug(f"Distance parcourue: {parcouru:.2f} / {self.distance:.2f}")
-        if parcouru >= self.distance:
-            self.robA.setVitAngA(0)
+    def stop(self, adaptateur):
+        if adaptateur.getDistanceObstacle() < 20:
+            print("Obstacle détecté, arrêt.")
+            adaptateur.setVitAngA(0)
+            return True
+        if self.parcouru >= self.distance:
+            print("Distance cible atteinte, arrêt.")
+            adaptateur.setVitAngA(0)
             return True
         return False
+
 
 class StrategieTourner:
     def __init__(self, angle):
