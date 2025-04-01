@@ -43,3 +43,14 @@ class TestRobotSimule(unittest.TestCase):
 
     def test_get_distance_parcourue(self):
         self.assertEqual(self.robot.getDistanceParcouru(), 0)
+        
+    def test_get_angle_parcouru(self):
+        self.assertEqual(self.robot.getAngleParcouru(), 0)
+
+    def test_refresh(self):
+        self.robot.avancer(5)
+        sleep(0.05)  # Simulation du temps écoulé
+        self.robot.refresh()
+        self.assertGreater(self.robot.getDistanceParcouru(), 0)
+        self.assertGreater(self.robot.getAngleParcouru(), 0)
+
