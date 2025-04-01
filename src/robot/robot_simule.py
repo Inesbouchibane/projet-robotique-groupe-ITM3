@@ -1,3 +1,27 @@
+import math
+from time import time
+from .robot import Robot
+
+class RobotSimule(Robot):
+    def __init__(self, nom, x, y, width, length, vitesse_max, taille_roue, 
+couleur="lightblue"):
+        self.nom = nom
+        self.x = x
+        self.y = y
+        self.width = width
+        self.length = length
+        self.vitesse_max = vitesse_max
+        self.taille_roue = taille_roue
+        self.couleur = couleur
+        self.direction = [1, 0]  # Initial direction (right)
+        self.vitAngG = 0
+        self.vitAngD = 0
+        self.distance_parcourue = 0
+        self.angle_parcouru = 0
+        self.last_update = time()
+        self.estCrash = False
+
+
     def avancer(self, valeur):
         vitesse_angulaire = valeur / (self.taille_roue / 2)  # Correction : rayon, pas diamètre
         self.vitAngG = vitesse_angulaire
