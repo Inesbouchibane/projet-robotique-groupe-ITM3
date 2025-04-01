@@ -34,52 +34,52 @@ class StrategieAvancer:
         return False
 
 class StrategieTourner:
-    """Stratégie permettant au robot de tourner d'un angle donné."""
+    def __init__(self, angle):
+        self.angle_cible = m.radians(angle)  
+        self.angle_parcouru = 0
 
-    def __init__(self, robAdapt, angle):
-        self.logger = getLogger(self.__class__.__name__)
-        self.robA = robAdapt
-        self.angle = angle
-        self.initial_angle = None
-        self.target_angle = None
-        self.tolerance = math.radians(2)
-        self.finished = False
+    def start(self, adaptateur):
+        adaptateur.initialise()
+        self.angle_parcouru = 0
+        if self.angle_cible > 0:  # Tourne a gauche
+            adaptateur.setVitAngGA(-VIT_ANG_TOUR)
+            adaptateur.setVitAngDA(VIT_ANG_TOUR)
+        else:  # Tourne a droite
+            adaptateur.setVitAngGA(VIT_ANG_TOUR)
+            adaptateur.setVitAngDA(-VIT_ANG_TOUR)
+        print(f"Début de la rotation, cible: {m.degrees(self.angle_cible)} degrés")
 
-    def start(self):
-        """Démarre la rotation du robot."""
-        self.logger.debug("Stratégie de rotation démarrée.")
-        self.initial_angle = math.atan2(self.robA.robot.direction[1], self.robA.robot.direction[0])
-        self.target_angle = self.initial_angle + math.radians(self.angle)
+    def step(self, adaptateur):
+        self.angle_parcouru = adaptateur.getAngleParcouru()
+        position = adaptateur.getPosition()
+        direction = m.degrees(m.atan2(adaptateur.getDirection()[1], adaptateur.getDirection()[0]))
+        print(f"Position: {position}, Direction: {direction:.2f}°, Angle parcouru:{m.degrees(self.angle_parcouru):.2f}/{m.degrees(self.angle_cible)} degrés")
 
-        if self.angle > 0:
-            self.robA.setVitAngGA(-VIT_ANG_TOUR)
-            self.robA.setVitAngDA(VIT_ANG_TOUR)
-        else:
-            self.robA.setVitAngGA(VIT_ANG_TOUR)
-            self.robA.setVitAngDA(-VIT_ANG_TOUR)
+    def stop(self, adaptateur):
+        if adaptateur.getDistanceObstacle() < 20:
+            print("Obstacle détecté, arrêt.")
+            adaptateur.setVitAngGA(0)
+            adaptateur.setVitAngDA(0)
+            return True
+        if abs(self.angle_parcouru) >= abs(self.angle_cible) - 0.01:  #  tolerance
+            print("Rotation terminée, arrêt.")
+            adaptateur.setVitAngGA(0)
+            adaptateur.setVitAngDA(0)
+            # Inline snapping logic from snap_direction
+            theta = m.atan2(adaptateur.getDirection()[1], adaptateur.getDirection()[0])
+            theta_deg = m.degrees(theta) % 360
+            if 45 <= theta_deg < 135:
+                adaptateur.robot.direction = [0, 1]  # Up
+            elif 135 <= theta_deg < 225:
+                adaptateur.robot.direction = [-1, 0]  # Left
+            elif 225 <= theta_deg < 315:
+                adaptateur.robot.direction = [0, -1]  # Down
+            else:
+                adaptateur.robot.direction = [1, 0]  # Right
+            print(f"Direction ajustée à: {m.degrees(m.atan2(adaptateur.getDirection()[1], adaptateur.getDirection()[0])):.2f}°")
+            return True
+        return False
 
-    def step(self):
-        """Corrige l'orientation du robot pour respecter l'angle cible."""
-        if self.robA.robot.estCrash:
-            return
-        current_angle = math.atan2(self.robA.robot.direction[1], self.robA.robot.direction[0])
-        diff = self.normalize_angle(current_angle - self.target_angle)
-        if abs(diff) < self.tolerance:
-            self.robA.robot.direction = [math.cos(self.target_angle), math.sin(self.target_angle)]
-            self.robA.setVitAngA(0)
-            self.finished = True
-
-    def stop(self):
-        """Retourne si la rotation est terminée."""
-        return self.finished
-
-    def normalize_angle(self, angle):
-        """Normalise un angle entre -π et π."""
-        while angle > math.pi:
-            angle -= 2 * math.pi
-        while angle < -math.pi:
-            angle += 2 * math.pi
-        return angle
 
 def setStrategieCarre(robAdapt, longueur_cote):
     """Crée une séquence de stratégies pour tracer un carré."""
