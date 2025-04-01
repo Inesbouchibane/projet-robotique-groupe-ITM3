@@ -24,6 +24,17 @@ class Adaptateur_simule(Adaptateur):
         
     def getVitD(self):
         return self.robot.get_VitD()
+        
+    def getDistanceObstacle(self):
+        current_time = time()
+        if current_time - self.last_refresh < 0.06:
+            return self.last_dist
+        lstPoints = [
+            (self.robot.x - self.robot.width/2, self.robot.y + self.robot.length/2),
+            (self.robot.x + self.robot.width/2, self.robot.y + self.robot.length/2),
+            (self.robot.x + self.robot.width/2, self.robot.y - self.robot.length/2),
+            (self.robot.x - self.robot.width/2, self.robot.y - self.robot.length/2)
+        ]
 
     def getVitG(self):
         return self.robot.get_VitG()
