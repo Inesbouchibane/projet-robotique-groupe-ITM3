@@ -1,8 +1,6 @@
-from logging import getLogger
-from utils import VIT_ANG_AVAN, VIT_ANG_TOUR, getDistanceFromPts, getAngleFromVect,TIC_CONTROLEUR
-from time import sleep, time
-from math import atan2, cos, sin, degrees
-import math
+import math as m
+from src.utils import VIT_ANG_AVAN, VIT_ANG_TOUR, getDistanceFromPts
+from math import atan2, degrees, cos, sin
 
 class StrategieAvancer:
     def __init__(self, distance):
@@ -32,19 +30,18 @@ class StrategieAvancer:
             return True
         return False
 
-
 class StrategieTourner:
     def __init__(self, angle):
-        self.angle_cible = m.radians(angle)  
+        self.angle_cible = m.radians(angle)  # Convert to radians
         self.angle_parcouru = 0
 
     def start(self, adaptateur):
         adaptateur.initialise()
         self.angle_parcouru = 0
-        if self.angle_cible > 0:  # Tourne a gauche
+        if self.angle_cible > 0:  # Turn left
             adaptateur.setVitAngGA(-VIT_ANG_TOUR)
             adaptateur.setVitAngDA(VIT_ANG_TOUR)
-        else:  # Tourne a droite
+        else:  # Turn right
             adaptateur.setVitAngGA(VIT_ANG_TOUR)
             adaptateur.setVitAngDA(-VIT_ANG_TOUR)
         print(f"Début de la rotation, cible: {m.degrees(self.angle_cible)} degrés")
@@ -53,7 +50,7 @@ class StrategieTourner:
         self.angle_parcouru = adaptateur.getAngleParcouru()
         position = adaptateur.getPosition()
         direction = m.degrees(m.atan2(adaptateur.getDirection()[1], adaptateur.getDirection()[0]))
-        print(f"Position: {position}, Direction: {direction:.2f}°, Angle parcouru:{m.degrees(self.angle_parcouru):.2f}/{m.degrees(self.angle_cible)} degrés")
+        print(f"Position: {position}, Direction: {direction:.2f}°, Angle parcouru: {m.degrees(self.angle_parcouru):.2f}/{m.degrees(self.angle_cible)} degrés")
 
     def stop(self, adaptateur):
         if adaptateur.getDistanceObstacle() < 20:
@@ -61,7 +58,7 @@ class StrategieTourner:
             adaptateur.setVitAngGA(0)
             adaptateur.setVitAngDA(0)
             return True
-        if abs(self.angle_parcouru) >= abs(self.angle_cible) - 0.01:  #  tolerance
+        if abs(self.angle_parcouru) >= abs(self.angle_cible) - 0.01:  # Small tolerance
             print("Rotation terminée, arrêt.")
             adaptateur.setVitAngGA(0)
             adaptateur.setVitAngDA(0)
@@ -79,97 +76,7 @@ class StrategieTourner:
             print(f"Direction ajustée à: {m.degrees(m.atan2(adaptateur.getDirection()[1], adaptateur.getDirection()[0])):.2f}°")
             return True
         return False
-
-
-def setStrategieCarre(robAdapt, longueur_cote):
-    """Crée une séquence de stratégies pour tracer un carré."""
-    return StrategieSeq([
-        StrategieAvancer(robAdapt, longueur_cote),
-        StrategieTourner(robAdapt, 90),
-        StrategieAvancer(robAdapt, longueur_cote),
-        StrategieTourner(robAdapt, 90),
-        StrategieAvancer(robAdapt, longueur_cote),
-        StrategieTourner(robAdapt, 90),
-        StrategieAvancer(robAdapt, longueur_cote),
-        StrategieTourner(robAdapt, 90)
-    ], robAdapt)
-
-class StrategieVersMur:
-    """Stratégie permettant au robot d'avancer vers le mur le plus proche."""
-
-    def __init__(self, robAdapt):
-        self.logger = getLogger(self.__class__.__name__)
-        self.robA = robAdapt
-        self.target_angle = 0
-        self.step_phase = 0
-        self.strat_tourner = None
-        self.strat_avancer = None
-
-    def start(self):
-        """Détecte le mur le plus proche et oriente le robot vers lui."""
-        self.logger.debug("Détection du mur le plus proche.")
-        directions = [(0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
-        min_dist = float('inf')
-        target_dir = (0, -1)
-
-        for dir in directions:
-            self.robA.robot.direction = dir
-            dist = self.robA.robot.getDistance(self.robA.env)
-            if dist < min_dist:
-                min_dist = dist
-                target_dir = dir
-
-        self.target_angle = getAngleFromVect(self.robA.robot.direction, target_dir)
-        self.step_phase = 1
-        self.strat_tourner = StrategieTourner(self.robA, self.target_angle)
-        self.strat_tourner.start()
-
-    def step(self):
-        """Exécute la rotation puis l'avance vers le mur."""
-        if self.step_phase == 1:
-            self.strat_tourner.step()
-            if self.strat_tourner.stop():
-                self.step_phase = 2
-                self.strat_avancer = StrategieAvancer(self.robA, 200)
-                self.strat_avancer.start()
-        elif self.step_phase == 2:
-            self.strat_avancer.step()
-
-    def stop(self):
-        """Retourne si la stratégie est terminée."""
-        return self.step_phase == 2 and self.strat_avancer.stop()
-
-class StrategieAuto:
-    def __init__(self, vitAngG, vitAngD):
-        self.vitAngG = vitAngG
-        self.vitAngD = vitAngD
-
-    def start(self, adaptateur):
-        adaptateur.setVitAngGA(self.vitAngG)
-        adaptateur.setVitAngDA(self.vitAngD)
-        print(f"Début de la stratégie auto avec vitAngG={self.vitAngG}, vitAngD={self.vitAngD}")
-
-    def step(self, adaptateur):
-        adaptateur.setVitAngGA(self.vitAngG)
-        adaptateur.setVitAngDA(self.vitAngD)
-        print(f"Step - Envoi : vitAngG={self.vitAngG}, vitAngD={self.vitAngD}, Après : G={adaptateur.getVitG()}, D={adaptateur.getVitD()}")
-
-    def stop(self, adaptateur):
-        return False  
-
-def setStrategieCarre(longueur_cote):
-    return StrategieSeq([
-        StrategieAvancer(longueur_cote),
-        StrategieTourner(90),
-        StrategieAvancer(longueur_cote),
-        StrategieTourner(90),
-        StrategieAvancer(longueur_cote),
-        StrategieTourner(90),
-        StrategieAvancer(longueur_cote),
-        StrategieTourner(90)
-    ])
-
-
+    
 class StrategieSeq:
     def __init__(self, liste_strategies):
         self.liste_strategies = liste_strategies
@@ -192,7 +99,36 @@ class StrategieSeq:
                     self.liste_strategies[self.index].start(adaptateur)
 
     def stop(self, adaptateur):
-        return self.index >= len(self.liste_strategies)        
+        return self.index >= len(self.liste_strategies)
+
+class StrategieAuto:
+    def __init__(self, vitAngG, vitAngD):
+        self.vitAngG = vitAngG
+        self.vitAngD = vitAngD
+
+    def start(self, adaptateur):
+        adaptateur.setVitAngGA(self.vitAngG)
+        adaptateur.setVitAngDA(self.vitAngD)
+        print(f"Début de la stratégie auto avec vitAngG={self.vitAngG}, vitAngD={self.vitAngD}")
+
+    def step(self, adaptateur):
+        adaptateur.setVitAngGA(self.vitAngG)
+        adaptateur.setVitAngDA(self.vitAngD)
+        print(f"Step - Envoi : vitAngG={self.vitAngG}, vitAngD={self.vitAngD}, Après : G={adaptateur.getVitG()}, D={adaptateur.getVitD()}")
+
+    def stop(self, adaptateur):
+        return False  
+def setStrategieCarre(longueur_cote):
+    return StrategieSeq([
+        StrategieAvancer(longueur_cote),
+        StrategieTourner(90),
+        StrategieAvancer(longueur_cote),
+        StrategieTourner(90),
+        StrategieAvancer(longueur_cote),
+        StrategieTourner(90),
+        StrategieAvancer(longueur_cote),
+        StrategieTourner(90)
+    ])
 
 
 
@@ -295,4 +231,3 @@ class StrategieSuivreBalise:
         while angle < -m.pi:
             angle += 2 * m.pi
         return angle
-
