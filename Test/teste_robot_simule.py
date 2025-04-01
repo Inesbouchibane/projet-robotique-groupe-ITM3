@@ -23,3 +23,14 @@ class TestRobotSimule(unittest.TestCase):
         self.assertEqual(self.robot.distance_parcourue, 0)
         self.assertEqual(self.robot.angle_parcouru, 0)
         self.assertFalse(self.robot.estCrash)
+        
+    def test_avancer(self):
+        self.robot.avancer(5)
+        self.assertEqual(self.robot.vitAngG, 2.0)
+        self.assertEqual(self.robot.vitAngD, 2.0)
+
+    def test_arreter(self):
+        self.robot.avancer(5)
+        self.robot.arreter()
+        self.assertEqual(self.robot.vitAngG, 0)
+        self.assertEqual(self.robot.vitAngD, 0)
