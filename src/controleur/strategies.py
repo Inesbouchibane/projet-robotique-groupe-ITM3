@@ -156,6 +156,7 @@ class StrategieAuto:
 
     def stop(self, adaptateur):
         return False  
+
 def setStrategieCarre(longueur_cote):
     return StrategieSeq([
         StrategieAvancer(longueur_cote),
@@ -193,66 +194,105 @@ class StrategieSeq:
     def stop(self, adaptateur):
         return self.index >= len(self.liste_strategies)        
 
+
+
 class StrategieSuivreBalise:
-    """Stratégie pour faire suivre une balise au robot."""
-    def __init__(self, adaptateur, balise, vitesse_max=VIT_ANG_AVAN, vitesse_tour=VIT_ANG_TOUR, tolerance_angle=0.1, distance_arret=10):
-        self.adaptateur = adaptateur
-        self.balise = balise
-        self.vitesse_max = vitesse_max  # Vitesse pour avancer (ex. 50)
-        self.vitesse_tour = vitesse_tour  # Vitesse pour tourner (ex. 30)
-        self.tolerance_angle = tolerance_angle  # Tolérance en radians (≈5.7°)
-        self.distance_arret = distance_arret  # Distance pour considérer la balise atteinte
-        self.running = False
+    def __init__(self, balise_position, distance_securite=20, vitesse_max=VIT_ANG_AVAN, tolerance_angle=5):
+        """
+        Initialise la stratégie pour suivre une balise.
+        :param balise_position: Tuple (x, y) représentant la position de la balise
+        :param distance_securite: Distance minimale à maintenir avec les obstacles (en unités)
+        :param vitesse_max: Vitesse angulaire maximale pour avancer
+        :param tolerance_angle: Tolérance en degrés pour considérer l'alignement correct
+        """
+        self.balise_position = balise_position  # Position cible (x, y)
+        self.distance_securite = distance_securite
+        self.vitesse_max = vitesse_max
+        self.tolerance_angle = tolerance_angle  # Tolérance en degrés pour l'alignement
+        self.distance_parcourue = 0
 
-    def step(self):
-        """Effectue une étape de la stratégie."""
-        if not self.running:
-            return
-
-        robot = self.adaptateur.robot
-        # Calcul de la distance à la balise
-        distance = getDistanceFromPts((robot.x, robot.y), (self.balise.x, self.balise.y))
-        if distance < self.distance_arret:
-            self.stop()
-            print(f"Balise atteinte ! Distance = {distance:.2f}")
-            return
-
-        # Calcul de l'angle vers la balise
-        dx = self.balise.x - robot.x
-        dy = self.balise.y - robot.y
-        angle_cible = atan2(dy, dx)
-        angle_actuel = atan2(robot.direction[1], robot.direction[0])
-        angle_diff = (angle_cible - angle_actuel + 3.14159) % (2 * 3.14159) - 3.14159
-
-        # Ajustement proportionnel de la vitesse en fonction de l'angle
-        facteur_vitesse = min(1.0, abs(angle_diff) / 0.5)  # Réduit la vitesse si l'angle est petit
-        vitesse_tour_effective = self.vitesse_tour * facteur_vitesse
-
-        # Si l'angle est trop grand, tourner
-        if abs(angle_diff) > self.tolerance_angle:
-            if angle_diff > 0:
-                # Tourner à droite
-                self.adaptateur.setVitAngGA(-vitesse_tour_effective / 2)
-                self.adaptateur.setVitAngDA(vitesse_tour_effective)
-                print(f"Tourne droite, angle_diff={degrees(angle_diff):.1f}°, vitesse_tour={vitesse_tour_effective:.2f}")
-            else:
-                # Tourner à gauche
-                self.adaptateur.setVitAngGA(vitesse_tour_effective)
-                self.adaptateur.setVitAngDA(-vitesse_tour_effective / 2)
-                print(f"Tourne gauche, angle_diff={degrees(angle_diff):.1f}°, vitesse_tour={vitesse_tour_effective:.2f}")
-        else:
-            # Avancer tout droit vers la balise
-            self.adaptateur.setVitAngA(self.vitesse_max)
-            print(f"Avance vers la balise, angle_diff={degrees(angle_diff):.1f}°, distance={distance:.2f}")
-
-    def start(self):
+    def start(self, adaptateur):
         """Démarre la stratégie."""
-        self.running = True
-        print("Stratégie Suivre Balise démarrée.")
+        adaptateur.initialise()
+        self.distance_parcourue = 0
+        print(f"Début de la stratégie Suivre Balise vers {self.balise_position}")
 
-    def stop(self):
-        """Arrête la stratégie."""
-        self.running = False
-        self.adaptateur.setVitAngA(0)
-        print("Stratégie Suivre Balise arrêtée.")
+    def step(self, adaptateur):
+        """Exécute une étape de la stratégie."""
+        # Récupérer la position et la direction actuelle du robot
+        position_robot = adaptateur.getPosition()  # (x, y)
+        direction_robot = adaptateur.getDirection()  # Vecteur [cos, sin]
+        distance_obstacle = adaptateur.getDistanceObstacle()  # Distance à l'obstacle le plus proche
+
+        # Calculer l'angle vers la balise
+        dx = self.balise_position[0] - position_robot[0]
+        dy = self.balise_position[1] - position_robot[1]
+        angle_cible = atan2(dy, dx)  # Angle en radians vers la balise
+        angle_robot = atan2(direction_robot[1], direction_robot[0])  # Angle actuel du robot
+        angle_diff = self.normalize_angle(angle_cible - angle_robot)  # Différence d'angle
+
+        # Calculer la distance à la balise
+        distance_balise = getDistanceFromPts(position_robot, self.balise_position)
+
+        # Afficher les informations
+        print(f"Position: {position_robot}, Direction: {degrees(angle_robot):.2f}°, "
+              f"Angle vers balise: {degrees(angle_cible):.2f}°, Distance à balise: {distance_balise:.2f}")
+
+        # Si un obstacle est trop proche, arrêter
+        if distance_obstacle < self.distance_securite:
+            print("Obstacle trop proche, arrêt temporaire.")
+            adaptateur.setVitAngGA(0)
+            adaptateur.setVitAngDA(0)
+            return
+
+        # Ajuster la direction si l'angle est trop grand
+        if abs(degrees(angle_diff)) > self.tolerance_angle:
+            # Tourner vers la balise
+            vitesse_tour = min(VIT_ANG_TOUR, abs(angle_diff) * 0.5)  # Ajustement proportionnel
+            if angle_diff > 0:  # Tourner à gauche
+                adaptateur.setVitAngGA(-vitesse_tour)
+                adaptateur.setVitAngDA(vitesse_tour)
+            else:  # Tourner à droite
+                adaptateur.setVitAngGA(vitesse_tour)
+                adaptateur.setVitAngDA(-vitesse_tour)
+            print(f"Ajustement direction: Angle diff = {degrees(angle_diff):.2f}°")
+        else:
+            # Avancer vers la balise si aligné
+            vitesse = min(self.vitesse_max, distance_balise * 0.1)  # Vitesse proportionnelle à la distance
+            adaptateur.setVitAngGA(vitesse)
+            adaptateur.setVitAngDA(vitesse)
+            print(f"Avancer vers balise avec vitesse: {vitesse:.2f}")
+
+        # Mettre à jour la distance parcourue
+        self.distance_parcourue = adaptateur.getDistanceParcourue()
+
+    def stop(self, adaptateur):
+        """Condition d'arrêt de la stratégie."""
+        position_robot = adaptateur.getPosition()
+        distance_balise = getDistanceFromPts(position_robot, self.balise_position)
+        distance_obstacle = adaptateur.getDistanceObstacle()
+
+        # Arrêt si trop proche d'un obstacle
+        if distance_obstacle < self.distance_securite:
+            print("Obstacle détecté, arrêt définitif.")
+            adaptateur.setVitAngGA(0)
+            adaptateur.setVitAngDA(0)
+            return True
+
+        # Arrêt si la balise est atteinte (distance < 5 unités)
+        if distance_balise < 5:
+            print("Balise atteinte, arrêt.")
+            adaptateur.setVitAngGA(0)
+            adaptateur.setVitAngDA(0)
+            return True
+
+        return False
+
+    def normalize_angle(self, angle):
+        """Normalise un angle entre -π et π."""
+        while angle > m.pi:
+            angle -= 2 * m.pi
+        while angle < -m.pi:
+            angle += 2 * m.pi
+        return angle
 
