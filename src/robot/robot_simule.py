@@ -20,7 +20,7 @@
     def get_VitD(self):
         return self.vitAngD
         
-  def refresh(self, delta_t=None):
+    def refresh(self, delta_t=None):
         if delta_t is None:
             current_time = time()
             delta_t = current_time - self.last_update
@@ -36,3 +36,16 @@
         v_droite = self.vitAngD * rayon_roue
         v = (v_gauche + v_droite) / 2
         omega = (v_droite - v_gauche) / self.width
+
+        theta = math.atan2(self.direction[1], self.direction[0])
+        self.x += v * math.cos(theta) * delta_t
+        self.y += v * math.sin(theta) * delta_t
+        self.distance_parcourue += abs(v * delta_t)
+
+        new_theta = theta + omega * delta_t
+        self.direction = [math.cos(new_theta), math.sin(new_theta)]
+        self.angle_parcouru += omega * delta_t
+
+        # Ajout pour débogage
+        print(f"vitAngG={self.vitAngG}, vitAngD={self.vitAngD}, v_gauche={v_gauche}, v_droite={v_droite}, omega={omega}, delta_t={delta_t}, theta={theta:.3f}, new_theta={new_theta:.3f}")
+
