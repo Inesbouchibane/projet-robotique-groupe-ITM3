@@ -140,29 +140,33 @@ class StrategieVersMur:
         return self.step_phase == 2 and self.strat_avancer.stop()
 
 class StrategieAuto:
-    """Stratégie permettant au robot de se déplacer avec des vitesses angulaires définies."""
-
-    def __init__(self, robAdapt, vitAngG, vitAngD):
-        self.logger = getLogger(self.__class__.__name__)
-        self.robA = robAdapt
+    def __init__(self, vitAngG, vitAngD):
         self.vitAngG = vitAngG
         self.vitAngD = vitAngD
-        self.running = False
 
-    def start(self):
-        """Démarre le déplacement automatique."""
-        self.logger.debug("Stratégie automatique démarrée.")
-        self.robA.setVitAngGA(self.vitAngG)
-        self.robA.setVitAngDA(self.vitAngD)
-        self.running = True
+    def start(self, adaptateur):
+        adaptateur.setVitAngGA(self.vitAngG)
+        adaptateur.setVitAngDA(self.vitAngD)
+        print(f"Début de la stratégie auto avec vitAngG={self.vitAngG}, vitAngD={self.vitAngD}")
 
-    def step(self):
-        """Maintient les vitesses définies, rien de plus."""
-        pass
+    def step(self, adaptateur):
+        adaptateur.setVitAngGA(self.vitAngG)
+        adaptateur.setVitAngDA(self.vitAngD)
+        print(f"Step - Envoi : vitAngG={self.vitAngG}, vitAngD={self.vitAngD}, Après : G={adaptateur.getVitG()}, D={adaptateur.getVitD()}")
 
-    def stop(self):
-        """Arrête la stratégie si demandée explicitement (pas de condition automatique ici)."""
-        return not self.running
+    def stop(self, adaptateur):
+        return False  # Ne s’arrête que via ESC
+def setStrategieCarre(longueur_cote):
+    return StrategieSeq([
+        StrategieAvancer(longueur_cote),
+        StrategieTourner(90),
+        StrategieAvancer(longueur_cote),
+        StrategieTourner(90),
+        StrategieAvancer(longueur_cote),
+        StrategieTourner(90),
+        StrategieAvancer(longueur_cote),
+        StrategieTourner(90)
+    ])
 
 class StrategieSeq:
     def __init__(self, liste_strategies):
