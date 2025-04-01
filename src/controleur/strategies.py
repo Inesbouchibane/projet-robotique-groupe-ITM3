@@ -155,7 +155,7 @@ class StrategieAuto:
         print(f"Step - Envoi : vitAngG={self.vitAngG}, vitAngD={self.vitAngD}, Après : G={adaptateur.getVitG()}, D={adaptateur.getVitD()}")
 
     def stop(self, adaptateur):
-        return False  # Ne s’arrête que via ESC
+        return False  
 def setStrategieCarre(longueur_cote):
     return StrategieSeq([
         StrategieAvancer(longueur_cote),
@@ -167,6 +167,7 @@ def setStrategieCarre(longueur_cote):
         StrategieAvancer(longueur_cote),
         StrategieTourner(90)
     ])
+
 
 class StrategieSeq:
     def __init__(self, liste_strategies):
