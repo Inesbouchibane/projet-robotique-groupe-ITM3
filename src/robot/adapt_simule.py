@@ -35,6 +35,17 @@ class Adaptateur_simule(Adaptateur):
             (self.robot.x + self.robot.width/2, self.robot.y - self.robot.length/2),
             (self.robot.x - self.robot.width/2, self.robot.y - self.robot.length/2)
         ]
+        
+        min_dist = float('inf')
+        for x, y in lstPoints:
+            for obs in self.environnement.listeObs:
+                for px, py in obs.points:
+                    dist = math.sqrt((x - px)**2 + (y - py)**2)
+                    min_dist = min(min_dist, dist)
+        self.last_dist = min_dist if min_dist != float('inf') else 1000
+        self.last_refresh = current_time
+        return self.last_dist
+
 
     def getVitG(self):
         return self.robot.get_VitG()
