@@ -165,27 +165,28 @@ class StrategieAuto:
         return not self.running
 
 class StrategieSeq:
-    """Séquence de stratégies exécutées les unes après les autres."""
-    def __init__(self, strategies, robAdapt):
-        self.strategies = strategies
-        self.robA = robAdapt
-        self.current = 0
+    def __init__(self, liste_strategies):
+        self.liste_strategies = liste_strategies
+        self.index = 0
+    
+    def start(self, adaptateur):
+        if self.index < len(self.liste_strategies):
+            self.liste_strategies[self.index].start(adaptateur)
+    
+    def step(self, adaptateur):
+        if self.index < len(self.liste_strategies):
+            print(f"Exécution de la stratégie {self.index + 1}/{len(self.liste_strategies)}")
+            strategie = self.liste_strategies[self.index]
+            if not strategie.stop(adaptateur):
+                strategie.step(adaptateur)
+            else:
+                print(f"Stratégie {self.index + 1} terminée.")
+                self.index += 1
+                if self.index < len(self.liste_strategies):
+                    self.liste_strategies[self.index].start(adaptateur)
 
-    def start(self):
-        if self.current < len(self.strategies):
-            self.strategies[self.current].start()
-
-    def step(self):
-        if self.current < len(self.strategies):
-            self.strategies[self.current].step()
-            if self.strategies[self.current].stop():
-                self.current += 1
-                if self.current < len(self.strategies):
-                    self.strategies[self.current].start()
-
-    def stop(self):
-        return self.current >= len(self.strategies)
-        
+    def stop(self, adaptateur):
+        return self.index >= len(self.liste_strategies)        
 
 class StrategieSuivreBalise:
     """Stratégie pour faire suivre une balise au robot."""
