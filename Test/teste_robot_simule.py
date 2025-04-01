@@ -34,3 +34,12 @@ class TestRobotSimule(unittest.TestCase):
         self.robot.arreter()
         self.assertEqual(self.robot.vitAngG, 0)
         self.assertEqual(self.robot.vitAngD, 0)
+        
+    def test_set_vitesses(self):
+        self.robot.set_VitG(3)
+        self.robot.set_VitD(4)
+        self.assertEqual(self.robot.get_VitG(), 3)
+        self.assertEqual(self.robot.get_VitD(), 4)
+
+    def test_get_distance_parcourue(self):
+        self.assertEqual(self.robot.getDistanceParcouru(), 0)
