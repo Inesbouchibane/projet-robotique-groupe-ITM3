@@ -1,4 +1,1 @@
-from .affichage import Affichage
-
-
-__all__ = ['Affichage']
+from .interface2D.affichage import Affichage
