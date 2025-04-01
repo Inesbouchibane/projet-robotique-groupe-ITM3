@@ -53,4 +53,22 @@ class TestRobotSimule(unittest.TestCase):
         self.robot.refresh()
         self.assertGreater(self.robot.getDistanceParcouru(), 0)
         self.assertGreater(self.robot.getAngleParcouru(), 0)
+        
+    def test_reset_tracking(self):
+        self.robot.distance_parcourue = 10
+        self.robot.angle_parcouru = 5
+        self.robot.reset_tracking()
+        self.assertEqual(self.robot.getDistanceParcouru(), 0)
+        self.assertEqual(self.robot.getAngleParcouru(), 0)
+
+    def test_get_distance_obstacle(self):
+        self.assertEqual(self.robot.getDistanceObstacle(), float('inf'))
+
+    def test_get_distance_roues(self):
+        self.assertEqual(self.robot.getDistanceRoues(), 20)
+
+if __name__ == '__main__':
+    unittest.main()
+
+
 
