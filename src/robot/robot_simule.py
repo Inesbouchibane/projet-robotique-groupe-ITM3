@@ -72,4 +72,11 @@ couleur="lightblue"):
 
         # Ajout pour débogage
         print(f"vitAngG={self.vitAngG}, vitAngD={self.vitAngD}, v_gauche={v_gauche}, v_droite={v_droite}, omega={omega}, delta_t={delta_t}, theta={theta:.3f}, new_theta={new_theta:.3f}")
+        
+        
+    def getAngleParcouru(self):
+        return self.angle_parcouru
+
+    def getDistanceRoues(self):
+        return self.width
 
