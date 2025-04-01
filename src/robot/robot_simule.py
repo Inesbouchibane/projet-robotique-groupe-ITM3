@@ -3,8 +3,7 @@ from time import time
 from .robot import Robot
 
 class RobotSimule(Robot):
-    def __init__(self, nom, x, y, width, length, vitesse_max, taille_roue, 
-couleur="lightblue"):
+    def __init__(self, nom, x, y, width, length, vitesse_max, taille_roue, couleur="lightblue"):
         self.nom = nom
         self.x = x
         self.y = y
@@ -79,4 +78,8 @@ couleur="lightblue"):
 
     def getDistanceRoues(self):
         return self.width
+
+    def reset_tracking(self):
+        self.distance_parcourue = 0
+        self.angle_parcouru = 0
 
