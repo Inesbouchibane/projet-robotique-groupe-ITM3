@@ -1,3 +1,2 @@
-from .environnement import Environnement
-
-__all__ = ['Environnement']
+kfrom .environnement import Environnement
+from .obstacle import Obstacle
