@@ -21,3 +21,15 @@ class Adaptateur_simule(Adaptateur):
 
     def setVitAngA(self, vit):
         self.robot.setVitAng(vit)
+        
+    def getVitD(self):
+        return self.robot.get_VitD()
+
+    def getVitG(self):
+        return self.robot.get_VitG()
+
+   def getDistanceParcourue(self):
+        return self.robot.getDistanceParcouru()
+
+    def getAngleParcouru(self):
+        return self.robot.getAngleParcouru()

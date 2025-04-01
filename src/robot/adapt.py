@@ -27,7 +27,7 @@ class Adaptateur(ABC):
         """
         pass
 
-    @abstractmethod
+     @abstractmethod
     def getDistanceParcourue(self):
         """Retourne la distance totale parcourue depuis l'initialisation (en mm)"""
         pass
@@ -36,6 +36,7 @@ class Adaptateur(ABC):
     def getAngleParcouru(self):
         """Retourne l'angle total parcouru depuis l'initialisation (en radians)"""
         pass
+
 
     @abstractmethod
     def getPosition(self):
