@@ -1,30 +1,39 @@
 from .adapt import Adaptateur
-from utils import getAngleFromVect, getDistanceFromPts
+from .robot_simule import RobotSimule
+from src.environnement import Environnement
+from time import time
+import math
 
-class Adaptateur_simule(Adaptateur):
-    """Adaptateur pour simuler un robot dans un environnement virtuel."""
-    def __init__(self, robot, env):
+class AdaptateurSimule(Adaptateur):
+    def __init__(self, robot: RobotSimule, environnement: Environnement):
         self.robot = robot
-        self.env = env
-        self.last_point = (robot.x, robot.y)
-        self.last_dir = robot.direction
+        self.environnement = environnement
+        self.initialised = False
+        self.last_refresh = time()
+        self.last_dist = float('inf')
 
     def initialise(self):
-        self.last_point = (self.robot.x, self.robot.y)
-        self.last_dir = self.robot.direction
-
-    def setVitAngDA(self, vit):
-        self.robot.vitAngD = vit
-
-    def setVitAngGA(self, vit):
-        self.robot.vitAngG = vit
+        self.robot.arreter()
+        self.robot.reset_tracking()
+        self.initialised = True
+        self.last_refresh = time()
 
     def setVitAngA(self, vit):
-        self.robot.setVitAng(vit)
-        
-    def getVitD(self):
-        return self.robot.get_VitD()
-        
+        self.robot.set_VitG(vit)
+        self.robot.set_VitD(vit)
+
+    def setVitAngGA(self, vit):
+        self.robot.set_VitG(vit)
+
+    def setVitAngDA(self, vit):
+        self.robot.set_VitD(vit)
+
+    def setVitG(self, vit):
+        self.robot.set_VitG(vit)
+
+    def setVitD(self, vit):
+        self.robot.set_VitD(vit)
+
     def getDistanceObstacle(self):
         current_time = time()
         if current_time - self.last_refresh < 0.06:
@@ -35,7 +44,6 @@ class Adaptateur_simule(Adaptateur):
             (self.robot.x + self.robot.width/2, self.robot.y - self.robot.length/2),
             (self.robot.x - self.robot.width/2, self.robot.y - self.robot.length/2)
         ]
-        
         min_dist = float('inf')
         for x, y in lstPoints:
             for obs in self.environnement.listeObs:
@@ -47,11 +55,28 @@ class Adaptateur_simule(Adaptateur):
         return self.last_dist
 
 
+    def getVitD(self):
+        return self.robot.get_VitD()
+
     def getVitG(self):
         return self.robot.get_VitG()
 
-   def getDistanceParcourue(self):
+    def getDistanceParcourue(self):
         return self.robot.getDistanceParcouru()
 
     def getAngleParcouru(self):
         return self.robot.getAngleParcouru()
+
+    def getPosition(self):
+        return (self.robot.x, self.robot.y)
+
+    def getDirection(self):
+        return self.robot.direction
+
+    def isCrashed(self):
+        return self.robot.estCrash or self.getDistanceA() < 5
+    
+    def arreter(self):
+        """Implémentation de la méthode arreter"""
+        self.robot.arreter()
+        self.robot.estCrash = True 
