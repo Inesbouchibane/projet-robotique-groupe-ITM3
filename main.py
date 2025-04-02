@@ -6,8 +6,7 @@ from src.environnement import Environnement
 from src.interface_graphique.interface2D.affichage import Affichage
 from src.controleur.controleur import Controler
 from menu import choisir_strategie, relancer_strategie
-from src.utils import TIC_SIMULATION, LARGEUR_ENV, LONGUEUR_ENV, 
-SCALE_ENV_1, LIST_PTS_OBS_RECTANGLE1, LIST_PTS_OBS_TRIANGLE, LIST_PTS_OBS_CERCLE
+from src.utils import TIC_SIMULATION, LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1, LIST_PTS_OBS_RECTANGLE1, LIST_PTS_OBS_TRIANGLE, LIST_PTS_OBS_CERCLE
 from logging import basicConfig, INFO
 
 basicConfig(level=INFO)
