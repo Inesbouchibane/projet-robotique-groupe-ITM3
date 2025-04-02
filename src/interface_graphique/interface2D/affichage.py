@@ -1,5 +1,5 @@
 import pygame
-from utils import getDistanceFromPts
+from src.utils import getDistanceFromPts
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -11,12 +11,12 @@ ROUGE = (255, 0, 0)
 JAUNE = (255, 255, 0)
 
 class Affichage:
-    def __init__(self, largeur, hauteur, obstacles):
+    def __init__(self, largeur, hauteur, obstacles_points):
         pygame.init()
         self.ecran = pygame.display.set_mode((largeur, hauteur))
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 30)
-        self.obstacles = obstacles
+        self.obstacles_points = obstacles_points  # Liste de listes de points pour chaque obstacle
         self.trajet = []
         self.last_position = None
 
@@ -28,6 +28,8 @@ class Affichage:
                 return "tracer_carre"
             if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
                 return "automatique"
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
+                return "suivre_balise"
         return None
 
     def mettre_a_jour(self, robot):
@@ -38,8 +40,11 @@ class Affichage:
             self.last_position = current_position
         if len(self.trajet) > 1:
             pygame.draw.lines(self.ecran, NOIR, False, self.trajet, 2)
-        for rect in self.obstacles:
-            pygame.draw.rect(self.ecran, ROUGE, rect)
+
+        # Dessiner chaque obstacle avec ses points (rectangle, triangle, cercle)
+        for points in self.obstacles_points:
+            pygame.draw.polygon(self.ecran, ROUGE, points)  # Dessine un polygone fermé
+
         points = self.calculer_points_robot(robot)
         pygame.draw.polygon(self.ecran, JAUNE if robot.estCrash else BLEU, points)
         pos_text = self.font.render(f"Pos: ({robot.x:.1f}, {robot.y:.1f})", True, NOIR)
@@ -60,7 +65,4 @@ class Affichage:
         ]
 
     def attendre_fermeture(self):
-        while True:
-            if any(event.type in [pygame.QUIT, pygame.KEYDOWN] for event in pygame.event.get()):
-                pygame.quit()
-                return
+        pygame.quit()
