@@ -14,8 +14,7 @@ basicConfig(level=INFO)
 
 # Initialisation de l'environnement et du robot
 envi = Environnement(LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1)
-robot_sim = RobotSimule("r1", 500, 250, 23, 40, 50, 5, "lightblue")  # 
-vitesse_max = 50
+robot_sim = RobotSimule("r1", 500, 250, 23, 40, 50, 5, "lightblue")  # vitesse_max = 50
 adaptateur = AdaptateurSimule(robot_sim, envi)
 envi.setRobot(adaptateur)
 
@@ -23,8 +22,7 @@ envi.setRobot(adaptateur)
 for n, pts in [('Rectangle', LIST_PTS_OBS_RECTANGLE1), ('Triangle', LIST_PTS_OBS_TRIANGLE), ('Cercle', LIST_PTS_OBS_CERCLE)]:
     envi.addObstacle(n, pts)
 
-affichage = Affichage(LARGEUR_ENV, LONGUEUR_ENV, [o.points for o in 
-envi.listeObs])  # Passer les points bruts
+affichage = Affichage(LARGEUR_ENV, LONGUEUR_ENV, [o.points for o in envi.listeObs])  # Passer les points bruts
 
 def loopEnv(envi, running_flag):
     last_time = time()
