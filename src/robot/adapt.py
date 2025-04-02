@@ -27,7 +27,7 @@ class Adaptateur(ABC):
         """
         pass
 
-     @abstractmethod
+    @abstractmethod
     def getDistanceParcourue(self):
         """Retourne la distance totale parcourue depuis l'initialisation (en mm)"""
         pass
