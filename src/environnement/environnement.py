@@ -1,7 +1,7 @@
 from logging import getLogger
 from math import sqrt
 from time import time
-from utils import normaliserVecteur
+from src.utils import normaliserVecteur
 
 class Obstacle:
     def __init__(self, nom, points):
