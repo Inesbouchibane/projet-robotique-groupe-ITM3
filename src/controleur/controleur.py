@@ -1,7 +1,7 @@
 from logging import getLogger
 from threading import Thread
 from time import sleep
-from utils import TIC_SIMULATION
+from src.utils import TIC_SIMULATION
 
 class Controler:
     """Classe permettant de gérer l'exécution des stratégies du robot."""
