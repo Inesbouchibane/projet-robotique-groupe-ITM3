@@ -32,7 +32,6 @@ def loopEnv(envi, running_flag):
         last_time = current_time
         sleep(max(0, TIC_SIMULATION - delta_t))
 
-
 def main_loop():
     controleur = Controler(adaptateur)
     running = [True]
