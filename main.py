@@ -20,8 +20,7 @@ adaptateur = AdaptateurSimule(robot_sim, envi)
 envi.setRobot(adaptateur)
 
 # Ajout des obstacles avec les nouvelles formes
-for n, pts in [('Rectangle', LIST_PTS_OBS_RECTANGLE1), ('Triangle', 
-LIST_PTS_OBS_TRIANGLE), ('Cercle', LIST_PTS_OBS_CERCLE)]:
+for n, pts in [('Rectangle', LIST_PTS_OBS_RECTANGLE1), ('Triangle', LIST_PTS_OBS_TRIANGLE), ('Cercle', LIST_PTS_OBS_CERCLE)]:
     envi.addObstacle(n, pts)
 
 affichage = Affichage(LARGEUR_ENV, LONGUEUR_ENV, [o.points for o in 
