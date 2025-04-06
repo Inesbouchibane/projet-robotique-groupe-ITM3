@@ -5,8 +5,8 @@ TIC_CONTROLEUR = 0.02
 LARGEUR_ENV = 1000
 LONGUEUR_ENV = 500
 SCALE_ENV_1 = 1
-VIT_ANG_AVAN = 2  #  (units/sec) pr mouvement visible
-VIT_ANG_TOUR = 1  #  (radians/sec)
+VIT_ANG_AVAN = 2  # Slower speed for visible movement (units/sec)
+VIT_ANG_TOUR = 1  # Angular speed for turns (radians/sec)
 
 # Obstacle 1 : Rectangle
 LIST_PTS_OBS_RECTANGLE1 = [(100, 100), (200, 100), (200, 150), (100, 150)]

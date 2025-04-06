@@ -1,3 +1,5 @@
+# src/interface_graphique/interface2D/affichage.py
+
 import pygame
 from src.utils import getDistanceFromPts
 from logging import getLogger
@@ -16,21 +18,9 @@ class Affichage:
         self.ecran = pygame.display.set_mode((largeur, hauteur))
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 30)
-        self.obstacles_points = obstacles_points  # Liste de listes de points pour chaque obstacle
+        self.obstacles_points = obstacles_points
         self.trajet = []
         self.last_position = None
-
-    def handle_events(self, adaptateur):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                return "quit"
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
-                return "tracer_carre"
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
-                return "automatique"
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
-                return "suivre_balise"
-        return None
 
     def mettre_a_jour(self, robot):
         self.ecran.fill(BLANC)
@@ -41,9 +31,8 @@ class Affichage:
         if len(self.trajet) > 1:
             pygame.draw.lines(self.ecran, NOIR, False, self.trajet, 2)
 
-        # Dessiner chaque obstacle avec ses points (rectangle, triangle, cercle)
         for points in self.obstacles_points:
-            pygame.draw.polygon(self.ecran, ROUGE, points)  # Dessine un polygone fermé
+            pygame.draw.polygon(self.ecran, ROUGE, points)
 
         points = self.calculer_points_robot(robot)
         pygame.draw.polygon(self.ecran, JAUNE if robot.estCrash else BLEU, points)

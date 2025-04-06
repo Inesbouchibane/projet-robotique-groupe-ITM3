@@ -54,25 +54,10 @@ class MockupRobot:
         self.dpsd = 0
         self.logger.info("Moteurs arrêtés")
 
-    def avancer(self, vitesse):
-        """Avance à vitesse linéaire donnée (mm/s)"""
-        dps = vitesse / (self.WHEEL_DIAMETER * pi) * 360
-        self.set_motor_dps(self.MOTOR_BOTH, dps)
-
-    def tourner(self, angle):
-        """Tourne d'un angle spécifié (degrés)"""
-        dps = 50  # Vitesse angulaire constante
-        if angle > 0:  # Droite
-            self.set_motor_dps(self.MOTOR_LEFT, dps)
-            self.set_motor_dps(self.MOTOR_RIGHT, -dps)
-        else:  # Gauche
-            self.set_motor_dps(self.MOTOR_LEFT, -dps)
-            self.set_motor_dps(self.MOTOR_RIGHT, dps)
-
     # --- Capteurs ---
     def get_distance(self):
         """Simule la lecture du capteur de distance (mm)"""
-        dist = 150 + (self.angleg % 360)  # Valeur variant pour les tests
+        dist = 150 + (self.angleg % 360) # Valeur variant pour les tests
         self.logger.debug(f"Distance mesurée: {dist}mm")
         return dist
 
@@ -80,10 +65,11 @@ class MockupRobot:
     def get_image(self):
         """Retourne une image simulée"""
         self.logger.debug("Capture d'image simulée")
-        return bytearray([0]*640*480*3)  # Image noire 640x480 RGB
+        return bytearray([0] * 640 * 480 * 3)  # Image noire 640x480 RGB
 
     def get_images(self):
         """Retourne un flux d'images"""
+        self.logger.debug("Capture d'un flux d'images simulé")
         return [self.get_image()]
 
     def servo_rotate(self, position):
@@ -93,17 +79,14 @@ class MockupRobot:
     # --- Enregistrement Vidéo ---
     def start_recording(self):
         """Démarre l'enregistrement vidéo"""
-        self.logger.info("Début enregistrement vidéo")
+        self.logger.info("Début enregistrement vidéo simulé")
 
     def stop_recording(self):
         """Arrête l'enregistrement vidéo"""
-        self.logger.info("Fin enregistrement vidéo")
+        self.logger.info("Fin enregistrement vidéo simulé")
 
     # --- Méthodes Techniques ---
     def __getattr__(self, attr):
         """Gère les appels à des méthodes non implémentées"""
         self.logger.warning(f"Méthode non implémentée: {attr}")
         return lambda *args, **kwargs: None
-
-
-   
