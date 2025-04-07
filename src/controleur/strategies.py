@@ -121,3 +121,44 @@ def setStrategieCarre(longueur_cote):
         StrategieAvancer(longueur_cote),
         StrategieTourner(90)
     ])
+
+
+#Q1.2
+
+
+class StrategieDemiTour:
+    def __init__(self, distance=40):
+        self.distance = distance
+        self.demi_tours = 0
+        self.tours = 10
+        self.direction = [1, 0]  # Vers la droite
+
+    def start(self, adaptateur):
+        adaptateur.initialise()
+        adaptateur.robot.direction = self.direction
+        adaptateur.setVitAngA(VIT_ANG_AVAN)  
+
+
+    def step(self, adaptateur):
+        distance_obstacle = adaptateur.getDistanceObstacle()
+        if distance_obstacle < self.distance and self.demi_tours < 
+self.tours:
+            # Faire un demi-tour
+            adaptateur.arreter()
+            adaptateur.tourne(-1, 1)  # Tourne à gauche avec -1
+            angle_cible = math.pi  
+            while abs(adaptateur.getAngleParcouru()) < angle_cible - 0.1:
+                sleep(TIC_SIMULATION)
+                adaptateur.robot.refresh(TIC_SIMULATION)
+            adaptateur.arreter()
+            adaptateur.initialise()  # Réinitialise pour avancer à nouveau
+            adaptateur.setVitAngA(2)
+            self.demi_tours += 1
+            logger.info(f"Demi-tour {self.demi_tours} effectué")
+
+    def stop(self, adaptateur):
+        if self.demi_tours >= self.max_demi_tours:
+            adaptateur.arreter()
+            logger.info("10 demi-tours atteints, arrêt")
+            return True
+        return False
