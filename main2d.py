@@ -23,8 +23,7 @@ def main():
     env.addObstacle("cercle", LIST_PTS_OBS_CERCLE)
     logger.info("Environnement initialisé")
 
-    robot1 = RobotSimule("souris", 300, 125, 25, 30, 5, 20)  # 100 unités 
-du rectangle
+    robot1 = RobotSimule("souris", 300, 125, 25, 30, 5, 20)  # 100 unités du rectangle
     adaptateur = AdaptateurSimule(robot1, env)
     env.setRobot(adaptateur)
     logger.info(f"Robot initialisé à ({robot1.x}, {robot1.y})")
