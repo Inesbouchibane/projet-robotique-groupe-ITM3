@@ -141,8 +141,7 @@ class StrategieDemiTour:
 
     def step(self, adaptateur):
         distance_obstacle = adaptateur.getDistanceObstacle()
-        if distance_obstacle < self.distance and self.demi_tours < 
-self.tours:
+        if distance_obstacle < self.distance and self.demi_tours < self.tours:
             # Faire un demi-tour
             adaptateur.arreter()
             adaptateur.tourne(-1, 1)  # Tourne à gauche avec -1
@@ -162,3 +161,38 @@ self.tours:
             logger.info("10 demi-tours atteints, arrêt")
             return True
         return False
+
+#Q1.5 : 
+class StrategieBleu:
+    def start(self, adaptateur):
+        adaptateur.robot.bleu()
+        adaptateur.robot.dessine(True) #utilisation fct dessine
+
+    def step(self, adaptateur):
+        pass  
+
+    def stop(self, adaptateur):
+        return True  
+
+
+class StrategieRouge:
+    def start(self, adaptateur):
+        adaptateur.robot.rouge()
+        adaptateur.robot.dessine(True)
+
+    def step(self, adaptateur):
+        pass
+
+    def stop(self, adaptateur):
+        return True
+
+
+class StrategieInvisible:
+    def start(self, adaptateur):
+        adaptateur.robot.dessine(False)
+
+    def step(self, adaptateur):
+        pass
+
+    def stop(self, adaptateur):
+        return True
