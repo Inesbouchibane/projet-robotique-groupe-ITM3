@@ -19,6 +19,7 @@ class RobotSimule(Robot):
         self.angle_parcouru = 0
         self.last_update = time()
         self.estCrash = False
+	self.crayon = False   #Ajout attribut pr le crayon
 
     def avancer(self, valeur):
         vitesse_angulaire = valeur / (self.taille_roue / 2)  # Correction : rayon, pas diamètre
@@ -90,4 +91,7 @@ class RobotSimule(Robot):
    
     def dessine (self,b) :
        if (b) : 
+ 	 self.crayon = True
+       else :
+         self.crayon = False
  
