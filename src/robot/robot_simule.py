@@ -87,3 +87,7 @@ class RobotSimule(Robot):
     def reset_tracking(self):
         self.distance_parcourue = 0
         self.angle_parcouru = 0
+   
+    def dessine (self,b) :
+       if (b) : 
+ 
