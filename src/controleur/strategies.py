@@ -136,14 +136,17 @@ class StrategieDemiTour:
     def start(self, adaptateur):
         adaptateur.initialise()
         adaptateur.robot.direction = self.direction
-        adaptateur.setVitAngA(VIT_ANG_AVAN)  
+	StrategieRouge().start(adaptateur)#rouge car direction initiale droite       
+	adaptateur.setVitAngA(VIT_ANG_AVAN)  
 
 
     def step(self, adaptateur):
         distance_obstacle = adaptateur.getDistanceObstacle()
         if distance_obstacle < self.distance and self.demi_tours < self.tours:
             # Faire un demi-tour
+          
             adaptateur.arreter()
+            StrategieInvisible().start(adaptateur) #demi-tour
             adaptateur.tourne(-1, 1)  # Tourne à gauche avec -1
             angle_cible = math.pi  
             while abs(adaptateur.getAngleParcouru()) < angle_cible - 0.1:
@@ -151,12 +154,19 @@ class StrategieDemiTour:
                 adaptateur.robot.refresh(TIC_SIMULATION)
             adaptateur.arreter()
             adaptateur.initialise()  # Réinitialise pour avancer à nouveau
-            adaptateur.setVitAngA(2)
-            self.demi_tours += 1
+            adaptateur.setVitAngA(VIT_ANG_AVAN)
+            
+ 	    if adaptateur.robot.direction[0] > 0:  # Vers la droite si >0
+                StrategieRouge().start(adaptateur)
+            else:  # Vers la gauche si direction <0
+                StrategieBleu().start(adaptateur)
+            
+	    adaptateur.setVitAngA(adaptateur)
+ 	    self.demi_tours += 1
             logger.info(f"Demi-tour {self.demi_tours} effectué")
 
     def stop(self, adaptateur):
-        if self.demi_tours >= self.max_demi_tours:
+        if self.demi_tours >= self.tours :
             adaptateur.arreter()
             logger.info("10 demi-tours atteints, arrêt")
             return True
