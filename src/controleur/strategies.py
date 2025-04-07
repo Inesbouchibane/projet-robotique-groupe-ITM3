@@ -125,7 +125,6 @@ def setStrategieCarre(longueur_cote):
 
 #Q1.2
 
-
 class StrategieDemiTour:
     def __init__(self, distance=40):
         self.distance = distance
@@ -176,7 +175,7 @@ class StrategieDemiTour:
 class StrategieBleu:
     def start(self, adaptateur):
         adaptateur.robot.bleu()
-        adaptateur.robot.dessine(True) #utilisation fct dessine
+        adaptateur.dessine(True) #utilisation fct dessine
 
     def step(self, adaptateur):
         pass  
@@ -188,7 +187,7 @@ class StrategieBleu:
 class StrategieRouge:
     def start(self, adaptateur):
         adaptateur.robot.rouge()
-        adaptateur.robot.dessine(True)
+        adaptateur.dessine(True)
 
     def step(self, adaptateur):
         pass
@@ -199,7 +198,7 @@ class StrategieRouge:
 
 class StrategieInvisible:
     def start(self, adaptateur):
-        adaptateur.robot.dessine(False)
+        adaptateur.dessine(False)
 
     def step(self, adaptateur):
         pass
