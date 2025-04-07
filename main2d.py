@@ -30,7 +30,18 @@ def main():
 
     controleur = Controler(adaptateur)
     logger.info("Contrôleur initialisé")
+    
+   # "Ajout deuxieme robot"
+    robot2 = RobotSimule("Robot2", 400, 200, 25, 30, 5, 20, couleur="lightgreen")
+    adaptateur2 = AdaptateurSimule(robot2, env)
+    logger.info(f"Robot2 initialisé à ({robot2.x}, {robot2.y})")
 
+    controleur = Controler(adaptateur1)
+    
+    #ajout d'instructions pr pouvoir choisir quel robot faire bouger
+    robots = {"1": adaptateur1, "2": adaptateur2}
+    robot_actif = "1"
+    logger.info("Contrôleur initialisé")
     obstacles = [LIST_PTS_OBS_RECTANGLE1, LIST_PTS_OBS_TRIANGLE, LIST_PTS_OBS_CERCLE]
     affichage = Affichage(LARGEUR_ENV, LONGUEUR_ENV, obstacles)
     logger.info("Affichage initialisé")
@@ -45,8 +56,16 @@ def main():
             controleur.stop()
             running = False
             logger.info("Arrêt demandé")
+       if isinstance (action,str) and action.startswitch ("switch:") :
+          robot_actif = action.split (":")[1]
+	  controleur.adaptateur = robots[robot_actif]
+	  env.setRobot (robots[robot_actif]
+
+        robot1.refresh(TIC_SIMULATION)
+        robot2.refresh(TIC_SIMULATION)
         env.refreshEnvironnement()
-        affichage.mettre_a_jour(robot)
+        affichage.mettre_a_jour(robot1)
+	affichage.mettre_a_jour(robot2)
         sleep(TIC_SIMULATION)
 
     logger.info("Fin de la boucle principale")
