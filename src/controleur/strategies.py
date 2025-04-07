@@ -208,3 +208,39 @@ class StrategieInvisible:
 
 
 
+#Q2.2 :
+class StrategieAllerRetour:
+    def __init__(self):
+        self.etape = 0  
+        self.distance_parcourue = 0
+
+    def start(self, adaptateur):
+        adaptateur.initialise()
+        adaptateur.robot.direction = [0, 1] 
+        self.distance_parcourue = adaptateur.getDistanceParcouru()
+        StrategieRouge().start(adaptateur)  
+        adaptateur.setVitAngA(VIT_ANG_AVAN)
+
+    def step(self, adaptateur):
+        distance = adaptateur.getDistanceParcouru() - self.distance_parcourue
+        if self.etape == 0 and distance >= 400:  
+            adaptateur.arreter()
+            adaptateur.tourne(-1, 1)  # Tourner vers le bas
+            while abs(adaptateur.getAngleParcouru()) < math.pi - 0.1:
+                sleep(TIC_SIMULATION)
+                adaptateur.robot.refresh(TIC_SIMULATION)
+            adaptateur.arreter()
+            adaptateur.initialise()
+            self.distance_parcourue = adaptateur.getDistanceParcouru()
+            StrategieBleu().start(adaptateur)  
+            adaptateur.setVitAngA(VIT_ANG_AVAN)
+            self.etape = 1
+        elif self.etape == 1 and distance >= 400:  
+            adaptateur.arreter()
+            self.etape = 2
+
+    def stop(self, adaptateur):
+        if self.etape == 2:
+            StrategieInvisible().start(adaptateur)
+            return True
+        return False
