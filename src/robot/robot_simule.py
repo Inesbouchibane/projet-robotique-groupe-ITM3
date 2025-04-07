@@ -20,6 +20,8 @@ class RobotSimule(Robot):
         self.last_update = time()
         self.estCrash = False
 	self.crayon = False   #Ajout attribut pr le crayon
+	self.couleur_trace = "bleu"  #Ajout pr choisir la couleur du trace 
+-> par defaut c bleu
 
     def avancer(self, valeur):
         vitesse_angulaire = valeur / (self.taille_roue / 2)  # Correction : rayon, pas diamètre
@@ -95,3 +97,8 @@ class RobotSimule(Robot):
        else :
          self.crayon = False
  
+    def trace_rouge(self):
+        self.couleur_trace = "rouge"
+
+    def trace_bleu(self):
+        self.couleur_trace = "bleu"
