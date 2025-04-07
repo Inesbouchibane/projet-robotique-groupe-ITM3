@@ -49,6 +49,7 @@ class RobotSimule(Robot):
     def get_VitD(self):
         return self.vitAngD
 
+
     def refresh(self, delta_t=None):
         if delta_t is None:
             current_time = time()

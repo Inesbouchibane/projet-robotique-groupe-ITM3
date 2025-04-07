@@ -121,3 +121,59 @@ def setStrategieCarre(longueur_cote):
         StrategieAvancer(longueur_cote),
         StrategieTourner(90)
     ])
+
+
+class StrategieCoinDroit:
+    def __init__(self, largeur, longueur):
+        self.largeur = largeur
+        self.longueur = longueur
+        self.target_x = largeur - 10
+        self.target_y = longueur - 10  
+        
+    def start(self, adaptateur):
+        adaptateur.initialise()
+
+    def step(self, adaptateur):
+        current_x, current_y = adaptateur.getPosition()
+        distance = getDistanceFromPts((current_x, current_y), (self.target_x, self.target_y))
+        angle = m.atan2(self.target_y - current_y, self.target_x - current_x)
+        strategie_tourner = StrategieTourner(angle)
+        strategie_tourner.execute(adaptateur)
+
+        adaptateur.setVitAngA(VIT_ANG_AVAN)
+
+    def stop(self, adaptateur):
+        current_x, current_y = adaptateur.getPosition()
+        distance = getDistanceFromPts((current_x, current_y), (self.target_x, self.target_y))
+        if distance < 5: 
+            adaptateur.setVitAngA(0)
+            self.reached = True
+            return True
+        return False
+
+class StrategieBleu:
+    def __init__(self, robot):
+        self.robot = robot
+
+    def execute(self):
+        self.robot.dessine(True)
+        self.robot.bleu()
+
+class StrategieRouge:
+    def __init__(self, robot):
+        self.robot = robot
+
+    def execute(self):
+        self.robot.dessine(True)
+        self.robot.rouge()
+
+class StrategieInvisible:
+    def __init__(self, robot):
+        self.robot = robot
+
+    def execute(self):
+        self.robot.dessine(False)
+
+
+
+   

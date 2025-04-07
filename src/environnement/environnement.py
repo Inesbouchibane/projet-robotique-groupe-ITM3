@@ -9,12 +9,40 @@ class Environnement:
         self.robotAdapt = None
         self.listeObs = []
 
+    
+        center_x = self.largeur / 2
+        center_y = self.longueur / 2
+        height_offset = self.longueur / 4
+
+        # Obstacle au centre
+        self.addObstacle("Obstacle_Centre", [
+            (center_x - 10, center_y - 10), 
+            (center_x + 10, center_y + 10)
+        ])
+
+        # Obstacle en haut milieu
+        self.addObstacle("Obstacle_Haut", [
+            (center_x - 10, center_y + height_offset - 10), 
+            (center_x + 10, center_y + height_offset + 10)
+        ])
+
+        # Obstacle en bas milieu
+        self.addObstacle("Obstacle_Bas", [
+            (center_x - 10, center_y - height_offset - 10), 
+            (center_x + 10, center_y - height_offset + 10)
+        ])
+
+
+    
+
     def setRobot(self, robA):
         self.robotAdapt = robA
         robA.robot.refresh(TIC_SIMULATION)
 
     def addObstacle(self, nom, listePts):
         self.listeObs.append(Obstacle(nom, listePts))
+    
+
 
     def refreshEnvironnement(self):
         robA = self.robotAdapt
@@ -66,3 +94,7 @@ class Environnement:
         x2, y2, w2, h2 = bb2
         return (x1 < x2 + w2 and x1 + w1 > x2 and
                 y1 < y2 + h2 and y1 + h1 > y2)
+
+
+
+

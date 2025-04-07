@@ -22,6 +22,24 @@ class Affichage:
         self.trajet = []
         self.last_position = None
 
+    def bleu(self):
+        self.couleur_trace = (0, 0, 255)  # Bleu
+
+    def rouge(self):
+        self.couleur_trace = (255, 0, 0)  # Rouge
+
+    def dessine(self, b):
+        self.dessine_trace = b
+
+    def move(self, dx, dy):
+        if self.dessine_trace:
+            pygame.draw.line(self.screen, self.couleur_trace, (self.x, self.y), (self.x + dx, self.y + dy), 2)
+        self.x += dx
+        self.y += dy
+
+
+
+
     def mettre_a_jour(self, robot):
         self.ecran.fill(BLANC)
         current_position = (robot.x, robot.y)

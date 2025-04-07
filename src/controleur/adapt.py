@@ -54,3 +54,7 @@ class Adaptateur(ABC):
     def arreter(self):
         """Arrête immédiatement tous les mouvements du robot"""
         pass
+    @abstractmethod
+    def dessine(self, b):
+        """Active ou désactive la trace du robot"""
+        pass

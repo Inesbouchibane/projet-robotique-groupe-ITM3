@@ -21,6 +21,11 @@ class AdaptateurSimule(Adaptateur):
         self.initialised = True
         self.last_refresh = time()
 
+    def dessine(self, b):
+        self.robot.dessine(b)
+        print(f"Trace activée: {b}")
+
+
     def setVitAngA(self, vit):
         self.robot.set_VitG(vit)
         self.robot.set_VitD(vit)
