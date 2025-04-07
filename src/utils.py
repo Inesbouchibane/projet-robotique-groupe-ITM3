@@ -9,8 +9,10 @@ VIT_ANG_AVAN = 2  # Slower speed for visible movement (units/sec)
 VIT_ANG_TOUR = 1  # Angular speed for turns (radians/sec)
 
 # Obstacle 1 : Rectangle
-LIST_PTS_OBS_RECTANGLE1 = [(700, 100), (800, 100), (700, 150), (800, 150)]
+LIST_PTS_OBS_RECTANGLE1 = [(450, 375), (550, 375), (550, 425), (450, 425)]
 
+#on le met au milieu 
+LIST_PTS_OBS_TRIANGLE = [(475, 225), (525, 275), (500, 250)]
 
 LIST_PTS_OBS_CARRE2 = [(150, 100), (100, 100), (100, 100), (100, 100)]
 LIST_PTS_OBS_RECTANGLE2 = [(200, 300), (200, 100), (200, 150), (100, 150)]
