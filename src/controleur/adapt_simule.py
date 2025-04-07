@@ -96,3 +96,7 @@ class AdaptateurSimule(Adaptateur):
     def arreter(self):
         """Implémentation de la méthode arreter"""
         self.robot.arreter()
+   
+    #correction : implementation de dessine dans l'adaptateur pr les strategies et non dans le robot
+    def dessine (self,b) : 
+        return self.robot.crayon = b   
