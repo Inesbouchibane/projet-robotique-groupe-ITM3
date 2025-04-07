@@ -23,21 +23,22 @@ def main():
     env.addObstacle("cercle", LIST_PTS_OBS_CERCLE)
     logger.info("Environnement initialisé")
 
-    robot1 = RobotSimule("souris", 300, 125, 25, 30, 5, 20)  # 100 unités 
-du rectangle
-    adaptateur = AdaptateurSimule(robot1, env)
-    env.setRobot(adaptateur)
+    robot1 = RobotSimule("souris", 300, 125, 25, 30, 5, 20)  # 100 unités du rectangle
+    adaptateur1 = AdaptateurSimule(robot1, env)
+    env.setRobot(adaptateur1)
     logger.info(f"Robot initialisé à ({robot1.x}, {robot1.y})")
 
     controleur = Controler(adaptateur)
     logger.info("Contrôleur initialisé")
-    
+    strategie = StrategieCarre()
+    controleur.lancerStrategie(strategie)
+
    # "Ajout deuxieme robot"
     robot2 = RobotSimule("chat", 400, 200, 25, 30, 5, 20, couleur="red")
     adaptateur2 = AdaptateurSimule(robot2, env)
     logger.info(f"Robot2 initialisé à ({robot2.x}, {robot2.y})")
 
-    controleur = Controler(adaptateur1)
+    controleur = Controler(adaptateur2)
     
     #ajout d'instructions pr pouvoir choisir quel robot faire bouger
     robots = {"1": adaptateur1, "2": adaptateur2}
