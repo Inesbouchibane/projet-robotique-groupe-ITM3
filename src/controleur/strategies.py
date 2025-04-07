@@ -205,3 +205,6 @@ class StrategieInvisible:
 
     def stop(self, adaptateur):
         return True
+
+
+
