@@ -9,11 +9,12 @@ VIT_ANG_AVAN = 2  # Slower speed for visible movement (units/sec)
 VIT_ANG_TOUR = 1  # Angular speed for turns (radians/sec)
 
 # Obstacle 1 : Rectangle
-LIST_PTS_OBS_RECTANGLE1 = [(100, 100), (200, 100), (200, 150), (100, 150)]
+LIST_PTS_OBS_RECTANGLE1 = [(700, 100), (800, 100), (700, 150), (800, 150)]
 
-# Obstacle 2 : Triangle
-LIST_PTS_OBS_TRIANGLE = [(300, 200), (350, 250), (325, 175)]
 
+LIST_PTS_OBS_CARRE2 = [(150, 100), (100, 100), (100, 100), (100, 100)]
+LIST_PTS_OBS_RECTANGLE2 = [(200, 300), (200, 100), (200, 150), (100, 150)]
+ 
 # Obstacle 3 : Cercle (approximation avec 8 points)
 def generate_circle_points(center_x, center_y, radius, num_points=8):
     points = []

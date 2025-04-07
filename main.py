@@ -19,11 +19,11 @@ logger = logging.getLogger(__name__)
 def main():
     # Initialisation commune
     envi = Environnement(LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1)
-    obstacles = [LIST_PTS_OBS_RECTANGLE1, LIST_PTS_OBS_TRIANGLE, LIST_PTS_OBS_CERCLE]
+    obstacles = [LIST_PTS_OBS_RECTANGLE1, LIST_PTS_OBS_CARRE2, LIST_PTS_OBS_CERCLE]
     for obs in obstacles:
         envi.addObstacle("obs", obs)
     
-    robot = RobotSimule("Robot1", 300, 125, 25, 30, 5, 20)
+    robot = RobotSimule("Robot1", 100, 125, 25, 30, 5, 20)
     adaptateur = AdaptateurSimule(robot, envi)
     controleur = Controler(adaptateur)
     envi.setRobot(adaptateur)
