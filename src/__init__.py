@@ -5,7 +5,7 @@ from .controleur.adapt_reel import Adaptateur_reel
 from .controleur.adapt_simule import AdaptateurSimule
 from .controleur.strategies import (
     StrategieAvancer, StrategieTourner, StrategieSeq, StrategieAuto,
-    setStrategieCarre
+    setStrategieCarre,StrategieHorizentale 
 )
 from .environnement.environnement import Environnement
 from .environnement.obstacle import Obstacle
@@ -24,12 +24,12 @@ from .utils import (
 __all__ = [
     "Controler", "Adaptateur", "Adaptateur_reel", "AdaptateurSimule",
     "StrategieAvancer", "StrategieTourner", "StrategieSeq", "StrategieAuto",
-    "setStrategieCarre",
-    "Environnement", "Obstacle",
+    "setStrategieCarre","StrategieHorizentale"
     "Robot", "RobotSimule", "MockupRobot",
     "Affichage", "Affichage3D",
     "TIC_SIMULATION", "TIC_CONTROLEUR", "LARGEUR_ENV", "LONGUEUR_ENV", "SCALE_ENV_1",
     "VIT_ANG_AVAN", "VIT_ANG_TOUR", "LIST_PTS_OBS_RECTANGLE1", "LIST_PTS_OBS_TRIANGLE",
     "LIST_PTS_OBS_CERCLE", "getDistanceFromPts", "normaliserVecteur", "normalize_angle",
+    "LIST_PTS_OBS_Forme1","LIST_PTS_OBS_Forme2","LIST_PTS_OBS_Forme3",
     "generate_circle_points"
 ]

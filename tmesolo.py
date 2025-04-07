@@ -1,10 +1,10 @@
 from threading import Thread
 from time import sleep, time
 from src import (
-    RobotSimule, AdaptateurSimule, Environnement, Controler,Controlers
+    RobotSimule, AdaptateurSimule, Environnement, Controler,Controlers,
     TIC_SIMULATION, LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1,
     LIST_PTS_OBS_Forme1,LIST_PTS_OBS_Forme2,LIST_PTS_OBS_Forme3,
-    StrategieAvancer, StrategieAuto, setStrategieCarre
+    StrategieAvancer, StrategieAuto, setStrategieCarre,StrategieHorizentale 
 )
 from src.interface_graphique.interface2D.menu2d import gerer_evenements, afficher_instructions
 from src.interface_graphique.interface2D.interface2d import Affichage
@@ -20,11 +20,11 @@ def main():
     env = Environnement(LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1)
     env.addObstacle("forme1", [(450,150), (550, 150), (450, 350), (100,450 )])
     env.addObstacle("forme2", [(450, 200), (550, 150), (450, 175)])
-    env.addObstacle("forme3", [(420, 150), (300, 100), (325, 150)])
+    env.addObstacle("forme3", [(450, 100), (550, 100), (450, 150)])
     logger.info("Environnement initialisé")
 
     robot = RobotSimule("Robot1", 300, 125, 25, 30, 5, 20)  # 100 unités du rectangle
-    robot2=RobotSimule("Robot2", 320, 145, 45, 70, 25, 40)
+    robot2= RobotSimule("chat", 300, 125, 25, 30, 5, 20,"red")
     adaptateur = AdaptateurSimule(robot, env)
     adaptateur2 = AdaptateurSimule(robot2, env)
     env.setRobot(adaptateur)

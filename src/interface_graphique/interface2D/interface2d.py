@@ -3,6 +3,7 @@
 import pygame
 from src.utils import getDistanceFromPts
 from logging import getLogger
+from src.robot import RobotSimule
 
 logger = getLogger(__name__)
 
@@ -28,9 +29,10 @@ class Affichage:
         if self.last_position is None or getDistanceFromPts(current_position, self.last_position) > 1:
             self.trajet.append(current_position)
             self.last_position = current_position
-        if len(self.trajet) > 1:
-            pygame.draw.lines(self.ecran, NOIR, False, self.trajet, 2)
-
+        if RobotSimule.dessine(b) is True:
+           if len(self.trajet) > 1:
+               pygame.draw.lines(self.ecran, BLEU, False, self.trajet, 2)
+       
         for points in self.obstacles_points:
             pygame.draw.polygon(self.ecran, ROUGE, points)
 

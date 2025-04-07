@@ -3,12 +3,13 @@ from time import time
 from .robot import Robot
 
 class RobotSimule(Robot):
-    def __init__(self, nom, x, y, width, length, vitesse_max, taille_roue, couleur="lightblue"):
+    def __init__(self, nom, x, y, width, length, vitesse_max, taille_roue, couleur="lightblue", crayon="blue"):
         self.nom = nom
         self.x = x
         self.y = y
         self.width = width
         self.length = length
+        self.crayon="blue"
         self.vitesse_max = vitesse_max
         self.taille_roue = taille_roue
         self.couleur = couleur
@@ -87,3 +88,12 @@ class RobotSimule(Robot):
     def reset_tracking(self):
         self.distance_parcourue = 0
         self.angle_parcouru = 0
+    
+    def dessine(b):
+        return True
+        
+    def rouge():
+        self.couleur="red"
+    
+    def bleu ():
+        self.couleur="blue"

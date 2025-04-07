@@ -89,6 +89,9 @@ class AdaptateurSimule(Adaptateur):
 
     def getVitD(self):
         return self.robot.get_VitD()
+    def avancer(self,droite):
+        self.setVitAngGA(droite)
+        self.setVitAngDA(droite)
 
     def isCrashed(self):
         return self.robot.estCrash or self.getDistanceObstacle() < 5

@@ -122,5 +122,33 @@ def setStrategieCarre(longueur_cote):
         StrategieTourner(90)
     ])
     
-def setStrategieHorizentale (longueur_cote):
-    return 
+def StrategieHorizentale (distance):
+     def __init__(self, distance):
+        self.distance = distance
+        self.parcouru = 0
+        
+    def start(self, adaptateur):
+        adaptateur.initialise()
+        self.parcouru = 0
+        adaptateur.avancer(VIT_ANG_AVAN)
+        print(f"StrategieHorizentale.start : distance cible={self.distance}, vitesse={VIT_ANG_AVAN}")
+
+    def step(self, adaptateur):
+        self.parcouru = adaptateur.getDistanceParcourue()
+        distance_obstacle = adaptateur.getDistanceObstacle()
+        print(f"StrategieHoruzentale.step : parcouru={self.parcouru:.2f}/{self.distance}, "
+              f"distance_obstacle={distance_obstacle:.2f}")
+
+    def stop(self, adaptateur):
+        distance_obstacle = adaptateur.getDistanceObstacle()
+        if distance_obstacle < 20:
+            print("StrategieHorizentale : Obstacle détecté, debut de la boucle qui ve permettre au robot de faire 10 demi tours .")
+            for i in (1,10):
+                adaptateur.avancer(-VIT_ANG_AVAN)
+            adaptateur.setVitAngA(0)
+            return True
+        return False
+        
+
+
+    

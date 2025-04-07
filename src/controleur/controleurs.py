@@ -2,8 +2,7 @@ from threading import Thread
 from time import sleep
 from logging import getLogger
 from src.utils import TIC_CONTROLEUR
-from .strategies import setStrategieCarre, StrategieAuto, StrategieAvancer,setStrategieHorizentale 
-
+from .strategies import setStrategieCarre, StrategieAuto, StrategieAvancer,StrategieHorizentale 
 class Controlers:
     def __init__(self, adaptateur=None):
         self.logger = getLogger(self.__class__.__name__)
@@ -20,7 +19,7 @@ class Controlers:
             elif strategie_type == "avancer":
                 self.strategie = StrategieAvancer(kwargs.get('distance', 100))
             elif strategie_type == "horizentale":
-                self.strategie = setStrategieHorizentale(self.adaptateur, kwargs.get('distarret', 50))
+                self.strategie = StrategieHorizentale(self.adaptateur, kwargs.get('distarret', 50))
         else:
             self.strategie = strategie_type(**kwargs) if isinstance(strategie_type, type) else strategie_type
         self.logger.info(f"Stratégie définie : {self.strategie.__class__.__name__}")
