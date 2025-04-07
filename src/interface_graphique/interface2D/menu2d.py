@@ -22,6 +22,11 @@ def gerer_evenements(controleur):
             if event.key == pygame.K_ESCAPE:
                 logger.info("Touche ESC détectée")
                 return "quit"
+            elif event.key == pygame.K_1 : #j'ajoute pr selection les 
+robots car 2 robots ajoutes 
+	         return "switch:1"
+            elif event.key == pygame.K_2 :
+                 return "switch:2"
             elif event.key == pygame.K_c:
                 controleur.set_strategie("tracer_carre", longueur_cote=100)
                 controleur.lancerStrategie()
