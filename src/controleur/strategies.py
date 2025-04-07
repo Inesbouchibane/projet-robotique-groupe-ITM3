@@ -121,3 +121,6 @@ def setStrategieCarre(longueur_cote):
         StrategieAvancer(longueur_cote),
         StrategieTourner(90)
     ])
+    
+def setStrategieHorizentale (longueur_cote):
+    return 

@@ -13,7 +13,9 @@ LIST_PTS_OBS_RECTANGLE1 = [(100, 100), (200, 100), (200, 150), (100, 150)]
 
 # Obstacle 2 : Triangle
 LIST_PTS_OBS_TRIANGLE = [(300, 200), (350, 250), (325, 175)]
-
+LIST_PTS_OBS_Forme1=[(450,450 ), (550, 250), (450, 350), (100,450 )]
+LIST_PTS_OBS_Forme2=[(450, 200), (550, 150), (450, 175)]
+LIST_PTS_OBS_Forme3=[(420, 150), (300, 100), (325, 150)]
 # Obstacle 3 : Cercle (approximation avec 8 points)
 def generate_circle_points(center_x, center_y, radius, num_points=8):
     points = []

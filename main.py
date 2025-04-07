@@ -24,6 +24,7 @@ def main():
         envi.addObstacle("obs", obs)
     
     robot = RobotSimule("Robot1", 300, 125, 25, 30, 5, 20)
+    robot2=RobotSimule("Robot2", 320, 145, 45, 70, 25, 40)
     adaptateur = AdaptateurSimule(robot, envi)
     controleur = Controler(adaptateur)
     envi.setRobot(adaptateur)
