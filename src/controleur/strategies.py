@@ -1,6 +1,7 @@
 import math as m
 from src.utils import VIT_ANG_AVAN, VIT_ANG_TOUR, getDistanceFromPts
 from logging import getLogger
+from time import time
 
 class StrategieAvancer:
     def __init__(self, distance):
@@ -15,13 +16,11 @@ class StrategieAvancer:
 
     def step(self, adaptateur):
         self.parcouru = adaptateur.getDistanceParcourue()
-        distance_obstacle = adaptateur.getDistanceObstacle()
         print(f"StrategieAvancer.step : parcouru={self.parcouru:.2f}/{self.distance}, "
               f"distance_obstacle={distance_obstacle:.2f}")
 
     def stop(self, adaptateur):
-        distance_obstacle = adaptateur.getDistanceObstacle()
-        if distance_obstacle < 20:
+  	if adaptateur.estCrash():
             print("StrategieAvancer.stop : Obstacle détecté, arrêt.")
             adaptateur.setVitAngA(0)
             return True
@@ -96,7 +95,7 @@ class StrategieAuto:
         print(f"Début de la stratégie auto avec vitAngG={self.vitAngG}, vitAngD={self.vitAngD}")
 
     def step(self, adaptateur):
-        if adaptateur.getDistanceObstacle() < 20:
+        if adaptateur.estCrash():
             print("Obstacle ou mur détecté, arrêt du mode automatique.")
             adaptateur.arreter()
             return
@@ -105,7 +104,7 @@ class StrategieAuto:
               f"Distance obstacle: {adaptateur.getDistanceObstacle():.2f}")
 
     def stop(self, adaptateur):
-        if adaptateur.getDistanceObstacle() < 20:
+        if adaptateur.estCrash():
             adaptateur.arreter()
             return True
         return False
