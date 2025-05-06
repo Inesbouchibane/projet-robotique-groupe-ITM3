@@ -51,8 +51,8 @@ class StrategieTourner:
         print(f"Angle parcouru: {m.degrees(self.angle_parcouru):.2f}/{m.degrees(self.angle_cible)} degrés")
 
     def stop(self, adaptateur):
-        if adaptateur.getDistanceObstacle() < 20:
-            print("Obstacle détecté, arrêt.")
+        if adaptateur.estCrash:
+            print("Collision détectée, arrêt.")
             adaptateur.arreter()
             return True
         if abs(self.angle_parcouru) >= abs(self.angle_cible) - 0.01:
