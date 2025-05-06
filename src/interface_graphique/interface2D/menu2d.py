@@ -1,6 +1,6 @@
 import pygame
 from src import (
-    StrategieAvancer, StrategieAuto
+    StrategieAvancer, StrategieAuto, StrategieArretMur
 )
 from logging import getLogger
 
@@ -36,7 +36,7 @@ def gerer_evenements(controleur):
                 logger.info("Stratégie 'auto' lancée")
             elif event.key == pygame.K_m:
                 logger.info("!!! TOUCHE 'm' PRESSÉE - LANCEMENT STRATEGIE ARRET MUR !!!")
-                controleur.set_strategie("arret_mur", distarret=50)
+                controleur.set_strategie("arret_mur", adaptateur=controleur.adaptateur, distance_arret=5)
                 controleur.lancerStrategie()
                 logger.info("Stratégie 'arret_mur' lancée")
             else:
@@ -49,5 +49,5 @@ def afficher_instructions():
     print("- 'c' : Tracer un carré (100 unités)")
     print("- 'a' : Avancer (100 unités)")
     print("- 'r' : Mode automatique (vitesses 14, 7)")
-    print("- 'm' : S'arrêter à 50 unités d'un mur/obstacle")
+    print("- 'm' : S'arrêter à 5 mm d'un mur/obstacle")
     print("- 'ESC' : Quitter")
