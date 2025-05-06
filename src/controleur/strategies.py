@@ -17,20 +17,20 @@ class StrategieAvancer:
 
     def step(self, adaptateur):
         self.parcouru = adaptateur.getDistanceParcourue()
-        print(f"StrategieAvancer.step : parcouru={self.parcouru:.2f}/{self.distance}, "
-              f"distance_obstacle={distance_obstacle:.2f}")
+        print(f"StrategieAvancer.step : parcouru={self.parcouru:.2f}/{self.distance}")
 
     def stop(self, adaptateur):
         if adaptateur.estCrash():
-                print("StrategieAvancer.stop : Obstacle détecté, arrêt.")
-                adaptateur.setVitAngA(0)
-                return True
-            if self.parcouru >= self.distance:
-                print("StrategieAvancer.stop : Distance cible atteinte, arrêt.")
-                adaptateur.setVitAngA(0)
-                return True
-            print("StrategieAvancer.stop : Continue...")
-            return False
+            print("StrategieAvancer.stop : Collision détectée, arrêt.")
+            adaptateur.setVitAngA(0)
+            return True
+        if self.parcouru >= self.distance:
+            print("StrategieAvancer.stop : Distance cible atteinte, arrêt.")
+            adaptateur.setVitAngA(0)
+            return True
+        print("StrategieAvancer.stop : Continue...")
+        return False
+
 
 class StrategieTourner:
     def __init__(self, angle):
@@ -60,16 +60,17 @@ class StrategieTourner:
             adaptateur.arreter()
             return True
         return False
-    
+
+
 class StrategieSeq:
     def __init__(self, liste_strategies):
         self.liste_strategies = liste_strategies
         self.index = 0
-    
+
     def start(self, adaptateur):
         if self.index < len(self.liste_strategies):
             self.liste_strategies[self.index].start(adaptateur)
-    
+
     def step(self, adaptateur):
         if self.index < len(self.liste_strategies):
             print(f"Exécution de la stratégie {self.index + 1}/{len(self.liste_strategies)}")
@@ -84,6 +85,7 @@ class StrategieSeq:
 
     def stop(self, adaptateur):
         return self.index >= len(self.liste_strategies)
+
 
 class StrategieAuto:
     def __init__(self, vitAngG, vitAngD):
@@ -110,6 +112,7 @@ class StrategieAuto:
             return True
         return False
 
+
 def setStrategieCarre(longueur_cote):
     return StrategieSeq([
         StrategieAvancer(longueur_cote),
@@ -123,9 +126,8 @@ def setStrategieCarre(longueur_cote):
     ])
 
 
-
 class StrategieArretMur:
-    VIT_ANG_AVAN = 20#vit angulaire par defaut   
+    VIT_ANG_AVAN = 20  # vit angulaire par defaut
 
     def __init__(self, adaptateur, distance_arret):
         """Stratégie pour avancer jusqu'à une distance donnée d'un mur
@@ -137,7 +139,6 @@ class StrategieArretMur:
         self.distance_arret = distance_arret
 
 
-    
 class StrategieSuivreBalise:
     def __init__(self, adaptateur):
         """Stratégie permettant au robot de suivre une balise
