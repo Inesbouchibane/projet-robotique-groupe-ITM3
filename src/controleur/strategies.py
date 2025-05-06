@@ -154,3 +154,23 @@ class StrategieSuivreBalise:
         vitesse_max = self.VIT_ANG_AVAN  
         adaptateur.setVitAngA(vitesse_max)
         self.logger.info(f"StrategieArretMur.start : vitesse={vitesse_max}, distance_arret={self.distance_arret}mm")
+    def step(self, adaptateur):
+        """Met à jour le décalage et ajuste la vitesse des roues en fonction du décalage"""
+        if not self.stop(adaptateur):
+            self.balise, self.decale = contientBalise(self.adaptateur.get_imageA())
+            print(f"Balise détectée: {self.balise}, décalage: {self.decale}")
+            if self.balise:
+                self.adaptateur.setVitAngA(1)
+                if self.decale > 100:
+                    self.adaptateur.setVitAngG(2)
+                    self.adaptateur.setVitAngD(1)
+                elif self.decale < -100:
+                    self.adaptateur.setVitAngG(1)
+                    self.adaptateur.setVitAngD(2)
+                else:
+                    self.adaptateur.setVitAngG(1)
+                    self.adaptateur.setVitAngD(1)
+                self.cptfalse = 0
+            else:
+                self.adaptateur.setVitAng(0)
+                self.cptfalse += 1
