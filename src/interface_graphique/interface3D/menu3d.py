@@ -35,3 +35,27 @@ def gerer_touches(affichage3d):
     affichage3d.accept("arrow_right", affichage3d.changer_lateral_view, ["right"])
     affichage3d.accept("mouse1", affichage3d.createBalise, [None])
     logger.debug("Gestion des touches configurée dans menu3d")
+    
+    
+def lancer_strategie(affichage3d, strategie_type):
+    """Lance une stratégie via le contrôleur ou gère la visibilité de la balise."""
+    if affichage3d.controleur is None and strategie_type != "suivre_balise":
+        logger.error("Contrôleur non défini")
+        return
+    try:
+        if strategie_type == "tracer_carre":
+            affichage3d.controleur.set_strategie("tracer_carre", longueur_cote=100)
+            affichage3d.fixed_beacon = False
+        elif strategie_type == "avancer":
+            affichage3d.controleur.set_strategie("avancer", distance=100)
+            affichage3d.fixed_beacon = False
+        elif strategie_type == "auto":
+            affichage3d.controleur.set_strategie("auto", vitAngG=14, vitAngD=7)
+            affichage3d.fixed_beacon = False
+        elif strategie_type == "arret_mur":
+            affichage3d.controleur.set_strategie("arret_mur", adaptateur=affichage3d.adaptateur, distance_arret=5)
+            affichage3d.fixed_beacon = False
+        elif strategie_type == "suivre_balise":
+            if not affichage3d.showBalise:
+                # Afficher la balise
+                affichage3d.showBalise = True
