@@ -1,50 +1,142 @@
-# src/interface_graphique/interface3D/interface3d.py
+from direct.showbase.ShowBase import ShowBase
+from direct.task import Task
+from panda3d.core import (
+    Geom, GeomNode, GeomTriangles, GeomVertexData, GeomVertexFormat, 
+GeomVertexWriter,
+    NodePath, LineSegs, VBase4, Point3, Texture, OmniBoundingVolume,
+    WindowProperties, FrameBufferProperties, GraphicsOutput,
+    DirectionalLight, AmbientLight, GeomLines,
+    GraphicsPipe
+)
+from panda3d.core import LVector3, LPoint3
 
-import pygame
-from pygame.locals import *
-from OpenGL.GL import *
-from OpenGL.GLU import *
+import numpy as np
+import cv2
+from math import cos, sin, radians, degrees, sqrt
 from src.utils import getDistanceFromPts
 from logging import getLogger
-import math
+import sys
+import time
+import os
 
 logger = getLogger(__name__)
 
-# Couleurs simples et claires (R, G, B, A)
-FOND = (0.8, 0.9, 1.0, 1.0)      # Bleu ciel pâle
-SOL = (0.6, 0.8, 0.6, 1.0)       # Vert pâle
-ROBOT = (0.2, 0.8, 0.2, 1.0)     # Vert clair
-ROBOT_CRASH = (1.0, 0.6, 0.2, 1.0)  # Orange doux pour collision
-OBSTACLE = (0.3, 0.3, 0.3, 1.0)  # Gris foncé
-TRAJET = (1.0, 1.0, 1.0, 1.0)    # Blanc
-DIRECTION = (0.9, 0.9, 0.2, 1.0) # Jaune pâle
+# Couleurs (RGBA)
+FOND = (0.8, 0.9, 1.0, 1.0)
+SOL = (0.6, 0.8, 0.6, 1.0)
+ROBOT = (0.2, 0.8, 0.2, 1.0)
+ROBOT_CRASH = (1.0, 0.6, 0.2, 1.0)
+OBSTACLE = (0.3, 0.3, 0.3, 1.0)
+TRAJET = (1.0, 1.0, 1.0, 1.0)
+DIRECTION = (0.9, 0.9, 0.2, 1.0)
+BALISE_BLEU = (0.0, 0.0, 1.0, 1.0)
+BALISE_ROUGE = (1.0, 0.0, 0.0, 1.0)
+BALISE_VERT = (0.0, 0.5, 0.0, 1.0)
+BALISE_JAUNE = (1.0, 1.0, 0.0, 1.0)
 
-class Affichage3D:
+class Affichage3D(ShowBase):
     def __init__(self, largeur, hauteur, obstacles_points):
-        pygame.init()
+        ShowBase.__init__(self)
+        
+        # Configuration de la fenêtre
+        props = WindowProperties()
+        props.setTitle("ITM3-Simulation3D")
+        props.setSize(largeur, hauteur)
+        self.win.requestProperties(props)
+        
+        # Désactiver les contrôles de caméra par défaut
+        self.disableMouse()
+        
+        # Limiter le frame rate à 60 FPS
+        self.setFrameRateMeter(True)
+        globalClock.setMode(globalClock.MLimited)
+        globalClock.setFrameRate(60.0)
+        
+        # Configuration du fond
+        self.setBackgroundColor(*FOND)
+        
+        # Paramètres de l'environnement
+        self.envi = None
         self.largeur, self.hauteur = largeur, hauteur
-        pygame.display.set_mode((largeur, hauteur), DOUBLEBUF | OPENGL)
-        pygame.display.set_caption("ITM3-Simulation3D")
-        
-        glClearColor(*FOND)
-        glEnable(GL_DEPTH_TEST)
-        glMatrixMode(GL_PROJECTION)
-        gluPerspective(60, (largeur / hauteur), 0.1, 2000.0)
-        glMatrixMode(GL_MODELVIEW)
-        glDisable(GL_LIGHTING)
-        
         self.obstacles_points = obstacles_points
         self.trajet = []
         self.last_position = None
         self.hauteur_obstacle = 50
         
-        self.cam_mode = 0  # 0: haut, 1: rapprochée, 2: robot
+        # Paramètres de la caméra
+        self.cam_mode = 0
         self.cam_x = 500
         self.cam_y = 250
         self.cam_z = 600
         self.angle_h = 0
         self.angle_v = 45
         self.lateral_view = None
+        
+        # Balise (réduite en taille)
+        self.beacon_position = [600, 300]
+        self.beacon_size = 40  # Réduit
+        self.balise = None  # Balise non initialisée au départ
+        self.showBalise = False  # Balise cachée au départ
+        self.fixed_beacon = False  # Flag to control beacon movement
+        
+        # Initialisation des noeuds
+        self.scene = self.render.attachNewNode("Scene")
+        self.dessiner_sol()
+        self.dessiner_obstacles()
+        
+        # Éclairage
+        self.setup_lighting()
+        
+        # Trajet
+        self.trajet_node = None
+        
+        # Robot
+        self.robot_node = None
+        
+        # Balise
+        self.balise_node = None
+        
+
+        
+        # Tâche principale
+        self.taskMgr.add(self.update_task, "UpdateTask")
+        
+        # Contrôleur et adaptateur
+        self.controleur = None
+        self.adaptateur = None
+        self.robot = None
+        
+        # Buffer pour capture d'image
+        self.buffer = None
+        self.buffer_texture = None
+        self.setup_buffer()
+        
+        logger.debug("Affichage3D initialisé")
+
+    def setup_lighting(self):
+        """Configure l'éclairage de la scène."""
+        ambient_light = AmbientLight("ambient_light")
+        ambient_light.setColor((0.3, 0.3, 0.3, 1))
+        ambient_np = self.render.attachNewNode(ambient_light)
+        self.render.setLight(ambient_np)
+        
+        directional_light = DirectionalLight("directional_light")
+        directional_light.setColor((0.7, 0.7, 0.7, 1))
+        directional_light.setDirection(LVector3(0, -1, -1))
+        directional_np = self.render.attachNewNode(directional_light)
+        self.render.setLight(directional_np)
+        
+        logger.debug("Éclairage configuré")
+
+    def set_controleur(self, controleur):
+        """Définit le contrôleur pour les stratégies."""
+        self.controleur = controleur
+        logger.debug("Contrôleur défini")
+
+    def set_adaptateur(self, adaptateur):
+        """Définit l'adaptateur et transmet l'image capturée."""
+        self.adaptateur = adaptateur
+        logger.debug("Adaptateur défini")
 
     def mettre_a_jour(self, robot):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
