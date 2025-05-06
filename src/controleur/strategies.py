@@ -122,6 +122,21 @@ def setStrategieCarre(longueur_cote):
     ])
 
 
+
+class StrategieArretMur:
+    VIT_ANG_AVAN = 20#vit angulaire par defaut   
+
+    def __init__(self, adaptateur, distance_arret):
+        """Stratégie pour avancer jusqu'à une distance donnée d'un mur
+        :param adaptateur: Adaptateur du robot
+        :param distance_arret: Distance minimale à maintenir du mur (mm)
+        """
+        self.logger = getLogger(__name__)
+        self.adaptateur = adaptateur
+        self.distance_arret = distance_arret
+
+
+
 class StrategieSuivreBalise:
     def __init__(self, adaptateur):
         """Stratégie permettant au robot de suivre une balise
