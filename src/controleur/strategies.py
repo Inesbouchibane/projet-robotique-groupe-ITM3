@@ -136,7 +136,7 @@ class StrategieArretMur:
         self.distance_arret = distance_arret
 
 
-
+    
 class StrategieSuivreBalise:
     def __init__(self, adaptateur):
         """Stratégie permettant au robot de suivre une balise
@@ -148,3 +148,8 @@ class StrategieSuivreBalise:
         self.balise = False
         self.decale = 0
 
+   def start(self, adaptateur):
+        adaptateur.initialise()
+        vitesse_max = self.VIT_ANG_AVAN  
+        adaptateur.setVitAngA(vitesse_max)
+        self.logger.info(f"StrategieArretMur.start : vitesse={vitesse_max}, distance_arret={self.distance_arret}mm")
