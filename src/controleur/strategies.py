@@ -121,3 +121,16 @@ def setStrategieCarre(longueur_cote):
         StrategieAvancer(longueur_cote),
         StrategieTourner(90)
     ])
+
+
+class StrategieSuivreBalise:
+    def __init__(self, adaptateur):
+        """Stratégie permettant au robot de suivre une balise
+        :param adaptateur: Adaptateur du robot
+        """
+        self.logger = getLogger(self.__class__.__name__)
+        self.adaptateur = adaptateur
+        self.cptfalse = 0
+        self.balise = False
+        self.decale = 0
+
