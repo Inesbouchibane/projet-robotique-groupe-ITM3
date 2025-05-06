@@ -94,6 +94,11 @@ convertie en angle à partir de l'écartement des roues (base).
         angle = degrees((dist_d - dist_g) / self.robot.WHEEL_BASE_WIDTH)
         self.angle_parcourA += angle
         return self.angle_parcourA  # Retourne l'angle total
+        
+    def estCrash(self):
+        """Retourne True si le robot est en collision (basé sur l'état intern)."""
+        return getattr(self.robot, 'estCrash', False)  # Default to False if estCrash not defined
+
 
     def get_imageA(self):
         """
@@ -135,3 +140,10 @@ Envoie une commande nulle aux moteurs pour arrêter tout mouvement.
         Cette méthode est requise par les stratégies de déplacement.
         """
         return 150
+ HEAD
+
+     d052c62 (Ajout de la méthode estCrash dans adapt_reel.py)
+
+
+^X
+
