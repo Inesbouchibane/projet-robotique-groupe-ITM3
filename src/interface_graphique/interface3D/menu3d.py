@@ -74,3 +74,19 @@ def lancer_strategie(affichage3d, strategie_type):
                 logger.info("Balise affichée")
                 affichage3d.controleur.set_strategie("suivre_balise", adaptateur=affichage3d.adaptateur)
                 affichage3d.controleur.lancerStrategie()
+                
+            else:
+                # Cacher la balise
+                affichage3d.showBalise = False
+                affichage3d.fixed_beacon = False
+                if affichage3d.balise_node:
+                    affichage3d.balise_node.removeNode()
+                    affichage3d.balise_node = None
+                if affichage3d.balise:
+                    affichage3d.balise = None
+                logger.info("Balise cachée")
+                return  # Ne pas lancer de stratégie si on cache
+        affichage3d.controleur.lancerStrategie()
+        logger.info(f"Stratégie '{strategie_type}' lancée")
+    except Exception as e:
+        logger.error(f"Erreur lors du lancement de la stratégie {strategie_type} : {e}")
