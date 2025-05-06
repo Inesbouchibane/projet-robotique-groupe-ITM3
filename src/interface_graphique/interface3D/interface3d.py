@@ -1,8 +1,8 @@
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
 from panda3d.core import (
-    Geom, GeomNode, GeomTriangles, GeomVertexData, GeomVertexFormat, 
-GeomVertexWriter,
+    Geom, GeomNode, GeomTriangles, GeomVertexData, GeomVertexFormat,
+    GeomVertexWriter,
     NodePath, LineSegs, VBase4, Point3, Texture, OmniBoundingVolume,
     WindowProperties, FrameBufferProperties, GraphicsOutput,
     DirectionalLight, AmbientLight, GeomLines,
@@ -34,27 +34,28 @@ BALISE_ROUGE = (1.0, 0.0, 0.0, 1.0)
 BALISE_VERT = (0.0, 0.5, 0.0, 1.0)
 BALISE_JAUNE = (1.0, 1.0, 0.0, 1.0)
 
+
 class Affichage3D(ShowBase):
     def __init__(self, largeur, hauteur, obstacles_points):
         ShowBase.__init__(self)
-        
+
         # Configuration de la fenêtre
         props = WindowProperties()
         props.setTitle("ITM3-Simulation3D")
         props.setSize(largeur, hauteur)
         self.win.requestProperties(props)
-        
+
         # Désactiver les contrôles de caméra par défaut
         self.disableMouse()
-        
+
         # Limiter le frame rate à 60 FPS
         self.setFrameRateMeter(True)
         globalClock.setMode(globalClock.MLimited)
         globalClock.setFrameRate(60.0)
-        
+
         # Configuration du fond
         self.setBackgroundColor(*FOND)
-        
+
         # Paramètres de l'environnement
         self.envi = None
         self.largeur, self.hauteur = largeur, hauteur
@@ -62,7 +63,7 @@ class Affichage3D(ShowBase):
         self.trajet = []
         self.last_position = None
         self.hauteur_obstacle = 50
-        
+
         # Paramètres de la caméra
         self.cam_mode = 0
         self.cam_x = 500
@@ -71,46 +72,44 @@ class Affichage3D(ShowBase):
         self.angle_h = 0
         self.angle_v = 45
         self.lateral_view = None
-        
+
         # Balise (réduite en taille)
         self.beacon_position = [600, 300]
         self.beacon_size = 40  # Réduit
         self.balise = None  # Balise non initialisée au départ
         self.showBalise = False  # Balise cachée au départ
         self.fixed_beacon = False  # Flag to control beacon movement
-        
+
         # Initialisation des noeuds
         self.scene = self.render.attachNewNode("Scene")
         self.dessiner_sol()
         self.dessiner_obstacles()
-        
+
         # Éclairage
         self.setup_lighting()
-        
+
         # Trajet
         self.trajet_node = None
-        
+
         # Robot
         self.robot_node = None
-        
+
         # Balise
         self.balise_node = None
-        
 
-        
         # Tâche principale
         self.taskMgr.add(self.update_task, "UpdateTask")
-        
+
         # Contrôleur et adaptateur
         self.controleur = None
         self.adaptateur = None
         self.robot = None
-        
+
         # Buffer pour capture d'image
         self.buffer = None
         self.buffer_texture = None
         self.setup_buffer()
-        
+
         logger.debug("Affichage3D initialisé")
 
     def setup_lighting(self):
@@ -119,13 +118,13 @@ class Affichage3D(ShowBase):
         ambient_light.setColor((0.3, 0.3, 0.3, 1))
         ambient_np = self.render.attachNewNode(ambient_light)
         self.render.setLight(ambient_np)
-        
+
         directional_light = DirectionalLight("directional_light")
         directional_light.setColor((0.7, 0.7, 0.7, 1))
         directional_light.setDirection(LVector3(0, -1, -1))
         directional_np = self.render.attachNewNode(directional_light)
         self.render.setLight(directional_np)
-        
+
         logger.debug("Éclairage configuré")
 
     def set_controleur(self, controleur):
@@ -137,7 +136,7 @@ class Affichage3D(ShowBase):
         """Définit l'adaptateur et transmet l'image capturée."""
         self.adaptateur = adaptateur
         logger.debug("Adaptateur défini")
-  
+
     def setup_buffer(self):
         """Configure un buffer hors écran pour capturer les images."""
         fb_props = FrameBufferProperties()
@@ -151,7 +150,7 @@ class Affichage3D(ShowBase):
             if not hasattr(self, 'pipe') or self.pipe is None:
                 self.pipe = self.graphicsEngine.getDefaultPipe()
                 logger.debug(f"Graphics pipe initialized: {self.pipe}")
-            
+
             logger.debug("Initialisation du pipeline graphique pour le buffer")
             # Create offscreen buffer
             self.buffer = self.graphicsEngine.makeOutput(
@@ -193,7 +192,6 @@ class Affichage3D(ShowBase):
             # Fallback: Log system info for debugging
             logger.debug(f"Panda3D version: {sys.modules['panda3d'].__version__}")
             logger.debug(f"Graphics pipe type: {self.pipe.getType() if self.pipe else 'None'}")
- 
 
     def changer_mode_camera(self, delta):
         """Change le mode de la caméra (zoom avant/arrière)."""
@@ -201,8 +199,8 @@ class Affichage3D(ShowBase):
         self.cam_mode = max(0, min(2, self.cam_mode + delta))
         if self.cam_mode == 0:
             self.cam_z = 600
-        logger.debug(f"Mode caméra : {self.cam_mode}") 
-   
+        logger.debug(f"Mode caméra : {self.cam_mode}")
+
     def changer_lateral_view(self, side):
         """Active la vue latérale gauche ou droite."""
         self.lateral_view = side
@@ -231,9 +229,9 @@ class Affichage3D(ShowBase):
 
     def mettre_a_jour(self, robot):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        
+
         self.gerer_camera(robot)
-        
+
         glLoadIdentity()
         cos_a, sin_a = robot.direction[0], robot.direction[1]
         if self.lateral_view == "left":
@@ -254,8 +252,10 @@ class Affichage3D(ShowBase):
             )
         else:
             if self.cam_mode == 0:  # Vue de haut
-                cam_x = self.cam_x + math.cos(math.radians(self.angle_h)) * self.cam_z * math.cos(math.radians(self.angle_v))
-                cam_y = self.cam_y + math.sin(math.radians(self.angle_h)) * self.cam_z * math.cos(math.radians(self.angle_v))
+                cam_x = self.cam_x + math.cos(math.radians(self.angle_h)) * self.cam_z * \
+                    math.cos(math.radians(self.angle_v))
+                cam_y = self.cam_y + math.sin(math.radians(self.angle_h)) * self.cam_z * \
+                    math.cos(math.radians(self.angle_v))
                 cam_z = self.cam_z * math.sin(math.radians(self.angle_v))
                 look_x, look_y, look_z = 500, 250, 0
             elif self.cam_mode == 1:  # Vue rapprochée
@@ -270,31 +270,31 @@ class Affichage3D(ShowBase):
                 look_x = robot.x + cos_a * 150
                 look_y = robot.y + sin_a * 150
                 look_z = 10
-            
+
             gluLookAt(
                 cam_x, cam_y, cam_z,
                 look_x, look_y, look_z,
                 0, 0, 1
             )
-        
+
         self.dessiner_sol()
         for points in self.obstacles_points:
             self.dessiner_obstacle(points)
-        
+
         current_position = (robot.x, robot.y)
         if self.last_position is None or getDistanceFromPts(current_position, self.last_position) > 1:
             self.trajet.append(current_position)
             self.last_position = current_position
-        
+
         if len(self.trajet) > 1:
             glBegin(GL_LINE_STRIP)
             glColor4f(*TRAJET)
             for x, y in self.trajet:
                 glVertex3f(x, y, 1)
             glEnd()
-        
+
         self.dessiner_robot(robot)
-        
+
         pygame.display.flip()
         pygame.time.wait(10)
 
@@ -322,35 +322,54 @@ class Affichage3D(ShowBase):
                     logger.debug("Vue latérale droite activée")
 
     def dessiner_sol(self):
-        glBegin(GL_QUADS)
-        glColor4f(*SOL)
-        glVertex3f(0, 0, 0)
-        glVertex3f(self.largeur, 0, 0)
-        glVertex3f(self.largeur, self.hauteur, 0)
-        glVertex3f(0, self.hauteur, 0)
-        glEnd()
-        
-        glBegin(GL_QUADS)
-        glColor4f(1.0, 1.0, 1.0, 1.0)
+        """Dessine le sol avec une grille."""
+        vdata = GeomVertexData("sol", GeomVertexFormat.getV3c4(), Geom.UHStatic)
+        vertex = GeomVertexWriter(vdata, "vertex")
+        color = GeomVertexWriter(vdata, "color")
+
+        vertex.addData3(0, 0, 0)
+        vertex.addData3(self.largeur, 0, 0)
+        vertex.addData3(self.largeur, self.hauteur, 0)
+        vertex.addData3(0, self.hauteur, 0)
+        for _ in range(4):
+            color.addData4(*SOL)
+
         for x in range(0, int(self.largeur), 100):
             for y in range(0, int(self.hauteur), 100):
-                glVertex3f(x, y, 0.1)
-                glVertex3f(x + 50, y, 0.1)
-                glVertex3f(x + 50, y + 50, 0.1)
-                glVertex3f(x, y + 50, 0.1)
-        glEnd()
-        logger.debug("Sol avec carrés dessiné")
+                vertex.addData3(x, y, 0.1)
+                vertex.addData3(x + 50, y, 0.1)
+                vertex.addData3(x + 50, y + 50, 0.1)
+                vertex.addData3(x, y + 50, 0.1)
+                for _ in range(4):
+                    color.addData4(1.0, 1.0, 1.0, 1.0)
+
+        geom = Geom(vdata)
+        tris = GeomTriangles(Geom.UHStatic)
+        base_idx = 0
+        tris.addVertices(0, 1, 2)
+        tris.addVertices(0, 2, 3)
+        base_idx += 4
+        for _ in range(0, int(self.largeur * self.hauteur / 10000)):
+            tris.addVertices(base_idx, base_idx + 1, base_idx + 2)
+            tris.addVertices(base_idx, base_idx + 2, base_idx + 3)
+            base_idx += 4
+        geom.addPrimitive(tris)
+
+        node = GeomNode("sol")
+        node.addGeom(geom)
+        self.scene.attachNewNode(node)
+        logger.debug("Sol avec grille dessiné")
 
     def dessiner_obstacles(self):
         """Dessine tous les obstacles comme des prismes."""
         for points in self.obstacles_points:
             if len(points) < 3:
                 continue
-            vdata = GeomVertexData("obstacle", GeomVertexFormat.getV3c4(), 
-Geom.UHStatic)
+            vdata = GeomVertexData("obstacle", GeomVertexFormat.getV3c4(),
+                                   Geom.UHStatic)
             vertex = GeomVertexWriter(vdata, "vertex")
             color = GeomVertexWriter(vdata, "color")
-            
+
             for x, y in points:
                 vertex.addData3(x, y, 0)
                 color.addData4(*OBSTACLE)
@@ -360,7 +379,7 @@ Geom.UHStatic)
             for x, y in points:
                 vertex.addData3(x, y, self.hauteur_obstacle)
                 color.addData4(0.5, 0.5, 0.5, 1.0)
-            
+
             geom = Geom(vdata)
             tris = GeomTriangles(Geom.UHStatic)
             n = len(points)
@@ -371,7 +390,7 @@ Geom.UHStatic)
             base_idx = 2 * n
             for i in range(1, n - 1):
                 tris.addVertices(base_idx, base_idx + i, base_idx + i + 1)
-            
+
             geom.addPrimitive(tris)
             node = GeomNode("obstacle")
             node.addGeom(geom)
@@ -390,16 +409,16 @@ Geom.UHStatic)
             (robot.x + cos_a * robot.length / 2 + sin_a * robot.width / 2,
              robot.y + sin_a * robot.length / 2 - cos_a * robot.width / 2)
         ]
-        
+
         hauteur_robot = 30
         couleur = ROBOT_CRASH if robot.estCrash else ROBOT
-        
+
         glBegin(GL_QUADS)
         glColor4f(*couleur)
         for x, y in points_base:
             glVertex3f(x, y, 0)
         glEnd()
-        
+
         glBegin(GL_QUAD_STRIP)
         glColor4f(*couleur)
         for i in range(len(points_base) + 1):
@@ -408,13 +427,13 @@ Geom.UHStatic)
             glVertex3f(x, y, 0)
             glVertex3f(x, y, hauteur_robot)
         glEnd()
-        
+
         glBegin(GL_POLYGON)
         glColor4f(couleur[0] * 0.8, couleur[1] * 0.8, couleur[2] * 0.8, 1)
         for x, y in points_base:
             glVertex3f(x, y, hauteur_robot)
         glEnd()
-        
+
         glBegin(GL_LINES)
         glColor4f(*DIRECTION)
         glVertex3f(robot.x, robot.y, hauteur_robot + 5)
