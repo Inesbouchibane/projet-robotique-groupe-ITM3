@@ -150,11 +150,13 @@ class StrategieSuivreBalise:
         self.balise = False
         self.decale = 0
 
-   def start(self, adaptateur):
-        adaptateur.initialise()
-        vitesse_max = self.VIT_ANG_AVAN  
-        adaptateur.setVitAngA(vitesse_max)
-        self.logger.info(f"StrategieArretMur.start : vitesse={vitesse_max}, distance_arret={self.distance_arret}mm")
+    def start(self, adaptateur):
+        """Réinitialisation du robot, du décalage et de balise"""
+        self.adaptateur.robot.estSousControle = True
+        self.balise, self.decale = contientBalise(self.adaptateur.get_imageA())
+        self.cptfalse = 0
+        self.logger.debug("Stratégie Suivre Balise lancée")
+
     def step(self, adaptateur):
         """Met à jour le décalage et ajuste la vitesse des roues en fonction du décalage"""
         if not self.stop(adaptateur):
