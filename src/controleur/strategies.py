@@ -174,3 +174,16 @@ class StrategieSuivreBalise:
             else:
                 self.adaptateur.setVitAng(0)
                 self.cptfalse += 1
+    def stop(self, adaptateur):
+        """Retourne True si la balise n'est plus détectée après 100 tentatives ou si collision"""
+        if adaptateur.estCrash():
+            self.adaptateur.setVitAngA(0)
+            self.adaptateur.robot.estSousControle = False
+            self.logger.info("Arrêt: collision détectée")
+            return True
+        if self.cptfalse > 100:
+            self.adaptateur.setVitAngA(0)
+            self.adaptateur.robot.estSousControle = False
+            self.logger.info("Balise non détectée après 100 tentatives, arrêt")
+            return True
+        return False
