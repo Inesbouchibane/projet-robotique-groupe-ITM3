@@ -7,35 +7,36 @@ from src import (
 from logging import getLogger
 
 logger = getLogger(__name__)
-
-def gerer_evenements(controleur):
-    logger.debug("Début de gerer_evenements 3D")
-    for event in [pygame.event.peek()]:
-        if event.type == pygame.QUIT:
-            logger.info("Événement QUIT détecté")
-            return "quit"
-        if event.type == pygame.KEYDOWN:
-            key_name = pygame.key.name(event.key)
-            logger.info(f"Touche pressée : {key_name}")
-            if event.key == pygame.K_ESCAPE:
-                logger.info("Touche ESC détectée")
-                return "quit"
-            elif event.key == pygame.K_c:
-                controleur.set_strategie("tracer_carre", longueur_cote=100)
-                controleur.lancerStrategie()
-                logger.info("Stratégie 'tracer_carre' lancée")
-            elif event.key == pygame.K_a:
-                controleur.set_strategie("avancer", distance=100)
-                controleur.lancerStrategie()
-                logger.info("Stratégie 'avancer' lancée")
-            elif event.key == pygame.K_r:
-                controleur.set_strategie("auto", vitAngG=14, vitAngD=7)
-                controleur.lancerStrategie()
-                logger.info("Stratégie 'auto' lancée")
+    elif strategie_type == "suivre_balise":
+            if not affichage3d.showBalise:
+                # Afficher la balise
+                affichage3d.showBalise = True
+                if not affichage3d.balise and affichage3d.robot:
+                    # Positionner la balise devant le robot
+                    cos_a, sin_a = affichage3d.robot.direction[0], affichage3d.robot.direction[1]
+                    distance_from_robot = 100
+                    beacon_x = affichage3d.robot.x + cos_a * distance_from_robot
+                    beacon_y = affichage3d.robot.y + sin_a * distance_from_robot
+                    beacon_x = max(0, min(affichage3d.largeur, beacon_x))
+                    beacon_y = max(0, min(affichage3d.hauteur, beacon_y))
+                    affichage3d.beacon_position = [beacon_x, beacon_y]
+                    from interface3d import Balise  # Importer ici pour éviter dépendance circulaire
+                    affichage3d.balise = Balise(beacon_x, beacon_y, 40, 30)
+                affichage3d.fixed_beacon = True
+                logger.info("Balise affichée")
+                affichage3d.controleur.set_strategie("suivre_balise", adaptateur=affichage3d.adaptateur)
+                affichage3d.controleur.lancerStrategie()
             else:
-                logger.info(f"Touche non gérée : {key_name}")
-    logger.debug("Fin de gerer_evenements 3D")
-    return None
+                # Cacher la balise
+                affichage3d.showBalise = False
+                affichage3d.fixed_beacon = False
+                if affichage3d.balise_node:
+                    affichage3d.balise_node.removeNode()
+                    affichage3d.balise_node = None
+                if affichage3d.balise:
+                    affichage3d.balise = None
+                logger.info("Balise cachée")
+                return  # Ne pas lancer de stratégie si on cache
 
 def afficher_instructions():
     print("Commandes disponibles dans la fenêtre 3D :")
