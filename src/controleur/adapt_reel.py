@@ -4,6 +4,7 @@ from src.robot.robot_mockup import MockupRobot
 from time import time
 import logging
 
+
 class Adaptateur_reel(Adaptateur):
     """
 Classe Adaptateur_reel :
@@ -60,7 +61,6 @@ Utilisé pour faire avancer/reculer droit.
         self.robot.set_motor_dps(self.MOTOR_LEFT_RIGHT, dps * 100)
         self.logger.info("setVitAng = %d", dps)
 
-
     def tourne(self, gauche, droite):
         """
 Commande de mouvement différentielle :
@@ -101,6 +101,16 @@ Capture une image via le robot (caméra ou équivalent mock).
 """
         return self.robot.get_image()
 
+    def getDistanceA(self):
+        """Getter qui renvoie la distance mesurée par le capteur de distance"""
+        tmps = time()
+        if (tmps - self.lastRefresh < 0.06):
+            return self.lastDist
+
+        self.lastDist = self.robot.get_distance()
+        self.lastRefresh = tmps
+        return self.lastDist
+
     def getVitG(self):
         """
 Renvoie la dernière vitesse appliquée à la roue gauche (en deg/s).
@@ -125,4 +135,3 @@ Envoie une commande nulle aux moteurs pour arrêter tout mouvement.
         Cette méthode est requise par les stratégies de déplacement.
         """
         return 150
-    
