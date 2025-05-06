@@ -158,28 +158,42 @@ class Affichage3D:
         glEnd()
         logger.debug("Sol avec carrés dessiné")
 
-    def dessiner_obstacle(self, points):
-        if len(points) < 3:
-            return
-        glBegin(GL_QUAD_STRIP)
-        glColor4f(*OBSTACLE)
-        for i in range(len(points) + 1):
-            idx = i % len(points)
-            x, y = points[idx]
-            glVertex3f(x, y, 0)
-            glVertex3f(x, y, self.hauteur_obstacle)
-        glEnd()
-        glBegin(GL_POLYGON)
-        glColor4f(0.5, 0.5, 0.5, 1)
-        for x, y in points:
-            glVertex3f(x, y, self.hauteur_obstacle)
-        glEnd()
-        glBegin(GL_LINE_LOOP)
-        glColor4f(0.0, 0.0, 0.0, 1.0)
-        for x, y in points:
-            glVertex3f(x, y, self.hauteur_obstacle + 0.1)
-        glEnd()
-        logger.debug(f"Obstacle dessiné avec points : {points}")
+    def dessiner_obstacles(self):
+        """Dessine tous les obstacles comme des prismes."""
+        for points in self.obstacles_points:
+            if len(points) < 3:
+                continue
+            vdata = GeomVertexData("obstacle", GeomVertexFormat.getV3c4(), 
+Geom.UHStatic)
+            vertex = GeomVertexWriter(vdata, "vertex")
+            color = GeomVertexWriter(vdata, "color")
+            
+            for x, y in points:
+                vertex.addData3(x, y, 0)
+                color.addData4(*OBSTACLE)
+            for x, y in points:
+                vertex.addData3(x, y, self.hauteur_obstacle)
+                color.addData4(*OBSTACLE)
+            for x, y in points:
+                vertex.addData3(x, y, self.hauteur_obstacle)
+                color.addData4(0.5, 0.5, 0.5, 1.0)
+            
+            geom = Geom(vdata)
+            tris = GeomTriangles(Geom.UHStatic)
+            n = len(points)
+            for i in range(n):
+                i1, i2 = i, (i + 1) % n
+                tris.addVertices(i1, i2, i2 + n)
+                tris.addVertices(i1, i2 + n, i1 + n)
+            base_idx = 2 * n
+            for i in range(1, n - 1):
+                tris.addVertices(base_idx, base_idx + i, base_idx + i + 1)
+            
+            geom.addPrimitive(tris)
+            node = GeomNode("obstacle")
+            node.addGeom(geom)
+            self.scene.attachNewNode(node)
+            logger.debug(f"Obstacle dessiné avec points : {points}")
 
     def dessiner_robot(self, robot):
         cos_a, sin_a = robot.direction[0], robot.direction[1]
