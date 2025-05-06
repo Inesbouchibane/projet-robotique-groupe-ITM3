@@ -3,11 +3,12 @@ from src.utils import VIT_ANG_AVAN, VIT_ANG_TOUR, getDistanceFromPts
 from logging import getLogger
 from time import time
 
+
 class StrategieAvancer:
     def __init__(self, distance):
         self.distance = distance
         self.parcouru = 0
-        
+
     def start(self, adaptateur):
         adaptateur.initialise()
         self.parcouru = 0
@@ -20,16 +21,16 @@ class StrategieAvancer:
               f"distance_obstacle={distance_obstacle:.2f}")
 
     def stop(self, adaptateur):
-  	if adaptateur.estCrash():
-            print("StrategieAvancer.stop : Obstacle détecté, arrêt.")
-            adaptateur.setVitAngA(0)
-            return True
-        if self.parcouru >= self.distance:
-            print("StrategieAvancer.stop : Distance cible atteinte, arrêt.")
-            adaptateur.setVitAngA(0)
-            return True
-        print("StrategieAvancer.stop : Continue...")
-        return False
+        if adaptateur.estCrash():
+                print("StrategieAvancer.stop : Obstacle détecté, arrêt.")
+                adaptateur.setVitAngA(0)
+                return True
+            if self.parcouru >= self.distance:
+                print("StrategieAvancer.stop : Distance cible atteinte, arrêt.")
+                adaptateur.setVitAngA(0)
+                return True
+            print("StrategieAvancer.stop : Continue...")
+            return False
 
 class StrategieTourner:
     def __init__(self, angle):
