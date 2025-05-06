@@ -203,6 +203,32 @@ class Affichage3D(ShowBase):
             self.cam_z = 600
         logger.debug(f"Mode caméra : {self.cam_mode}") 
    
+    def changer_lateral_view(self, side):
+        """Active la vue latérale gauche ou droite."""
+        self.lateral_view = side
+        self.cam_mode = 0
+        logger.debug(f"Vue latérale {side} activée")
+
+    def update_task(self, task):
+        """Tâche principale pour mettre à jour la scène."""
+        if not hasattr(self, 'robot') or self.robot is None:
+            return Task.cont
+        if self.adaptateur:
+            if hasattr(self.adaptateur, 'step'):
+                self.adaptateur.step()  # Mettre à jour la position du robot
+            if self.envi:
+                self.envi.refreshEnvironnement()  # Vérifier les collisions
+        self.mettre_a_jour(self.robot)
+        self.updateImg()
+        return Task.cont
+
+    def update_environnement(self, environnement):
+        """Met à jour la position de la balise dans l'environnement."""
+        self.envi = environnement
+        if self.envi and self.showBalise and self.balise:
+            self.envi.beacon_position = tuple(self.beacon_position)
+        logger.debug(f"Environnement mis à jour avec balise à {self.beacon_position}")
+
     def mettre_a_jour(self, robot):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
