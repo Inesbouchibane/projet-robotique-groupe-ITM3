@@ -137,7 +137,72 @@ class Affichage3D(ShowBase):
         """Définit l'adaptateur et transmet l'image capturée."""
         self.adaptateur = adaptateur
         logger.debug("Adaptateur défini")
+  
+    def setup_buffer(self):
+        """Configure un buffer hors écran pour capturer les images."""
+        fb_props = FrameBufferProperties()
+        fb_props.setRgbaBits(8, 8, 8, 8)  # RGBA buffer
+        fb_props.setDepthBits(16)  # Depth buffer for 3D rendering
+        fb_props.setStencilBits(8)  # Optional stencil buffer
+        win_props = WindowProperties.size(self.largeur, self.hauteur)  # Match window size
 
+        try:
+            # Ensure graphics pipe is initialized
+            if not hasattr(self, 'pipe') or self.pipe is None:
+                self.pipe = self.graphicsEngine.getDefaultPipe()
+                logger.debug(f"Graphics pipe initialized: {self.pipe}")
+            
+            logger.debug("Initialisation du pipeline graphique pour le buffer")
+            # Create offscreen buffer
+            self.buffer = self.graphicsEngine.makeOutput(
+                self.pipe,
+                "offscreen_buffer",
+                -100,  # Lower priority than main window
+                fb_props,
+                win_props,
+                GraphicsOutput.RTMCopyRam,  # Copy to RAM for screenshot
+                self.win.getGsg(),
+                self.win
+            )
+            if not self.buffer:
+                logger.error("Échec de la création du buffer : vérifiez les pilotes OpenGL, la mémoire GPU ou la compatibilité")
+                self.buffer = None
+                self.buffer_texture = None
+                return
+
+            logger.debug(f"Buffer créé avec succès: {self.buffer}")
+            self.buffer.setClearColor(FOND)  # Set clear color
+            self.buffer.setSort(-100)  # Render before main window
+            self.buffer.setActive(True)
+
+            # Create texture for buffer
+            self.buffer_texture = Texture()
+            self.buffer.addRenderTexture(self.buffer_texture, GraphicsOutput.RTMCopyRam)
+            logger.debug(f"Texture créée: {self.buffer_texture}")
+
+            # Create camera for buffer
+            buffer_camera = self.makeCamera(self.buffer)
+            buffer_camera.node().setScene(self.render)
+            buffer_camera.node().setLens(self.cam.node().getLens())  # Match main camera lens
+
+            logger.debug("Buffer hors écran configuré avec succès")
+        except Exception as e:
+            logger.error(f"Erreur lors de la configuration du buffer : {e}")
+            self.buffer = None
+            self.buffer_texture = None
+            # Fallback: Log system info for debugging
+            logger.debug(f"Panda3D version: {sys.modules['panda3d'].__version__}")
+            logger.debug(f"Graphics pipe type: {self.pipe.getType() if self.pipe else 'None'}")
+ 
+
+    def changer_mode_camera(self, delta):
+        """Change le mode de la caméra (zoom avant/arrière)."""
+        self.lateral_view = None
+        self.cam_mode = max(0, min(2, self.cam_mode + delta))
+        if self.cam_mode == 0:
+            self.cam_z = 600
+        logger.debug(f"Mode caméra : {self.cam_mode}") 
+   
     def mettre_a_jour(self, robot):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
