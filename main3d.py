@@ -1,16 +1,15 @@
 # main3d.py
-
 from src.robot.robot_simule import RobotSimule
 from src.controleur.adapt_simule import AdaptateurSimule
 from src.controleur.controleur import Controler
 from src.environnement import Environnement
 from src.interface_graphique.interface3D.interface3d import Affichage3D
-from src.interface_graphique.interface3D.menu3d import gerer_evenements, afficher_instructions
-from src.utils import LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1, LIST_PTS_OBS_RECTANGLE1, LIST_PTS_OBS_TRIANGLE, LIST_PTS_OBS_CERCLE
+from src.utils import LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1, 
+LIST_PTS_OBS_RECTANGLE1, LIST_PTS_OBS_TRIANGLE, LIST_PTS_OBS_CERCLE
 import logging
-import math
+from src.interface_graphique.interface3D.menu3d import gerer_touches, afficher_instructions  # Importer les fonctions
 
-logging.basicConfig(level=logging.DEBUG)  # Pour voir les logs
+logging.basicConfig(level=logging.DEBUG)
 
 # Initialisation
 envi = Environnement(LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1)
