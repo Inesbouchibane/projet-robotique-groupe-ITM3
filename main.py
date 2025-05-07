@@ -7,16 +7,13 @@ from src.environnement import Environnement
 from src.robot.robot_simule import RobotSimule
 from src.controleur.adapt_simule import AdaptateurSimule
 from src.controleur.controleur import Controler
-from src.interface_graphique.interface2D.menu2d import gerer_evenements as 
-gerer_evenements_2d
-from src.interface_graphique.interface3D.menu3d import gerer_touches as 
-gerer_evenements_3d, afficher_instructions as afficher_instructions_3d
+from src.interface_graphique.interface2D.menu2d import gerer_evenements as gerer_evenements_2d
+from src.interface_graphique.interface3D.menu3d import gerer_touches as gerer_evenements_3d, afficher_instructions as afficher_instructions_3d
 from time import sleep
 import logging
 
 # Configuration des logs
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - 
-%(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def main():
