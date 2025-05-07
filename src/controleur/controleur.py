@@ -2,7 +2,7 @@ from threading import Thread
 from time import sleep
 from logging import getLogger
 from src.utils import TIC_CONTROLEUR
-from .strategies import setStrategieCarre, StrategieAuto, StrategieAvancer
+from .strategies import setStrategieCarre, StrategieAuto, StrategieAvancer, StrategieArretMur, StrategieSuivreBalise
 
 class Controler:
     def __init__(self, adaptateur=None):
@@ -20,7 +20,14 @@ class Controler:
             elif strategie_type == "avancer":
                 self.strategie = StrategieAvancer(kwargs.get('distance', 100))
             elif strategie_type == "arret_mur":
-                self.strategie = setStrategieArretMur(self.adaptateur, kwargs.get('distarret', 50))
+            # Récupérer adaptateur et distance_arret depuis kwargs
+                adaptateur = kwargs.get('adaptateur', self.adaptateur)
+                distance_arret = kwargs.get('distance_arret', 5)
+                self.logger.debug(f"Arguments pour arret_mur : adaptateur={adaptateur}, distance_arret={distance_arret}")
+                self.strategie = StrategieArretMur(adaptateur, distance_arret)
+            elif strategie_type == "suivre_balise":
+                adaptateur = kwargs.get('adaptateur', self.adaptateur)
+                self.strategie = StrategieSuivreBalise(adaptateur)
         else:
             self.strategie = strategie_type(**kwargs) if isinstance(strategie_type, type) else strategie_type
         self.logger.info(f"Stratégie définie : {self.strategie.__class__.__name__}")
