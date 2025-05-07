@@ -6,11 +6,7 @@ import logging
 
 
 class Adaptateur_reel(Adaptateur):
-    """
-Classe Adaptateur_reel :
-Ce module permet de faire l’interface entre un robot réel (simplifié ici avec MockupRobot)
-et les commandes haut niveau (comme vitesse ou acquisition d’image).
-"""
+    """Classe Adaptateur_reel :Ce module permet de faire l’interface entre un robot réel (simplifié ici avec MockupRobot)et les commandes haut niveau (comme vitesse ou acquisition d’image)."""
 
     def __init__(self, rob):
         """
@@ -37,7 +33,7 @@ et remet les compteurs de distance et d'angle à zéro.
         self.angle_parcourA = 0
 
     # --- Setters ---
-    def setVitAngDA(self, dps):
+    def setVitAngD(self, dps):
         """
 Applique une vitesse angulaire donnée (en dps) à la roue droite.
 Le facteur 100 est une convention interne du robot.
@@ -45,7 +41,7 @@ Le facteur 100 est une convention interne du robot.
         self.robot.set_motor_dps(self.robot.MOTOR_RIGHT, dps * 100)
         self.logger.info("setVitAngD = %d", dps)
 
-    def setVitAngGA(self, dps):
+    def setVitAngG(self, dps):
         """
 Applique une vitesse angulaire donnée (en dps) à la roue gauche.
 Le facteur 100 est une convention interne du robot.
@@ -66,8 +62,8 @@ Utilisé pour faire avancer/reculer droit.
 Commande de mouvement différentielle :
 permet de tourner le robot en fixant la vitesse des deux roues.
 """
-        self.setVitAngGA(gauche)
-        self.setVitAngDA(droite)
+        self.setVitAngG(gauche)
+        self.setVitAngD(droite)
 
     # --- Getters ---
 
@@ -133,17 +129,4 @@ Renvoie la dernière vitesse appliquée à la roue droite (en deg/s).
 Envoie une commande nulle aux moteurs pour arrêter tout mouvement.
 """
         self.robot.set_motor_dps(self.MOTOR_LEFT_RIGHT, 0)
-
-    def getDistanceObstacle(self):
-        """
-        Retourne une distance simulée à un obstacle (valeur fixe).
-        Cette méthode est requise par les stratégies de déplacement.
-        """
-        return 150
- HEAD
-
-     d052c62 (Ajout de la méthode estCrash dans adapt_reel.py)
-
-
-^X
 
