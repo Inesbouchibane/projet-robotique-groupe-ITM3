@@ -1,6 +1,5 @@
 import sys
-from src.interface_graphique.interface2D.interface2d import Affichage as 
-Affichage2D
+from src.interface_graphique.interface2D.interface2d import Affichage as Affichage2D
 from src.interface_graphique.interface3D.interface3d import Affichage3D
 from src.utils import *
 from src.environnement import Environnement
