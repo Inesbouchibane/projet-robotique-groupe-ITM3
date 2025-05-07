@@ -26,8 +26,7 @@ for n, pts in [('Rectangle', LIST_PTS_OBS_RECTANGLE1), ('Triangle', LIST_PTS_OBS
 controleur = Controler(adaptateur)
 
 # Initialisation de l'interface 3D avec Panda3D
-affichage3d = Affichage3D(LARGEUR_ENV, LONGUEUR_ENV, [o.points for o in 
-envi.listeObs])
+affichage3d = Affichage3D(LARGEUR_ENV, LONGUEUR_ENV, [o.points for o in envi.listeObs])
 affichage3d.robot = robot_sim  # Lier le robot simulé
 affichage3d.adaptateur = adaptateur  # Lier l'adaptateur
 affichage3d.controleur = controleur  # Lier le contrôleur pour les 
