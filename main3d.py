@@ -27,8 +27,7 @@ controleur = Controler(adaptateur)
 affichage3d = Affichage3D(LARGEUR_ENV, LONGUEUR_ENV, [o.points for o in envi.listeObs])
 affichage3d.robot = robot_sim  # Lier le robot simulé
 affichage3d.adaptateur = adaptateur  # Lier l'adaptateur
-affichage3d.controleur = controleur  # Lier le contrôleur pour les 
-stratégies
+affichage3d.controleur = controleur  # Lier le contrôleur pour les stratégies
 affichage3d.envi = envi  # Lier l'environnement pour refreshEnvironnement
 
 # Configurer la gestion des touches
