@@ -138,6 +138,41 @@ class StrategieArretMur:
         self.adaptateur = adaptateur
         self.distance_arret = distance_arret
 
+    def start(self, adaptateur):
+        adaptateur.initialise()
+        vitesse_max = self.VIT_ANG_AVAN  
+        adaptateur.setVitAngA(vitesse_max)
+        self.logger.info(f"StrategieArretMur.start : vitesse={vitesse_max}, distance_arret={self.distance_arret}mm")
+
+    def step(self, adaptateur):
+        distance_obstacle = adaptateur.getDistanceA()
+        self.logger.debug(f"StrategieArretMur.step : distance_obstacle={distance_obstacle:.2f}mm")
+        # Vérifier si la distance est valide
+        if distance_obstacle is None or distance_obstacle < 0:
+            self.logger.warning("Distance à l'obstacle invalide, continue à avancer")
+            adaptateur.setVitAngA(self.VIT_ANG_AVAN)
+            return
+        # Continuer à avancer si pas à la distance cible
+        if not self.stop(adaptateur):
+            adaptateur.setVitAngA(self.VIT_ANG_AVAN)
+
+    def stop(self, adaptateur):
+        distance_obstacle = adaptateur.getDistanceA()
+        if adaptateur.estCrash():
+            adaptateur.setVitAngA(0)
+            self.logger.info("StrategieArretMur.stop : collision détectée, arrêt")
+            print("StrategieArretMur.stop : collision détectée, arrêt")
+            return True
+        if distance_obstacle is None or distance_obstacle < 0:
+            self.logger.warning("Distance à l'obstacle invalide, continue")
+            return False
+        if distance_obstacle <= self.distance_arret:
+            adaptateur.setVitAngA(0)
+            self.logger.info(f"StrategieArretMur.stop : distance_arret atteinte ({distance_obstacle:.2f}mm), arrêt")
+            print(f"StrategieArretMur.stop : distance_arret atteinte ({distance_obstacle:.2f}mm), arrêt")
+            return True
+        self.logger.debug("StrategieArretMur.stop : continue")
+        return False
 
 class StrategieSuivreBalise:
     def __init__(self, adaptateur):
