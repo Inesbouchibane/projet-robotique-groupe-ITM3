@@ -15,12 +15,12 @@ class Adaptateur(ABC):
         pass
 
     @abstractmethod
-    def setVitAngDA(self, dps):
+    def setVitAngD(self, dps):
         """Définit la vitesse angulaire de la roue droite (en degrés/s)"""
         self.logger.info("setVitAngD = %d", dps)
 
     @abstractmethod
-    def setVitAngGA(self, dps):
+    def setVitAngG(self, dps):
         """Définit la vitesse angulaire de la roue gauche (en degrés/s)"""
         self.logger.info("setVitAngG = %d", dps)
 
