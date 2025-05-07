@@ -1,14 +1,13 @@
 import math as m
-from src.utils import VIT_ANG_AVAN, VIT_ANG_TOUR, getDistanceFromPts
+from src.utils import VIT_ANG_AVAN, VIT_ANG_TOUR, getDistanceFromPts, contientBalise
 from logging import getLogger
 from time import time
-
 
 class StrategieAvancer:
     def __init__(self, distance):
         self.distance = distance
         self.parcouru = 0
-
+        
     def start(self, adaptateur):
         adaptateur.initialise()
         self.parcouru = 0
@@ -31,7 +30,6 @@ class StrategieAvancer:
         print("StrategieAvancer.stop : Continue...")
         return False
 
-
 class StrategieTourner:
     def __init__(self, angle):
         self.angle_cible = m.radians(angle)
@@ -51,7 +49,7 @@ class StrategieTourner:
         print(f"Angle parcouru: {m.degrees(self.angle_parcouru):.2f}/{m.degrees(self.angle_cible)} degrés")
 
     def stop(self, adaptateur):
-        if adaptateur.estCrash:
+        if adaptateur.estCrash():
             print("Collision détectée, arrêt.")
             adaptateur.arreter()
             return True
@@ -60,17 +58,16 @@ class StrategieTourner:
             adaptateur.arreter()
             return True
         return False
-
-
+    
 class StrategieSeq:
     def __init__(self, liste_strategies):
         self.liste_strategies = liste_strategies
         self.index = 0
-
+    
     def start(self, adaptateur):
         if self.index < len(self.liste_strategies):
             self.liste_strategies[self.index].start(adaptateur)
-
+    
     def step(self, adaptateur):
         if self.index < len(self.liste_strategies):
             print(f"Exécution de la stratégie {self.index + 1}/{len(self.liste_strategies)}")
@@ -86,7 +83,6 @@ class StrategieSeq:
     def stop(self, adaptateur):
         return self.index >= len(self.liste_strategies)
 
-
 class StrategieAuto:
     def __init__(self, vitAngG, vitAngD):
         self.vitAngG = vitAngG
@@ -99,19 +95,17 @@ class StrategieAuto:
 
     def step(self, adaptateur):
         if adaptateur.estCrash():
-            print("Obstacle ou mur détecté, arrêt du mode automatique.")
+            print("Collision détectée, arrêt du mode automatique.")
             adaptateur.arreter()
             return
         adaptateur.tourne(self.vitAngG, self.vitAngD)
-        print(f"Mode auto - vitAngG={self.vitAngG}, vitAngD={self.vitAngD}, "
-              f"Distance obstacle: {adaptateur.getDistanceObstacle():.2f}")
+        print(f"Mode auto - vitAngG={self.vitAngG}, vitAngD={self.vitAngD}")
 
     def stop(self, adaptateur):
         if adaptateur.estCrash():
             adaptateur.arreter()
             return True
         return False
-
 
 def setStrategieCarre(longueur_cote):
     return StrategieSeq([
@@ -124,10 +118,11 @@ def setStrategieCarre(longueur_cote):
         StrategieAvancer(longueur_cote),
         StrategieTourner(90)
     ])
+ 
 
 
 class StrategieArretMur:
-    VIT_ANG_AVAN = 20  # vit angulaire par defaut
+    VIT_ANG_AVAN = 20# Default angular speed in deg/s
 
     def __init__(self, adaptateur, distance_arret):
         """Stratégie pour avancer jusqu'à une distance donnée d'un mur
@@ -140,7 +135,7 @@ class StrategieArretMur:
 
     def start(self, adaptateur):
         adaptateur.initialise()
-        vitesse_max = self.VIT_ANG_AVAN  
+        vitesse_max = self.VIT_ANG_AVAN  # Use class constant
         adaptateur.setVitAngA(vitesse_max)
         self.logger.info(f"StrategieArretMur.start : vitesse={vitesse_max}, distance_arret={self.distance_arret}mm")
 
@@ -212,6 +207,7 @@ class StrategieSuivreBalise:
             else:
                 self.adaptateur.setVitAng(0)
                 self.cptfalse += 1
+
     def stop(self, adaptateur):
         """Retourne True si la balise n'est plus détectée après 100 tentatives ou si collision"""
         if adaptateur.estCrash():

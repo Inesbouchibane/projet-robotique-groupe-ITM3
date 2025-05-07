@@ -3,7 +3,7 @@ from src.robot.robot_simule import RobotSimule
 from src.environnement import Environnement
 from time import time
 import math
-import logging  # Ajout de l'importation
+import logging
 
 class AdaptateurSimule(Adaptateur):
     def __init__(self, robot: RobotSimule, environnement: Environnement):
@@ -11,7 +11,6 @@ class AdaptateurSimule(Adaptateur):
         self.environnement = environnement
         self.initialised = False
         self.last_refresh = time()
-        self.last_dist = float('inf')
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.debug("Initialisation du robot")
 
@@ -33,6 +32,12 @@ class AdaptateurSimule(Adaptateur):
     def setVitAngD(self, vit):
         self.robot.set_VitD(vit)
         self.logger.info("setVitAngD = %d", vit)
+
+    def setVitG(self, vit):
+        self.robot.set_VitG(vit)
+
+    def setVitD(self, vit):
+        self.robot.set_VitD(vit)
 
     def tourne(self, gauche, droite):
         """Tourne en définissant les vitesses gauche et droite"""
@@ -75,7 +80,7 @@ class AdaptateurSimule(Adaptateur):
                         return True
 
         return False
- 
+
     def getDistanceParcourue(self):
         return self.robot.getDistanceParcouru()
 
@@ -144,9 +149,6 @@ class AdaptateurSimule(Adaptateur):
 
     def getVitD(self):
         return self.robot.get_VitD()
-
-    def isCrashed(self):
-        return self.robot.estCrash or self.getDistanceObstacle() < 5
 
     def arreter(self):
         """Implémentation de la méthode arreter"""

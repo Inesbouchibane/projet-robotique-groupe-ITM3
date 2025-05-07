@@ -1,7 +1,6 @@
 import pygame
 from src import (
-    StrategieAvancer, StrategieAuto, setStrategieCarre, StrategieArretMur, 
-StrategieSuivreBalise
+    StrategieAvancer, StrategieAuto, setStrategieCarre, StrategieArretMur, StrategieSuivreBalise
 )
 from logging import getLogger
 
@@ -35,8 +34,7 @@ def gerer_touches(affichage3d):
     affichage3d.accept("arrow_right", affichage3d.changer_lateral_view, ["right"])
     affichage3d.accept("mouse1", affichage3d.createBalise, [None])
     logger.debug("Gestion des touches configurée dans menu3d")
-    
-    
+
 def lancer_strategie(affichage3d, strategie_type):
     """Lance une stratégie via le contrôleur ou gère la visibilité de la balise."""
     if affichage3d.controleur is None and strategie_type != "suivre_balise":
@@ -74,7 +72,6 @@ def lancer_strategie(affichage3d, strategie_type):
                 logger.info("Balise affichée")
                 affichage3d.controleur.set_strategie("suivre_balise", adaptateur=affichage3d.adaptateur)
                 affichage3d.controleur.lancerStrategie()
-                
             else:
                 # Cacher la balise
                 affichage3d.showBalise = False
