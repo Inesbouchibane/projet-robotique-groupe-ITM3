@@ -1,20 +1,21 @@
-# main3d.py
-
 from src.robot.robot_simule import RobotSimule
 from src.controleur.adapt_simule import AdaptateurSimule
 from src.controleur.controleur import Controler
+from src.controleur.strategies import StrategieClavier
 from src.environnement import Environnement
 from src.interface_graphique.interface3D.interface3d import Affichage3D
-from src.interface_graphique.interface3D.menu3d import gerer_evenements, afficher_instructions
 from src.utils import LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1, LIST_PTS_OBS_RECTANGLE1, LIST_PTS_OBS_TRIANGLE, LIST_PTS_OBS_CERCLE
 import logging
-import math
+from src.interface_graphique.interface3D.menu3d import gerer_touches, afficher_instructions
+from direct.task import Task
+from time import sleep
 
-logging.basicConfig(level=logging.DEBUG)  # Pour voir les logs
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Initialisation
 envi = Environnement(LARGEUR_ENV, LONGUEUR_ENV, SCALE_ENV_1)
-robot_sim = RobotSimule("r1", 500, 250, 25, 30, 50, 5, "lightblue")  # Orientation à 180° (dos visible)
+robot_sim = RobotSimule("r1", 500, 250, 25, 30, 50, 5, "lightblue")
 adaptateur = AdaptateurSimule(robot_sim, envi)
 envi.setRobot(adaptateur)
 
@@ -24,24 +25,33 @@ for n, pts in [('Rectangle', LIST_PTS_OBS_RECTANGLE1), ('Triangle', LIST_PTS_OBS
 
 # Initialisation du contrôleur
 controleur = Controler(adaptateur)
+# Set default strategy to StrategieClavier
+key_map = {'i': False, 'o': False, 'p': False, 'l': False}
+controleur.set_strategie("clavier", adaptateur=adaptateur, key_map=key_map)
+controleur.lancerStrategie()
+logger.debug("Contrôleur initialisé avec StrategieClavier par défaut")
 
-# Initialisation de l'interface 3D
+# Initialisation de l'interface 3D avec Panda3D
 affichage3d = Affichage3D(LARGEUR_ENV, LONGUEUR_ENV, [o.points for o in envi.listeObs])
+affichage3d.robot = robot_sim
+affichage3d.adaptateur = adaptateur
+affichage3d.controleur = controleur
+affichage3d.envi = envi
+logger.debug("Interface 3D initialisée")
 
-# Afficher les instructions
+# Configurer la gestion des touches
 afficher_instructions()
+gerer_touches(affichage3d)
 
-# Boucle principale
-running = True
-while running:
-    envi.refreshEnvironnement()  # Met à jour la position du robot et vérifie les collisions
-    action = gerer_evenements(controleur)  # Gestion des stratégies
-    if action == "quit":
-        running = False
-    
-    # Calcul de l'orientation en degrés à partir de direction (cos_a, sin_a)
-    orientation = math.degrees(math.atan2(robot_sim.direction[1], robot_sim.direction[0]))
-    print(f"Position robot : ({robot_sim.x:.2f}, {robot_sim.y:.2f}), Orientation : {orientation:.2f}°")  # Débogage
-    affichage3d.mettre_a_jour(robot_sim)  # Gère le rendu et la caméra
+# Task to update environment and robot
+def update_task(task):
+    envi.refreshEnvironnement()
+    affichage3d.mettre_a_jour(robot_sim)
+    logger.debug("update_task: environnement et robot mis à jour")
+    return Task.cont
 
-affichage3d.attendre_fermeture()
+affichage3d.taskMgr.add(update_task, "update_environment")
+
+# Lancer l'application Panda3D
+logger.debug("Lancement de l'application Panda3D")
+affichage3d.run()

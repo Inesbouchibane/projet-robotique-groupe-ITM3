@@ -4,7 +4,7 @@ from .controleur.adapt_reel import Adaptateur_reel
 from .controleur.adapt_simule import AdaptateurSimule
 from .controleur.strategies import (
     StrategieAvancer, StrategieTourner, StrategieSeq, StrategieAuto,
-    setStrategieCarre
+    setStrategieCarre, StrategieArretMur, StrategieSuivreBalise, StrategieClavier
 )
 from .environnement.environnement import Environnement
 from .environnement.obstacle import Obstacle
