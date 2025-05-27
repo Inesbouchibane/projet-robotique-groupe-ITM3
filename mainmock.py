@@ -1,8 +1,9 @@
+# mainmock.py
 from src.controleur.adapt_reel import Adaptateur_reel
 from src.robot.robot_mockup import MockupRobot
 from src.controleur.controleur import Controler
 import logging
-from menu_reel import afficher_menu, gerer_choix  # Importation correcte
+from menu_reel import afficher_menu, gerer_choix
 
 # Configuration des logs
 logging.basicConfig(level=logging.DEBUG)
@@ -19,10 +20,16 @@ def main():
     print("J’ai créé le contrôleur, je suis prêt à commencer")
     running = True
 
-    while running:
-        afficher_menu()
-        choix = input("Entrez votre choix (a, c, q) : ").strip().lower()
-        running = gerer_choix(controleur, choix, logger)
+    try:
+        while running:
+            afficher_menu()
+            choix = input("Entrez votre choix (a, c, m, b, q) : ").strip().lower()
+            running = gerer_choix(controleur, choix, logger)
+    except KeyboardInterrupt:
+        logger.info("Interruption par l'utilisateur")
+    finally:
+        adaptateur.cleanup()
+        logger.info("Ressources libérées")
 
     logger.info("J’ai fini la simulation.")
     print("J’ai terminé toutes mes tâches")

@@ -15,25 +15,24 @@ class Adaptateur(ABC):
         pass
 
     @abstractmethod
-    def setVitAngDA(self, dps):
+    def setVitAngD(self, dps):
         """Définit la vitesse angulaire de la roue droite (en degrés/s)"""
-        self.logger.info("setVitAngD = %d", dps)
+        pass
 
     @abstractmethod
-    def setVitAngGA(self, dps):
+    def setVitAngG(self, dps):
         """Définit la vitesse angulaire de la roue gauche (en degrés/s)"""
-        self.logger.info("setVitAngG = %d", dps)
+        pass
 
     @abstractmethod
     def setVitAngA(self, dps):
         """Définit la vitesse angulaire pour les deux roues (en degrés/s)"""
-        self.logger.info("setVitAng = %d", dps)
+        pass
 
     @abstractmethod
     def tourne(self, gauche, droite):
         """Tourne en définissant les vitesses gauche et droite"""
         pass
-
 
     @abstractmethod
     def getDistanceParcourue(self):
@@ -53,4 +52,14 @@ class Adaptateur(ABC):
     @abstractmethod
     def arreter(self):
         """Arrête immédiatement tous les mouvements du robot"""
+        pass
+
+    @abstractmethod
+    def adjust_position(self, target_distance):
+        """Corrige la position pour atteindre exactement la distance cible"""
+        pass
+
+    @abstractmethod
+    def adjust_angle(self, target_angle):
+        """Corrige l'angle pour atteindre exactement l'angle cible (en radians)"""
         pass

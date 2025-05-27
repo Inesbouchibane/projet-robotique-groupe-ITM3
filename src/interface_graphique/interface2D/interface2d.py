@@ -25,15 +25,11 @@ class Affichage:
     def mettre_a_jour(self, robot):
         self.ecran.fill(BLANC)
         current_position = (robot.x, robot.y)
-      
-       #Ajout de la cdt pr le crayon     
-        if robot.crayon and(self.last_position is None or getDistanceFromPts(current_position, self.last_position) > 1):
+        if self.last_position is None or getDistanceFromPts(current_position, self.last_position) > 1:
             self.trajet.append(current_position)
             self.last_position = current_position
- 	    #Ajout pr repondre a qst 1.4
- 	    couleur = ROUGE if robot.couleur_trace == "rouge" else BLEU       
-            if len(self.trajet) > 1: #Modifier couleur a bleu
-            pygame.draw.lines(self.ecran, couleur, False, self.trajet, 2)
+        if len(self.trajet) > 1:
+            pygame.draw.lines(self.ecran, NOIR, False, self.trajet, 2)
 
         for points in self.obstacles_points:
             pygame.draw.polygon(self.ecran, ROUGE, points)
