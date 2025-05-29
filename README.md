@@ -3,7 +3,7 @@
       <h1> <img src="https://d29zukiv45njce.cloudfront.net/images/poli.png" width="90px"><br/>Projet S4 Mono-Info 💻</h1>
 </div>
 
-[Rapport final](#) | [Diapos Canva](#) *(Liens à compléter avec vos documents)*
+[Rapport final](https://github.com/Inesbouchibane/projet-robotique-groupe-ITM3/blob/code-projet-reel/rapport%20final%20final-2.pdf) | [Diapos Canva](https://www.canva.com/design/DAGoomtzC5g/no0mUWsjIIFKdVEOD0xnwA/edit) 
 
 # Projet réalisé par
 #### [@Inesbouchibane](https://github.com/Inesbouchibane) | [@Takoua123](https://github.com/Takoua123) | [@meriem2130](https://github.com/meriem2130) | [@mouna2235677890](https://github.com/mouna2235677890) | [@bouzekrimohamed](https://github.com/bouzekrimohamed)
